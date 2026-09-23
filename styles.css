@@ -2416,3 +2416,14 @@ html[data-theme="dark"] .hc-s.tool { border-color: rgba(255,205,17,.3); }
 .mh-service .btn.outline { background: transparent; color: #F2F2EE; border-color: rgba(255,255,255,.22); }
 @media (hover: hover) and (pointer: fine) { .mh-service .btn.outline:hover { background: rgba(255,255,255,.08); } }
 html[data-theme="dark"] .mh-service { border-color: var(--line); }
+
+/* moving lock: the demo way out, impossible to miss */
+.dl-top { align-items: flex-start; }
+.dl-demo { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.dl-demo-tag { font: 700 11px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: #0B0B0B; background: #fff; padding: 4px 8px; border-radius: 6px; }
+.dl-top .dl-demo button { height: 48px; padding: 0 18px; border-radius: 12px; background: var(--y); color: #0B0B0B; font: 700 15px var(--f-ui); display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 8px 20px rgba(0,0,0,.35); transition: transform 120ms var(--ease-out); }
+.dl-top .dl-demo button svg { width: 20px; height: 20px; }
+.dl-top .dl-demo button:active { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) { .dl-top .dl-demo button:hover { background: #FFD83D; } }
+.dl-demo small { font-size: 12px; color: rgba(255,255,255,.7); }
+@media (max-width: 760px) { .dl-demo small { display: none; } .dl-top .dl-demo button { height: 42px; padding: 0 14px; font-size: 14px; } }

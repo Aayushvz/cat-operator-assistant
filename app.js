@@ -2075,7 +2075,7 @@
     if (on && !lock) {
       lock = document.createElement('div');
       lock.id = 'driveLock'; lock.className = 'drive-lock';
-      lock.innerHTML = `<div class="dl-top"><span><i data-lucide="lock"></i>Screen locked while the machine moves</span><button type="button" id="parkBtn">Park (demo)</button></div>
+      lock.innerHTML = `<div class="dl-top"><span><i data-lucide="lock"></i>Screen locked while the machine moves</span><div class="dl-demo"><span class="dl-demo-tag">Demo</span><button type="button" id="parkBtn"><i data-lucide="square-parking"></i>Park the machine</button><small>Tap to stop and unlock · or press Esc</small></div></div>
         <div class="dl-scene" aria-hidden="true">
           <svg class="dl-svg" viewBox="0 0 640 260">
             <defs>
@@ -2126,6 +2126,8 @@
       holdable($('#dlReport'), 1200, () => { logIncident(); });
       holdable($('#dlSos'), 1500, openSOS);
       $('#parkBtn').addEventListener('click', () => setMoving(false));
+      // demo: Esc parks too, so a presenter can always get out
+      if (!setMoving.esc) { setMoving.esc = true; addEventListener('keydown', (e) => { if (e.key === 'Escape' && S.moving && $('#driveLock')) setMoving(false); }); }
       requestAnimationFrame(() => lock.classList.add('on'));
     }
     if (on) {
