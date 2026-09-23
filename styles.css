@@ -1730,3 +1730,73 @@ button, a, [role="button"], .dd-btn, .dd-opt, summary { touch-action: manipulati
 /* "I'm safe" shares the .light class with the site-warning lamps; keep it a normal button */
 .sos-foot .btn.light { flex: none; aspect-ratio: auto; max-width: none; border-radius: 12px; background: #FFFFFF; box-shadow: none; }
 @media (max-width: 760px) { .sos-foot .btn.light { flex: 1; } }
+
+/* ============ Machine: part by part ============ */
+.pp { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; margin-top: 14px; }
+.pp-list { display: flex; flex-direction: column; gap: 4px; }
+.pp-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 12px; padding: 12px 14px; border-radius: 12px; text-align: left; min-height: 56px;
+  transition: background-color 150ms ease, transform 120ms var(--ease-out); }
+.pp-row:active { transform: scale(.98); }
+@media (hover: hover) and (pointer: fine) { .pp-row:not(.on):hover { background: var(--hover); } }
+.pp-row.on { background: var(--chip); box-shadow: inset 3px 0 0 var(--ink); }
+.pp-n { font: 600 14.5px/1.2 var(--f-ui); }
+.pp-hp { font: 700 20px/1 var(--f-display); }
+.pp-row.crit .pp-hp { color: var(--crit-ink); } .pp-row.warn .pp-hp { color: var(--warn-ink); }
+/* ten-segment bar, like a fuel gauge */
+.pp-bar { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
+.pp-bar i { height: 6px; border-radius: 1.5px; background: var(--chip); }
+.pp-row.on .pp-bar i:not(.f) { background: var(--line); }
+.pp-row.ok .pp-bar i.f { background: var(--ok); }
+.pp-row.warn .pp-bar i.f { background: var(--warn); }
+.pp-row.crit .pp-bar i.f { background: var(--crit); }
+
+.pp-detail { min-width: 0; }
+.pd-top { display: flex; align-items: center; gap: 22px; }
+.hg { width: 180px; flex: none; }
+.hg path { fill: none; stroke-width: 14; stroke-linecap: round; }
+.hg-track { stroke: var(--chip); }
+.hg-val { stroke-dashoffset: var(--c); animation: hgFill 800ms var(--ease-out) forwards; }
+.hg.ok .hg-val { stroke: var(--ok); } .hg.warn .hg-val { stroke: var(--warn); } .hg.crit .hg-val { stroke: var(--crit); }
+@keyframes hgFill { to { stroke-dashoffset: var(--off); } }
+.hg-tick { stroke: var(--t3); stroke-width: 1.5; }
+.hg-num { font: 700 40px var(--f-display); fill: var(--text); }
+.hg-of { font: 500 11.5px var(--f-ui); fill: var(--t2); }
+.pd-txt h4 { margin: 6px 0 0; font: 700 24px/1.05 var(--f-display); text-transform: uppercase; }
+.pd-txt p { margin: 5px 0 0; font-size: 14px; color: var(--t2); line-height: 1.4; }
+.pd-txt p.mh-do { color: var(--text); font-weight: 600; }
+.pd-st { font: 600 13px var(--f-ui); }
+.pd-st.crit { color: var(--crit-ink); } .pd-st.warn { color: var(--warn-ink); } .pd-st.ok { color: var(--ok-ink); }
+
+.pd-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+.rc { margin: 0; padding: 14px 14px 8px; border: 1px solid var(--line); border-radius: 14px; min-width: 0; }
+.rc figcaption { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 10px; }
+.rc figcaption span { font: 600 13.5px var(--f-ui); color: var(--t2); }
+.rc figcaption b { font: 700 26px/1 var(--f-display); grid-row: span 2; align-self: center; }
+.rc figcaption b small { font: 500 13px var(--f-ui); color: var(--t2); margin-left: 3px; }
+.rc figcaption em { font-style: normal; font-size: 12.5px; font-weight: 600; }
+.rc.ok figcaption em { color: var(--ok-ink); } .rc.warn figcaption em { color: var(--warn-ink); } .rc.crit figcaption em { color: var(--crit-ink); }
+.rc.crit figcaption b { color: var(--crit-ink); } .rc.warn figcaption b { color: var(--warn-ink); }
+.rc svg { width: 100%; height: auto; display: block; margin-top: 6px; overflow: visible; }
+.rc-band { fill: var(--ok); opacity: .12; }
+.rc-lim { stroke: var(--crit); stroke-width: 1.25; stroke-dasharray: 5 4; }
+.rc-limt { font: 600 10.5px var(--f-ui); fill: var(--crit-ink); }
+.rc-ax { font: 500 10.5px var(--f-ui); fill: var(--t3); }
+.rc-line { fill: none; stroke: var(--text); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: rcDraw 700ms var(--ease-out) forwards; }
+@keyframes rcDraw { to { stroke-dashoffset: 0; } }
+.rc-pt { fill: var(--surface); stroke: var(--text); stroke-width: 1.5; }
+.rc-now { stroke: var(--surface); stroke-width: 2.5; }
+.rc.ok .rc-now { fill: var(--ok); } .rc.warn .rc-now { fill: var(--warn); } .rc.crit .rc-now { fill: var(--crit); }
+.pd-key { display: flex; gap: 18px; align-items: center; margin-top: 10px; font-size: 12px; color: var(--t2); }
+.pd-key span { display: inline-flex; align-items: center; gap: 7px; }
+.pd-key .kb { width: 16px; height: 10px; border-radius: 2px; background: var(--ok); opacity: .25; }
+.pd-key .kl { width: 18px; border-top: 1.5px dashed var(--crit); }
+.pd-sample { margin-left: auto; color: var(--t3); }
+@media (prefers-reduced-motion: reduce) { .hg-val { stroke-dashoffset: var(--off); animation: none; } .rc-line { stroke-dashoffset: 0; animation: none; } }
+@media (max-width: 1100px) { .pp { grid-template-columns: 1fr; } .pp-list { display: grid; grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 760px) {
+  .pp-list { grid-template-columns: 1fr 1fr; }
+  .pd-top { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .hg { width: 150px; }
+  .pd-charts { grid-template-columns: 1fr; }
+  .pd-key { flex-wrap: wrap; gap: 8px 16px; }
+}

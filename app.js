@@ -9,6 +9,7 @@
 
   const S = {
     route: 'home',
+    mhPart: 0,   // Machine tab: which part's readings are open
     // first-visit default: bucket card open on the machine
     hotspot: 'bucket',
     overviewOpen: true,
@@ -1325,6 +1326,78 @@
     { ic: 'thermometer', n: 'Cooling', st: 'ok', l: 'OK', wear: 12, what: 'Running normally.', todo: 'Clean the radiator in rainy season.' },
     { ic: 'armchair', n: 'Cab and seatbelt', st: 'ok', l: 'OK', wear: 8, what: 'Belt switch working.', todo: 'Nothing needed.' },
   ];
+  // Part by part: health score and two readings per part over the last 10 shifts (sample values).
+  // lo..hi is the normal range, lim the limit; bad says which way is bad ('up' or 'down').
+  const PART_HEALTH = [
+    { k: 'hydraulics', hp: 38, reads: [
+      { n: 'Boom pressure', u: 'bar', v: [338, 336, 335, 331, 324, 316, 301, 289, 274, 262], lo: 310, hi: 350, lim: 280, bad: 'down' },
+      { n: 'Oil temperature', u: '°C', v: [61, 62, 60, 63, 64, 66, 69, 72, 75, 78], lo: 50, hi: 70, lim: 85, bad: 'up' } ] },
+    { k: 'undercarriage', hp: 52, reads: [
+      { n: 'Track wear', u: '%', v: [55, 56, 57, 58, 59, 60, 61, 62, 63, 64], lo: 0, hi: 60, lim: 80, bad: 'up' },
+      { n: 'Left track sag', u: 'mm', v: [34, 35, 36, 38, 39, 42, 44, 47, 50, 52], lo: 20, hi: 40, lim: 60, bad: 'up' } ] },
+    { k: 'bucket', hp: 82, reads: [
+      { n: 'Teeth wear', u: '%', v: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18], lo: 0, hi: 40, lim: 60, bad: 'up' },
+      { n: 'Time per load', u: 'sec', v: [22, 21, 23, 21, 20, 22, 21, 22, 21, 21], lo: 18, hi: 25, lim: 30, bad: 'up' } ] },
+    { k: 'engine', hp: 91, reads: [
+      { n: 'Oil pressure', u: 'bar', v: [4.1, 4.2, 4.1, 4.0, 4.2, 4.1, 4.1, 4.0, 4.1, 4.1], lo: 3.5, hi: 4.8, lim: 2.5, bad: 'down' },
+      { n: 'Engine load', u: '%', v: [62, 58, 66, 60, 55, 63, 61, 57, 64, 59], lo: 40, hi: 80, lim: 95, bad: 'up' } ] },
+    { k: 'engine', hp: 88, reads: [
+      { n: 'Coolant temperature', u: '°C', v: [86, 87, 88, 86, 89, 90, 88, 89, 91, 90], lo: 80, hi: 95, lim: 105, bad: 'up' },
+      { n: 'Fan speed', u: '%', v: [48, 50, 52, 49, 55, 57, 54, 56, 60, 58], lo: 30, hi: 70, lim: 90, bad: 'up' } ] },
+    { k: 'cab', hp: 96, reads: [
+      { n: 'Belt on while working', u: '%', v: [100, 100, 96, 100, 100, 92, 100, 100, 88, 100], lo: 95, hi: 100, lim: 80, bad: 'down' },
+      { n: 'Cab temperature', u: '°C', v: [26, 27, 25, 28, 27, 26, 29, 28, 27, 26], lo: 20, hi: 30, lim: 35, bad: 'up' } ] },
+  ];
+  const stOf = (r) => { const x = r.v[r.v.length - 1]; if (r.bad === 'up' ? x >= r.lim : x <= r.lim) return 'crit'; return x < r.lo || x > r.hi ? 'warn' : 'ok'; };
+  const STW = { ok: 'Normal', warn: 'Outside normal', crit: 'Past the limit' };
+
+  // a semicircle gauge, like the needle dials in the cab
+  function healthGauge(hp, st) {
+    const R = 70, C = Math.PI * R, off = C * (1 - hp / 100);
+    const ticks = [0, 25, 50, 75, 100].map((t) => {
+      const a = Math.PI * (1 - t / 100);
+      return `<line class="hg-tick" x1="${(90 + 58 * Math.cos(a)).toFixed(1)}" y1="${(94 - 58 * Math.sin(a)).toFixed(1)}" x2="${(90 + 52 * Math.cos(a)).toFixed(1)}" y2="${(94 - 52 * Math.sin(a)).toFixed(1)}"/>`;
+    }).join('');
+    return `<svg class="hg ${st}" viewBox="0 0 180 104" role="img" aria-label="Health ${hp} out of 100">
+      <path class="hg-track" d="M20 94 A70 70 0 0 1 160 94"/>
+      <path class="hg-val" d="M20 94 A70 70 0 0 1 160 94" stroke-dasharray="${C.toFixed(1)}" style="--c:${C.toFixed(1)};--off:${off.toFixed(1)}"/>
+      ${ticks}
+      <text class="hg-num" x="90" y="84" text-anchor="middle">${hp}</text>
+      <text class="hg-of" x="90" y="101" text-anchor="middle">health</text></svg>`;
+  }
+
+  // reading over the last 10 shifts, with the normal range shaded and the limit dashed
+  function readingChart(r) {
+    const W = 320, H = 132, pl = 34, pr = 12, pt = 14, pb = 22;
+    const all = r.v.concat([r.lo, r.hi, r.lim]);
+    let a = Math.min(...all), b = Math.max(...all);
+    const pad = (b - a) * 0.1 || 1; a -= pad; b += pad;
+    const X = (i) => pl + (i / (r.v.length - 1)) * (W - pl - pr), Y = (v) => pt + (1 - (v - a) / (b - a)) * (H - pt - pb);
+    const st = stOf(r), last = r.v[r.v.length - 1], dp = last % 1 ? 1 : 0;
+    const pts = r.v.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+    return `<figure class="rc ${st}">
+      <figcaption><span>${r.n}</span><b class="num">${last.toFixed(dp)}<small>${r.u}</small></b><em>${STW[st]}</em></figcaption>
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${r.n}, last 10 shifts, now ${last} ${r.u}">
+        <rect class="rc-band" x="${pl}" y="${Y(r.hi).toFixed(1)}" width="${W - pl - pr}" height="${Math.max(1, Y(r.lo) - Y(r.hi)).toFixed(1)}"/>
+        <text class="rc-ax" x="${pl - 6}" y="${(Y(r.hi) + 4).toFixed(1)}" text-anchor="end">${r.hi}</text>
+        <text class="rc-ax" x="${pl - 6}" y="${(Y(r.lo) + 4).toFixed(1)}" text-anchor="end">${r.lo}</text>
+        <line class="rc-lim" x1="${pl}" x2="${W - pr}" y1="${Y(r.lim).toFixed(1)}" y2="${Y(r.lim).toFixed(1)}"/>
+        <text class="rc-limt" x="${pl + 4}" y="${(Y(r.lim) + (r.bad === 'up' ? -5 : 12)).toFixed(1)}">Limit ${r.lim}</text>
+        <polyline class="rc-line" points="${pts}" pathLength="1"/>
+        ${r.v.map((v, i) => `<circle class="${i === r.v.length - 1 ? 'rc-now' : 'rc-pt'}" cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="${i === r.v.length - 1 ? 5 : 2.5}"/>`).join('')}
+        <text class="rc-ax" x="${pl}" y="${H - 4}">10 shifts ago</text><text class="rc-ax" x="${W - pr}" y="${H - 4}" text-anchor="end">Today</text>
+      </svg></figure>`;
+  }
+
+  function partDetail(i) {
+    const p = PARTS[i], h = PART_HEALTH[i];
+    return `<div class="pd-top">
+        ${healthGauge(h.hp, p.st)}
+        <div class="pd-txt"><span class="pd-st ${p.st}">${p.l}</span><h4>${p.n}</h4><p>${p.what}</p><p class="mh-do">${p.todo}</p></div>
+      </div>
+      <div class="pd-charts">${h.reads.map(readingChart).join('')}</div>
+      <div class="pd-key"><span><i class="kb"></i>Normal range</span><span><i class="kl"></i>Limit</span><span class="pd-sample">Sample readings</span></div>`;
+  }
   function renderMachine() {
     const eng = 1530.2, next = 1600.2, since = 1350.2;
     const fix = PARTS.filter((p) => p.st === 'crit'), check = PARTS.filter((p) => p.st === 'warn'), fine = PARTS.filter((p) => p.st === 'ok');
@@ -1352,7 +1425,19 @@
             <p class="mh-fine">${fine.map((p) => p.n).join(' · ')}</p>
           </section>
         </div>
-        <div class="card pcard c12 rise mh-service" style="--i:2">
+        <div class="card pcard c12 rise mh-parts" style="--i:2">
+          <h3>Part by part</h3>
+          <div class="pp">
+            <div class="pp-list" role="tablist" aria-label="Parts">
+              ${PARTS.map((p, i) => `<button class="pp-row ${p.st}${i === S.mhPart ? ' on' : ''}" role="tab" aria-selected="${i === S.mhPart}" data-part="${i}" type="button">
+                <span class="pp-n">${p.n}</span><span class="pp-hp num">${PART_HEALTH[i].hp}</span>
+                <span class="pp-bar" aria-hidden="true">${Array.from({ length: 10 }, (_, j) => `<i class="${j < Math.round(PART_HEALTH[i].hp / 10) ? 'f' : ''}"></i>`).join('')}</span>
+              </button>`).join('')}
+            </div>
+            <div class="pp-detail" id="ppDetail" role="tabpanel">${partDetail(S.mhPart)}</div>
+          </div>
+        </div>
+        <div class="card pcard c12 rise mh-service" style="--i:3">
           <div class="mh-svc-num"><span class="eyebrow">Next service</span><b>In <span data-count="${Math.round(next - eng)}">0</span> hours</b><small>At ${fmt(next, 0)} engine hours · now ${fmt(eng, 1)}</small></div>
           <div class="mh-svc-bar"><div><i class="growx" style="width:${pct(eng, since, next)}%"></i></div><span><span>Last service</span><span>Next service</span></span></div>
           <button class="btn outline" type="button" data-go="home"><i data-lucide="house"></i>Back to Home</button>
@@ -1361,9 +1446,18 @@
     // the same 3D excavator as Home, framed to fit this card, faults in red and checks in amber
     if (Machine3D.mount($('#mh3d'), $('#mhCanvas'), { fit: true })) {
       Machine3D.onFrame(() => {});
-      Machine3D.setSelected(null);
+      Machine3D.setSelected(PART_HEALTH[S.mhPart].k);
       Machine3D.start();
     }
+    // pick a part: its readings show, and it glows green on the model
+    $('.pp-list').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-part]');
+      if (!b) return;
+      S.mhPart = +b.dataset.part;
+      $$('.pp-row').forEach((r) => { const on = r === b; r.classList.toggle('on', on); r.setAttribute('aria-selected', on); });
+      $('#ppDetail').innerHTML = partDetail(S.mhPart);
+      Machine3D.setSelected(PART_HEALTH[S.mhPart].k);
+    });
   }
 
   /* ---------- LEARN: CONTROLS (SRS 3.5: tappable cab layout, each control linked to a video) ---------- */
@@ -1838,6 +1932,8 @@
   function updateSync(syncing) {
     const c = $('#syncChip');
     if (!c) return;
+    // only shown when something needs attention: no signal, or reports being sent
+    c.hidden = !S.offline && !syncing;
     c.className = `tb-chip sync ${S.offline ? 'off' : syncing ? 'busy' : ''}`;
     c.innerHTML = S.offline ? `<i data-lucide="cloud-off"></i>No signal · ${S.pending} waiting` : syncing ? `<i data-lucide="refresh-cw"></i>Sending ${syncing}…` : '<i data-lucide="cloud-check"></i>Saved';
     c.dataset.tip = S.offline ? 'Reports are saved on this tablet and send when signal is back.' : 'Everything is saved and sent.';
