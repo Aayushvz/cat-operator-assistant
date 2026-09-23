@@ -4,6 +4,8 @@ A smart operator assistant for Cat® machinery, built for the "Smart Operator As
 
 The interface is organised like an F1 race engineer: the shift is a race, each task is a stint, idle time is a pit stop, safety alerts are flags, and the seatbelt check is the start lights.
 
+**Live demo:** https://aayushvz.github.io/cat-operator-assistant/
+
 ## Run it locally
 
 No build step and no dependencies to install. You need Python 3.
