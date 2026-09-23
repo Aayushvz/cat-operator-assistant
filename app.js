@@ -1358,12 +1358,12 @@
   function renderControls() {
     const c = CONTROLS.find((x) => x.id === S.ctrl) || CONTROLS[1];
     const v = D.videos.find((x) => x.id === c.vid);
-    main.innerHTML = `<div class="page">
-      ${head('training', 'Tap any control in the cab to see what it does and how to use it safely. Each one has a short Cat video.')}
+    main.innerHTML = `<div class="page fit">
+      ${head('training', 'Tap a control to see what it does. Each one has a short Cat video.')}
       <div class="grid">
         <div class="card pcard c7 rise">
-          <h3>Your cab, from above</h3><div class="sub">Tap a numbered control.</div>
-          <div class="cab-map">
+          <h3>Your cab, from above</h3>
+          <div class="cab-stage" id="cabStage"><div class="cab-map" id="cabMap">
             <svg viewBox="0 0 600 420" aria-hidden="true" class="cab-svg">
               <defs>
                 <linearGradient id="cgFrame" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E2E2C"/><stop offset="1" stop-color="#171716"/></linearGradient>
@@ -1433,8 +1433,7 @@
               <rect x="288" y="288" width="24" height="18" rx="4" fill="#C9CCCF" stroke="#8C9094" stroke-width="1.5"/>
             </svg>
             ${CONTROLS.map((x, i) => `<button class="cm-pin${x.id === c.id ? ' on' : ''}" type="button" data-ctrl="${x.id}" style="left:${x.x}%;top:${x.y}%" aria-label="${x.n}"><span>${i + 1}</span></button>`).join('')}
-          </div>
-          <div class="cm-list">${CONTROLS.map((x, i) => `<button class="opt${x.id === c.id ? ' active' : ''}" type="button" data-ctrl="${x.id}">${i + 1}. ${x.n}</button>`).join('')}</div>
+          </div></div>
         </div>
         <div class="card pcard c5 rise ctrl-card" style="--i:1">
           <span class="eyebrow">Control ${CONTROLS.indexOf(c) + 1} of ${CONTROLS.length}</span>
@@ -1447,11 +1446,21 @@
           </button>
         </div>
       </div></div>`;
+    fitCab();
     main.querySelector('.page').addEventListener('click', (e) => {
       const b = e.target.closest('[data-ctrl]');
       if (b) { S.ctrl = b.dataset.ctrl; renderControls(); icons(); }
     });
   }
+
+  // the cab drawing takes whatever space is left, keeping its shape, so the page never needs to scroll
+  function fitCab() {
+    const st = $('#cabStage'), m = $('#cabMap');
+    if (!st || !m) return;
+    const w = Math.min(st.clientWidth, st.clientHeight * (600 / 420));
+    m.style.width = `${Math.max(240, w)}px`;
+  }
+  addEventListener('resize', fitCab);
 
   /* ---------- LEARN: HABITS (SRS 3.6: patterns against the operator's own baseline, not instant alerts) ---------- */
   function habitsPatterns() {
