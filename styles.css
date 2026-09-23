@@ -1999,3 +1999,10 @@ html[data-theme="dark"] .switch[aria-checked="true"]::after { background: #12121
 html[data-theme="dark"] .replay .seg.idle em { color: #FFE2A0; }
 /* hotspots: off-white, so they don't glare on the dark bay */
 html[data-theme="dark"] .hs-ring { background: #E2E2DC; }
+
+/* page subtitles: one line */
+.page-head p { max-width: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.page-head > div { min-width: 0; }
+/* emergency SOS card follows the theme: faint red wash into the card colour */
+.sos-card-inline { background: linear-gradient(90deg, var(--crit-bg), var(--surface) 60%); border-color: var(--crit-bg); }
+html[data-theme="dark"] .sos-card-inline { border-color: rgba(214,29,29,.3); }

@@ -938,7 +938,7 @@
         <text x="140" y="${140 - 116}" text-anchor="middle" style="font:500 10px Roboto Condensed;fill:var(--mango-ink)">${rule('slow')} m slow</text>
       </svg></div>`;
     main.innerHTML = `<div class="page">
-      ${head('safety', 'Warnings show as a colour around the screen, so you see them without reading.')}
+      ${head('safety', 'Warnings show as a colour around the screen.')}
       <div class="grid">
         <div class="card pcard c5 rise flag-tile">
           <div><h3>Site warning</h3><div class="sub">Tap one to see how it looks in the cab.</div></div>
@@ -1042,7 +1042,7 @@
   function renderTraining() {
     const slots = [['Thu', '09:30'], ['Thu', '13:00'], ['Fri', '08:00'], ['Fri', '12:30'], ['Sat', '10:00'], ['Sat', '14:00']];
     main.innerHTML = `<div class="page">
-      ${head('videos', 'Videos picked from how you worked this week. They only play when the machine is stopped.')}
+      ${head('videos', 'Picked from how you worked this week.')}
       <div class="grid">
         <div class="licence c4 rise">
           <div class="eyebrow" style="color:rgba(255,255,255,.6)">Your level</div>
@@ -1160,7 +1160,7 @@
     </svg>`;
 
     main.innerHTML = `<div class="page">
-      ${head('insights', 'Where fuel and time went, and what to do about it.')}
+      ${head('insights', 'Where your fuel and time went.')}
       <div class="grid">
         ${habitsPatterns()}
         <div class="card pcard c3 rise kpi"><span class="eyebrow">Most time waiting</span><b><span data-count="${Math.round(intervals[0].share * 100)}">0</span>%</b><span class="delta"><span class="st crit">High</span>08:00 to 10:00 on 01 May</span></div>
@@ -1221,7 +1221,7 @@
     </svg>`;
 
     main.innerHTML = `<div class="page">
-      ${head('estimator', 'How long will a job take? Pick the job and today\'s conditions.')}
+      ${head('estimator', 'Pick a job and today\'s conditions.')}
       <div class="grid">
         <div class="card pcard c5 rise">
           <h3>The job</h3><div class="sub">Change anything and the time updates.</div>
@@ -1303,7 +1303,7 @@
         <div><span>Sent</span><b class="${x.synced === false ? 'wait' : ''}">${x.synced === false ? 'On tablet, waiting for signal' : 'Yes'}</b></div>
       </div>` : '<div class="snap-none">Recorded before machine snapshots were added.</div>';
     main.innerHTML = `<div class="page">
-      ${head('incidents', 'Every report is saved on this tablet first, then sent when there is signal. Tap a report to see what the machine was doing.')}
+      ${head('incidents', 'Saved on the tablet first, sent when there is signal.')}
       <div class="grid">
         <div class="card pcard c8 rise">
           <div class="plan-head"><div><h3>All reports</h3><div class="sub">${S.incidents.length} reports · ${S.pending ? `<b class="late-txt">${S.pending} waiting to send</b>` : 'all sent'}</div></div></div>
@@ -1512,7 +1512,7 @@
     const v = D.videos.find((x) => x.id === c.vid);
     const vids = [v, ...D.videos.filter((x) => x.id !== v.id)];
     main.innerHTML = `<div class="page fit">
-      ${head('training', 'Tap a control to see what it does. Each one has a short Cat video.')}
+      ${head('training', 'Tap a control. Each one has a short Cat video.')}
       <div class="grid">
         <div class="card pcard c7 rise">
           <h3>Your cab, from above</h3>
