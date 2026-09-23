@@ -65,6 +65,7 @@ body {
   font-feature-settings: "tnum" 1;
   padding: 12px;
   overflow: hidden;
+  zoom: 0.9;
 }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 5px var(--y); border-radius: 10px; }
