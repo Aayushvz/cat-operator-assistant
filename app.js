@@ -1860,8 +1860,8 @@
   // Who can drive EXC001. Level sets the job time estimates. PIN for the demo = the last 4 digits of the ID.
   const OPERATORS = [
     { id: 'OP1001', name: 'Aayush Raj', level: 'Intermediate', licence: 'F2 Licence', photo: 'assets/operator.jpg' },
-    { id: 'OP1002', name: 'Meera Nair', level: 'Expert', licence: 'F1 Licence' },
-    { id: 'OP1003', name: 'Sunil Yadav', level: 'Beginner', licence: 'F3 Licence' },
+    { id: 'OP1002', name: 'Sarah George', level: 'Expert', licence: 'F1 Licence' },
+    { id: 'OP1003', name: 'Maneesh Ari', level: 'Beginner', licence: 'F3 Licence' },
   ];
   const initials = (n) => n.split(' ').map((w) => w[0]).join('');
   const avatar = (op, cls = '') => op.photo ? `<img class="${cls}" src="${op.photo}" alt="" />` : `<span class="${cls} ini" aria-hidden="true">${initials(op.name)}</span>`;

@@ -119,8 +119,8 @@ window.DATA = (() => {
     days: ['25 Apr', '28 Apr', '29 Apr', '30 Apr', '01 May'],
     operators: [
       { id: 'OP1001', name: 'Aayush Raj', machine: 'EXC001', type: '320 excavator', idle: [24, 26, 27, 31, 39], fuel: 0.72 },
-      { id: 'OP1002', name: 'Meera Nair', machine: 'EXC007', type: '336 excavator', idle: [18, 17, 19, 18, 17], fuel: 0.58 },
-      { id: 'OP1003', name: 'Sunil Yadav', machine: 'WL014', type: '950 wheel loader', idle: [29, 27, 30, 28, 26], fuel: 0.44 },
+      { id: 'OP1002', name: 'Sarah George', machine: 'EXC007', type: '336 excavator', idle: [18, 17, 19, 18, 17], fuel: 0.58 },
+      { id: 'OP1003', name: 'Maneesh Ari', machine: 'WL014', type: '950 wheel loader', idle: [29, 27, 30, 28, 26], fuel: 0.44 },
     ],
     incidents: [1, 0, 2, 1, 4],
     queue: [
