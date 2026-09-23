@@ -18,17 +18,18 @@ Then open http://localhost:4173.
 ## Features
 
 ### Start of shift (SRS 3.1, 3.4)
-- **1. Who is driving**: pick an operator; each shows their level (Beginner, Intermediate, Expert), which sets the job time estimates. Fleet managers open the fleet view from the same screen.
+- **1. Who is driving**: pick an operator (Aayush Raj, Sarah George or Maneesh Ari); each shows their level (Beginner, Intermediate, Expert), which sets the job time estimates. Fleet managers open the fleet view from a quieter section at the bottom of the same screen.
 - **2. PIN**: PIN pad with large keys for gloved hands, or "Scan ID badge".
 - **3. Belt on, start**: the engine stays locked until the seatbelt is on. A blocked start is logged as a report. Walk-around checks are offered before starting. With the backend running, the belt comes from the machine.
 - Then the main screen opens. Every report is tied to the operator and machine. Sign out from the profile.
+- Behind the sign-in card sits a faint black-and-white photo of Cat excavators; operator cards and the fleet button turn Cat yellow under the pointer.
 
 ### Home: the machine (SRS 3.2)
 - Realistic 3D model of excavator EXC001 with Cat branding. Opens in a fixed pose and turns slowly; drag to rotate.
 - Parts coloured by condition: **boom and hydraulics red** (fault: boom cylinder leaking), **tracks amber** (check soon).
 - Six clickable component points. The open part glows **green** on the model and its details show in a card.
 - **Your pace**: time ahead of or behind your personal best on the same kind of job.
-- **Seatbelt**: live status with a real dashboard warning light; flashes red and says "Stop. Put your belt on." if the machine moves unbuckled.
+- **Seatbelt**: live status with a real dashboard warning light; flashes red and says "Stop. Put your belt on." if the machine moves unbuckled. At the live moment it follows the real belt (Safety demo or the machine), and so do the shift sentence, the cab hotspot and report snapshots.
 - **Today's shift**: replay of the day with labelled blocks (working, waiting, lunch), alert markers, and a plain sentence of what you were doing.
 - **While you wait**: after 3 minutes of idling, a short Cat video is offered, picked from your data.
 
@@ -45,18 +46,19 @@ Then open http://localhost:4173.
 
 ### Safety and reports (SRS 3.4)
 - **Site warnings**: All clear, Slow down, Stop now, Give way, shown as a colour around the screen edge.
-- **Who is near you**: radar with stop and slow zones; each zone crossing is logged and becomes a report.
+- **Who is near you**: radar with stop and slow zones around a top-down drawing of the excavator (tracks, cab, boom, bucket, Cat logo); each zone crossing is logged and becomes a report.
 - **Site conditions** tighten the rules: in rain the stop zone grows from 6 to 7.5 m, the slow zone from 10 to 12.5 m, and the engine switches off after 4 minutes of waiting instead of 5.
 - **Emergency SOS**: hold 1.5 seconds; stops the machine, calls the supervisor and medic, shares location, saves the data.
 - **Reports**: hold, then two taps (what happened, how bad). Every report carries a snapshot of the machine (operator, engine hours, belt, state, fuel, place).
 
 ### Learn (SRS 3.5, 3.6)
-- **Controls**: a realistic top-down drawing of the cab with 10 numbered controls, including the emergency stop and horn. Each shows what it does, how to be careful, and a Cat video.
+- **Controls**: a realistic top-down drawing of the cab, with Cat branding on the floor mat, seat and monitor, and 10 numbered controls including the emergency stop and horn. Each shows what it does and how to be careful. Beside it, every Cat video is listed: the one for the chosen control first, each marked with the numbered controls it covers (tap a number to jump to it, point at a video to light its controls on the cab).
 - **Videos**: real videos from the official Cat® Products YouTube channel, played in the app. Marking one watched raises the operator's level.
 - **Your habits**: the last 5 shifts compared with the operator's own usual, rated Normal / Worth a look / Concerning. Kept separate from safety alerts, which fire instantly.
 
 ### Machine (SRS 3.2)
 - The 3D machine coloured by condition, then **Fix now**, **Check soon** and **Fine**, and the next service in hours.
+- **Part by part**: every part with a health score out of 100 and a 10-segment bar. Pick one to see a health dial and two readings over the last 10 shifts, each with its normal range shaded and its limit dashed (for example boom pressure falling past its limit, oil running hotter). The picked part glows green on the model.
 
 ### Fleet view for managers (SRS 3.8)
 - Filters by operator and machine, a review list of habit flags (Talk to operator / Dismiss), waiting-time trends, reports per day, fuel per load, plan accuracy and a full log.
@@ -66,12 +68,14 @@ Then open http://localhost:4173.
 
 ### Everywhere
 - Five-item menu, collapsible side panels, and a right panel with live job, health and alerts.
-- Day and night mode, English and हिंदी, custom dropdowns, and large controls sized for gloves.
+- Day and night mode. Night mode is built from layered blacks, each surface one shade up, with raised-grey buttons and selected tabs instead of white ones.
+- Works on phones: the side panels become drawers, the top bar keeps only what a phone needs, Home stacks the cards under the machine, tables scroll inside their card, and notch, tap and zoom behaviour is handled.
+- English and हिंदी, custom dropdowns, one-line page subtitles, and large controls sized for gloves.
 - Operator profile with licence, certifications, video progress and settings.
 
 ## Data
 
-All numbers come from the two datasets in the problem statement (4 telemetry snapshots for EXC001 and 5 completed tasks), in `data.js`. Values the brief lets us assume are marked as sample data in the code: sensor readings such as hydraulic temperature and track wear, personal-best times, the boom fault, earlier shift history, proximity events, one extra job (Backfill trench), and the other operators and machines in the fleet view.
+All numbers come from the two datasets in the problem statement (4 telemetry snapshots for EXC001 and 5 completed tasks), in `data.js`. Values the brief lets us assume are marked as sample data in the code: sensor readings such as hydraulic temperature and track wear, the part-by-part readings over the last 10 shifts, today's site forecast, personal-best times, the boom fault, earlier shift history, proximity events, one extra job (Backfill trench), and the other operators (Sarah George, Maneesh Ari) and machines in the fleet view.
 
 ## Not built (prototype limits)
 
@@ -91,6 +95,7 @@ Plain HTML, CSS and JavaScript. The excavator is built procedurally in [Three.js
 | `machine3d.js` | 3D excavator, camera, part highlighting |
 | `data.js` | Datasets, estimation model, schedule, videos, fleet sample data |
 | `serve.py` | Local dev server |
+| `assets/` | Cat logos, operator photo, sign-in backdrop photo |
 
 ## Notes
 

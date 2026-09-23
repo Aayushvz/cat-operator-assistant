@@ -27,21 +27,31 @@ Hackathon prototype for "Smart Operator Assistant for CAT machinery". A cab tabl
 ## Features and where they live
 
 - **Start of shift** (`showLogin(step)`): who is driving (OPERATORS with level, `applyOperator`) -> PIN or badge -> belt gate and Start engine (blocked start logged). sessionStorage `cat-session` = pending/operator/manager, `cat-op`.
-- **Home** (`renderHome`): 3D machine, boom and hydraulics red (fault: boom cylinder leaking), tracks amber (check soon), selected part glows green; six hotspots and an overview card; "Your pace" and "Seatbelt" cab instruments; "Today's shift" replay; "While you wait" video after 3 minutes idle. Do not redesign Home unless asked.
+- **Home** (`renderHome`): on phones (`PHONE` media query) the cards move into `.home-below` under the machine. 3D machine, boom and hydraulics red (fault: boom cylinder leaking), tracks amber (check soon), selected part glows green; six hotspots and an overview card; "Your pace" and "Seatbelt" cab instruments; "Today's shift" replay; "While you wait" video after 3 minutes idle. Do not redesign Home unless asked.
 - **My tasks** (`renderTasks`, `planDay`, weather-aware via `FORECAST`, `AVOID`, `expectIn`): Now / Next / Shift left tiles, job list, mark done, dynamic rescheduling (10 min gap, shift ends 18:00, jobs that no longer fit go to tomorrow, shorter jobs move up), Add job saved in localStorage.
 - **Job time** (`renderEstimator`): planned × level × weather × machine age. Plan error 13.2%, model 2.4% on the five dataset jobs (fitted on those same jobs: say so).
 - **Moving lock** (`setMoving`): demo switch standing in for travel and joystick telemetry.
-- **Safety** (`renderSafety`): site warning flags, proximity radar with logged events, rain tightens the rules, SOS.
+- **Safety** (`renderSafety`): site warning flags, proximity radar (top-down excavator drawing with Cat logo) with logged events, rain tightens the rules, SOS card (beacon rings kept inside the card).
+- **Live belt** (`beltOffAt(st)`): at the live moment `S.beltOn` (Safety demo, gate, or the backend machine) wins over the replay history. Use it for anything that shows the belt now: seatbelt card, lock strip, shift sentence, hotspots, report snapshots.
 - **Reports** (`renderIncidents`, `addIncident`): hold then two taps (REP_TYPES, REP_SEV); each report has a machine snapshot; saved offline first (`S.offline`, `S.pending`, localStorage).
-- **Learn**: `renderControls` (top-down cab, 10 controls incl. emergency stop and horn, each linked to a Cat video), `renderTraining` (videos), `renderInsights` + `habitsPatterns` (last 5 shifts against the operator's own baseline).
-- **Machine** (`renderMachine`): the 3D model in fit mode, Fix now / Check soon / Fine, next service.
+- **Learn**: `renderControls` (top-down cab with Cat branding, 10 controls incl. emergency stop and horn; right card lists every Cat video with the controls each covers), `renderTraining` (videos), `renderInsights` + `habitsPatterns` (last 5 shifts against the operator's own baseline).
+- **Machine** (`renderMachine`): the 3D model in fit mode, Fix now / Check soon / Fine, next service. Part by part: `PART_HEALTH` (health score and two readings per part over 10 shifts, sample), `healthGauge`, `readingChart`; picking a part calls `Machine3D.setSelected`.
 - **Fleet** (`renderFleet`): manager view, hides the side panels.
 - Night mode, English/Hindi menu, custom dropdowns (`enhanceSelect` upgrades every `<select>` automatically).
+- Phone layout: rules at the end of styles.css under 760px (drawers, trimmed top bar, dvh, safe areas, 16px inputs).
+
+## Colour rules (learned the hard way)
+
+- Theme colours are tokens on `:root` with night values under `html[data-theme="dark"]`. Never define a token as itself (`--x: var(--x)`): it silently becomes empty. That once blanked every status tint in day mode.
+- `--ink` is for data marks (bars, playhead, progress). Filled buttons and selected tabs use `--fill` / `--on-fill` (black in day, raised grey in night).
+- Night mode is layered: `--bg` #0C0C0B, `--canvas` #121211, `--surface` #181817, `--chip` #20201F, `--fill` #2E2E2B. Keep new surfaces on these steps.
+- No colours hard-coded in app.js markup that must change with the theme; use `var(--...)` in inline styles and SVG fills.
 
 ## Data rules
 
 - Real: the telemetry (4 rows) and the tasks (T001 to T005) from the brief, and the 7 Cat® Products YouTube video IDs.
-- Sample, and labelled as such: sensor values (hydraulic temperature, track wear, the boom fault), personal bests, earlier shift history, proximity events, the Backfill trench job (T006), other operators and machines.
+- Sample, and labelled as such: sensor values (hydraulic temperature, track wear, the boom fault), part-by-part readings, today's forecast, personal bests, earlier shift history, proximity events, the Backfill trench job (T006), other operators (Sarah George OP1002, Maneesh Ari OP1003) and machines.
+- `assets/login-bg.jpg` (sign-in backdrop) is a photo the user supplied; replace it if its rights are ever in question.
 - Insights worth quoting: the belt came off during about an hour of waiting both times, so the risk is at restart; fuel per load up to 2.0 L (4× the 0.5 L normal); 71% of engine time idle between 08:00 and 10:00; 3.7 engine hours for a single load.
 
 ## Writing and design rules (the team agreed these)
