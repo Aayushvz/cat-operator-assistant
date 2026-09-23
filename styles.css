@@ -56,7 +56,7 @@ body.hi-contrast { --t2: #3A3A3A; --t3: #5A5A5A; --line: #C9C9C4; }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { margin: 0; height: 100%; }
+html, body { margin: 0; height: 100%; width: 100%; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -66,6 +66,8 @@ body {
   padding: 12px;
   overflow: hidden;
   zoom: 0.9;
+  width: 111.111vw;
+  height: 111.111vh;
 }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 5px var(--y); border-radius: 10px; }
@@ -83,7 +85,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ============ Shell ============ */
 .app {
-  height: calc(100vh - 24px);
+  height: calc(100% - 24px);
   min-height: 720px;
   background: var(--canvas);
   border-radius: 24px;
@@ -746,7 +748,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-to
 @media (max-width: 760px) {
   body { padding: 0; overflow: auto; }
   .app, .app.left-collapsed, .app.right-collapsed, .app.left-collapsed.right-collapsed {
-    height: 100vh; border-radius: 0; grid-template-columns: minmax(0, 1fr); padding: 0 10px 10px;
+    height: 100%; border-radius: 0; grid-template-columns: minmax(0, 1fr); padding: 0 10px 10px;
   }
   .only-mobile { display: grid; }
   .tb-chip:not(.num-chip) { display: none; }
@@ -1615,7 +1617,7 @@ button, a, [role="button"], .dd-btn, .dd-opt, summary { touch-action: manipulati
   /* drawers park off-screen: clip them so they never widen the page */
   body { overflow: hidden; }
   .app, .app.left-collapsed, .app.right-collapsed, .app.left-collapsed.right-collapsed {
-    height: 100dvh; min-height: 0; overflow: hidden;
+    height: 100%; min-height: 0; overflow: hidden;
     grid-template-rows: calc(56px + env(safe-area-inset-top, 0px)) minmax(0, 1fr);
     padding: 0 max(10px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
   }
