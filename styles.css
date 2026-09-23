@@ -1195,3 +1195,8 @@ html[data-theme="dark"] .replay .seg.work, html[data-theme="dark"] .rp-legend .k
 html[data-theme="dark"] .replay .seg.work em { color: #151514; }
 @media (max-width: 1100px) { .rp-legend { display: none; } }
 @media (max-width: 760px) { .rp-top { flex-wrap: wrap; } .rp-title span { display: none; } .rp-status { white-space: normal; } }
+
+/* broken part: red in the blueprint too */
+.bp-g.fault .bp { stroke: #FF5A4F; }
+.bp-g.fault { opacity: .75; }
+.bp-g.fault.on { opacity: 1; }

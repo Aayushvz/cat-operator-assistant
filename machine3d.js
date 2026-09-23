@@ -3,6 +3,9 @@
 // a studio environment map for reflections, clear-coat paint, ACES tone mapping, and Cat decals.
 window.Machine3D = (() => {
   let renderer, scene, camera, group, stage, canvas, raf = 0, running = false, floorMat = null, isDark = false;
+  let glowMats = [], selected = null;
+  const GLOW_SEL = new THREE.Color(0xffe27a).convertSRGBToLinear();   // the part you are looking at: bright warm light
+  const GLOW_FAULT = new THREE.Color(0xff2a1a).convertSRGBToLinear(); // the broken part: red, always on
   let dragging = false, dragStartX = 0, dragOffset = 0, dragBase = 0;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const onFrameCbs = [];
@@ -56,8 +59,11 @@ window.Machine3D = (() => {
     geo.translate(0, 0, -(depth - 2 * b) / 2);
     return geo;
   }
+  // component tags, set while building: which part a mesh belongs to, and whether it is the faulty part
+  let PART = null, FAULT = false;
   function mesh(geo, mat, x = 0, y = 0, z = 0) {
     const m = new THREE.Mesh(geo, mat);
+    m.userData.part = PART; m.userData.fault = FAULT;
     m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true;
     return m;
   }
@@ -126,9 +132,11 @@ window.Machine3D = (() => {
     const M = mats();
     const g = new THREE.Group();
 
-    /* undercarriage */
+    /* undercarriage (the left track, facing the viewer, is the faulty part in this demo) */
+    PART = 'undercarriage';
     [-1.05, 1.05].forEach((z) => {
       const side = z > 0 ? 1 : -1;
+      FAULT = z > 0;
       g.add(rbox(4.0, 0.68, 0.74, 0.34, M.track, 0, 0.4, z, 0.03));
       for (let x = -1.66; x <= 1.67; x += 0.185) {
         g.add(box(0.13, 0.05, 0.78, M.shoe, x, 0.755, z));
@@ -142,10 +150,12 @@ window.Machine3D = (() => {
       [-1.0, -0.33, 0.33, 1.0].forEach((x) => { const r = mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.04, 16), M.black, x, 0.2, z + side * 0.38); r.rotation.x = Math.PI / 2; g.add(r); });
       g.add(box(2.7, 0.14, 0.04, M.black, 0, 0.55, z + side * 0.38));
     });
+    FAULT = false;
     g.add(rbox(1.9, 0.36, 1.5, 0.08, M.black, 0, 0.56, 0));
     g.add(mesh(new THREE.CylinderGeometry(0.92, 0.92, 0.2, 40), M.black, 0, 0.84, 0));
 
     /* upper structure */
+    PART = 'engine';
     g.add(rbox(3.8, 0.16, 2.5, 0.05, M.paint, -0.45, 1.02, 0));
     g.add(rbox(2.3, 0.98, 2.44, 0.12, M.paint, -1.0, 1.56, 0));
     // counterweight with a rounded rear
@@ -168,9 +178,11 @@ window.Machine3D = (() => {
     g.add(rod(V(-2.1, 2.36, 1.12), V(-0.25, 2.36, 1.12), 0.022, M.paint, 10));
     [-2.1, -1.2, -0.25].forEach((x) => g.add(rod(V(x, 2.05, 1.12), V(x, 2.36, 1.12), 0.022, M.paint, 10)));
     // rear camera
+    PART = 'proximity';
     g.add(rbox(0.16, 0.12, 0.2, 0.03, M.black, -2.58, 2.14, 0.9, 0.01));
 
     /* cab */
+    PART = 'cab';
     const cx = 0.86, cz = 0.72;
     g.add(rbox(1.14, 1.4, 0.98, 0.04, M.glass, cx, 1.86, cz, 0.01));
     g.add(rbox(1.22, 0.1, 1.06, 0.05, M.black, cx, 2.6, cz, 0.02));
@@ -188,10 +200,12 @@ window.Machine3D = (() => {
     // work lights on the cab roof
     [0.4, 1.04].forEach((z) => { g.add(box(0.1, 0.1, 0.14, M.black, 1.42, 2.7, z)); g.add(box(0.012, 0.07, 0.11, M.lamp, 1.475, 2.7, z)); });
     // mirror
+    PART = 'proximity';
     g.add(rod(V(1.2, 1.2, 1.25), V(1.35, 2.2, 1.35), 0.015, M.black, 8));
     g.add(rbox(0.04, 0.22, 0.16, 0.02, M.black, 1.36, 2.28, 1.36, 0.005));
 
     /* boom */
+    PART = 'hydraulics';
     const BZ = -0.25;
     const boom = arm([[0.6, 1.5], [1.35, 2.6], [2.25, 3.52], [3.1, 3.6], [3.95, 3.2]],
       (t) => (t < 0.5 ? lerp(0.46, 0.66, t / 0.5) : lerp(0.66, 0.4, (t - 0.5) / 0.5)), 0.46, M.paint, BZ);
@@ -208,6 +222,7 @@ window.Machine3D = (() => {
     g.add(pin(4.4, 1.15, BZ, 1.02, 0.08, M.chrome));
 
     /* bucket */
+    PART = 'bucket';
     const bk = new THREE.Shape([V2(4.34, 1.22), V2(4.72, 1.08), V2(4.95, 0.74), V2(4.97, 0.38), V2(4.8, 0.13), V2(4.48, 0.04), V2(4.08, 0.1), V2(3.94, 0.19), V2(4.2, 0.36), V2(4.3, 0.74)]);
     g.add(mesh(extrude(bk, 0.98, 0.03), M.paint, 0, 0, BZ));
     g.add(box(0.26, 0.05, 1.0, M.shoe, 4.02, 0.16, BZ));
@@ -220,6 +235,7 @@ window.Machine3D = (() => {
     [-0.1, 0.1].forEach((dz) => g.add(rod(V(4.3, 1.62, BZ + dz * 2.2), V(4.62, 1.08, BZ + dz * 2.2), 0.05, M.black, 10)));
 
     /* hydraulic cylinders: black barrel, chrome rod */
+    PART = 'hydraulics';
     const cyl = (p, q, r) => {
       const mid = new THREE.Vector3().lerpVectors(p, q, 0.56);
       g.add(rod(p, mid, r, M.barrel));
@@ -240,6 +256,7 @@ window.Machine3D = (() => {
     });
 
     /* decals: Cat logo on the boom and counterweight, model number on the housing */
+    PART = null;
     loadImage('assets/cat-logo-white.png').then((img) => {
       const t = 0.3, p = boom.userData.curve.getPoint(t), tan = boom.userData.curve.getTangent(t);
       const d = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.33), boomDecal(img));
@@ -394,6 +411,13 @@ window.Machine3D = (() => {
 
     group = build();
     fitPts = null;
+    glowMats = [];
+    group.traverse((o) => {
+      if (!o.isMesh || !o.userData.part || !o.material.emissive) return;
+      if (o.material.emissiveIntensity > 0 && o.material.emissive.getHex() !== 0) return; // lamps and the cab screen keep their own glow
+      o.material = o.material.clone();
+      glowMats.push({ mat: o.material, part: o.userData.part, fault: o.userData.fault });
+    });
     setTheme(document.documentElement.getAttribute('data-theme') === 'dark');
     const pivot = new THREE.Group();
     pivot.add(group);
@@ -440,6 +464,14 @@ window.Machine3D = (() => {
     // starts exactly at the default pose (sin 0 = 0), then turns slowly
     const sway = reduce ? 0 : Math.sin(t * SWAY_SPEED) * SWAY;
     group.userData.pivot.rotation.y = BASE_ROT + sway + dragOffset;
+    // glow: faulty part pulses red all the time, the selected part breathes yellow
+    const redPulse = reduce ? 0.4 : 0.22 + 0.33 * (0.5 + 0.5 * Math.sin(t * 3.2));
+    const selPulse = reduce ? 0.45 : 0.3 + 0.28 * (0.5 + 0.5 * Math.sin(t * 2.6));
+    for (const g of glowMats) {
+      if (g.fault) { g.mat.emissive.copy(GLOW_FAULT); g.mat.emissiveIntensity = redPulse * (g.part === selected ? 1.25 : 1); }
+      else if (g.part === selected) { g.mat.emissive.copy(GLOW_SEL); g.mat.emissiveIntensity = selPulse; }
+      else if (g.mat.emissiveIntensity !== 0) { g.mat.emissiveIntensity = 0; }
+    }
     renderer.render(scene, camera);
     onFrameCbs.forEach((cb) => cb(now));
     raf = requestAnimationFrame(loop);
@@ -461,6 +493,7 @@ window.Machine3D = (() => {
     if (floorMat) floorMat.opacity = dark ? 0.55 : 0.26;
     if (renderer) renderer.toneMappingExposure = dark ? 0.85 : 0.95;
   }
+  function setSelected(part) { selected = part || null; }
   function setState() { /* engine vibration removed: it read as a rendering glitch */ }
-  return { mount: remount, start, stop, project, onFrame, setState, setTheme, keys: Object.keys(anchors) };
+  return { mount: remount, start, stop, project, onFrame, setState, setTheme, setSelected, keys: Object.keys(anchors) };
 })();

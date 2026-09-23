@@ -50,6 +50,7 @@ window.DATA = (() => {
   ];
 
   const alerts = [
+    { tone: 'crit', icon: 'triangle-alert', title: 'Left track too loose. Short moves only.', time: 'Today 14:30' },
     { tone: 'crit', icon: 'armchair', title: 'Belt off while working', time: '02 May 09:00' },
     { tone: 'caution', icon: 'hourglass', title: 'Waited 60 min, only 1 load', time: '02 May 09:00' },
     { tone: 'warn', icon: 'gauge', title: 'Engine ran 3.7 hours for 1 load', time: '01 May 14:00 to 02 May 09:00' },
@@ -59,7 +60,7 @@ window.DATA = (() => {
   const health = [
     { icon: 'cog', name: 'Engine', st: 'ok', label: 'OK' },
     { icon: 'droplets', name: 'Hydraulics', st: 'ok', label: 'OK' },
-    { icon: 'tractor', name: 'Tracks', st: 'warn', label: 'Check soon' },
+    { icon: 'tractor', name: 'Tracks', st: 'crit', label: 'Fault' },
     { icon: 'shovel', name: 'Bucket teeth', st: 'ok', label: 'OK' },
     { icon: 'thermometer', name: 'Cooling', st: 'ok', label: 'OK' },
   ];

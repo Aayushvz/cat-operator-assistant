@@ -184,7 +184,7 @@
   function hsStatus(key) {
     const st = stateAt(S.t);
     if (key === 'cab') return st.beltOff ? ['crit', 'Belt off'] : ['ok', 'Belt on'];
-    if (key === 'undercarriage') return ['warn', 'Tracks worn'];
+    if (key === 'undercarriage') return ['crit', 'Fault: left track'];
     if (key === 'proximity') return ['caution', '1 person near'];
     if (key === 'engine') return st.kind === 'idle' ? ['caution', 'Idling'] : ['ok', 'OK'];
     return ['ok', 'OK'];
@@ -222,10 +222,11 @@
         R('shovel', 'Teeth wear', '18%', '', 0.18),
         R('weight', 'Weight per bucket', 'About 1.1 t'),
       ] };
-      case 'undercarriage': return { title: 'Undercarriage', rows: [
+      case 'undercarriage': return { title: 'Tracks · fault', rows: [
+        R('triangle-alert', 'Left track', 'Too loose', 'crit'),
+        R('octagon-alert', 'Driving', 'Short moves only', 'crit'),
         R('tractor', 'Track wear', '64%', 'warn', 0.64),
-        R('triangle-alert', 'Left track', 'Too loose', 'warn'),
-        R('calendar', 'Next check', 'In 12 hours'),
+        R('wrench', 'Fix', 'Tighten left track today'),
         R('cloud-rain', 'Ground', 'Wet clay'),
       ] };
       case 'proximity': return { title: 'Sensors and cameras', rows: [
@@ -248,7 +249,7 @@
   <svg class="blueprint" viewBox="0 0 240 118" aria-hidden="true">
     ${Array.from({ length: 21 }, (_, i) => `<line class="bp-grid" x1="${i * 12}" y1="0" x2="${i * 12}" y2="118"/>`).join('')}
     ${Array.from({ length: 10 }, (_, i) => `<line class="bp-grid" x1="0" y1="${i * 12 + 2}" x2="240" y2="${i * 12 + 2}"/>`).join('')}
-    <g class="bp-g" data-part="undercarriage">
+    <g class="bp-g fault" data-part="undercarriage">
       <rect class="bp" pathLength="1" x="38" y="92" width="124" height="22" rx="11"/>
       ${[56, 76, 96, 116, 136].map((x) => `<circle class="bp" pathLength="1" cx="${x + 4}" cy="103" r="4"/>`).join('')}
       <circle class="bp" pathLength="1" cx="49" cy="103" r="7"/><circle class="bp" pathLength="1" cx="151" cy="103" r="7"/>
@@ -398,6 +399,7 @@
     const ok = Machine3D.mount(stage, $('#three'));
     if (ok) {
       Machine3D.onFrame(frame);
+      Machine3D.setSelected(S.overviewOpen && S.hotspot !== 'machine' ? S.hotspot : null);
       Machine3D.start();
       setTimeout(() => stage.classList.remove('loading'), 60);
     } else {
@@ -443,6 +445,7 @@
       apply();
       requestAnimationFrame(() => body.classList.remove('swap'));
     } else apply();
+    Machine3D.setSelected && Machine3D.setSelected(key === 'machine' ? null : key);
     conProgress = key === 'machine' ? 0 : 0.001;
     conStart = performance.now();
   }
@@ -451,7 +454,7 @@
     S.overviewOpen = open;
     $('#overview').classList.toggle('closed', !open);
     $('#xbtn').classList.toggle('closed', !open);
-    if (!open) $$('.hs').forEach((h) => h.classList.remove('active'));
+    if (!open) { $$('.hs').forEach((h) => h.classList.remove('active')); Machine3D.setSelected && Machine3D.setSelected(null); }
   }
 
   function bindHome() {
@@ -1188,7 +1191,7 @@
         <div class="card pcard c7 rise">
           <h3>Parts</h3><div class="sub">What needs attention, and when.</div>
           <table class="tbl"><thead><tr><th>Part</th><th>Status</th><th>Wear</th><th>Next step</th></tr></thead><tbody>
-          ${[['cog', 'Engine', 'ok', 'Healthy', 22, 'Oil change at 1,600 hr'], ['droplets', 'Hydraulics', 'ok', 'Healthy', 31, 'Filter check at 1,600 hr'], ['tractor', 'Undercarriage', 'warn', 'Warning', 64, 'Adjust left track tension'], ['shovel', 'Bucket teeth', 'ok', 'Healthy', 18, 'Rotate teeth in 40 hr'], ['thermometer', 'Cooling', 'ok', 'Healthy', 12, 'Clean radiator in rain season']]
+          ${[['cog', 'Engine', 'ok', 'OK', 22, 'Oil change at 1,600 hr'], ['droplets', 'Hydraulics', 'ok', 'OK', 31, 'Filter check at 1,600 hr'], ['tractor', 'Tracks', 'crit', 'Fault', 64, 'Left track too loose. Tighten today.'], ['shovel', 'Bucket teeth', 'ok', 'OK', 18, 'Rotate teeth in 40 hr'], ['thermometer', 'Cooling', 'ok', 'OK', 12, 'Clean radiator in rain season']]
             .map(([ic, n, st, l, w, a], i) => `<tr><td><span style="display:flex;gap:10px;align-items:center"><i data-lucide="${ic}"></i>${n}</span></td><td><span class="st ${st}">${l}</span></td>
               <td style="width:160px"><div style="height:6px;border-radius:3px;background:var(--chip);overflow:hidden" data-tip="${w}% wear"><div class="growx" style="--i:${i};height:100%;width:${w}%;background:${w > 50 ? 'var(--warn)' : 'var(--ink)'};border-radius:3px"></div></div></td><td style="color:var(--t2)">${a}</td></tr>`).join('')}
           </tbody></table>
@@ -1441,7 +1444,7 @@
       <div class="rp-strip">
         <button class="glance" type="button" data-expand data-tip="<b>Current job</b> · about 52 min"><i data-lucide="timer"></i><b>52m</b></button>
         <button class="glance" type="button" data-expand data-tip="<b>Seatbelt</b>" id="glBelt"><i data-lucide="armchair"></i><span class="dot" style="background:var(--ok)"></span></button>
-        <button class="glance" type="button" data-expand data-tip="<b>Machine health</b> · tracks need a check"><i data-lucide="heart-pulse"></i><span class="dot" style="background:var(--warn)"></span></button>
+        <button class="glance" type="button" data-expand data-tip="<b>Fault</b> · left track too loose"><i data-lucide="heart-pulse"></i><span class="dot" style="background:var(--crit)"></span></button>
         <button class="glance" type="button" data-expand data-tip="<b>${D.alerts.length} alerts</b> open"><i data-lucide="bell"></i><b>${D.alerts.length}</b><span class="dot" style="background:var(--crit)"></span></button>
       </div>`;
     icons();
