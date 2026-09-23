@@ -1925,3 +1925,7 @@ button.login-who { text-align: left; border: 0; }
 .mgr-txt b { font-size: 14px; font-weight: 600; }
 .mgr-txt small { font-size: 12.5px; }
 .mgr-box .btn { height: 40px; padding: 0 14px; font-size: 13px; text-transform: none; letter-spacing: 0; color: var(--t2); }
+/* fleet manager sits at the bottom of the card; the operator list stays in the middle */
+.login-main.who { justify-content: flex-start; }
+.login-main.who > h2 { margin-top: auto; }
+.login-main.who .mgr-box { margin-top: auto; }
