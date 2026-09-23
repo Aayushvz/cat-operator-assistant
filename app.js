@@ -34,18 +34,23 @@
     routeArg: null,
   };
 
+  // Five tabs only, so the operator is never hunting through a long menu.
+  // Pages that used to be tabs of their own now live as a second tab inside these.
   const NAV = [
-    { id: 'home', icon: 'house', en: 'Home', hi: 'होम', group: 'Work' },
-    { id: 'tasks', icon: 'list-checks', en: 'My jobs', hi: 'मेरे काम', group: 'Work' },
-    { id: 'estimator', icon: 'timer', en: 'Job time', hi: 'काम का समय', group: 'Work' },
-    { id: 'safety', icon: 'shield-check', en: 'Safety', hi: 'सुरक्षा', group: 'Safety' },
-    { id: 'incidents', icon: 'siren', en: 'Reports', hi: 'रिपोर्ट', group: 'Safety' },
-    { id: 'training', icon: 'graduation-cap', en: 'Learn', hi: 'सीखें', group: 'Get better' },
-    { id: 'insights', icon: 'fuel', en: 'Fuel and idle', hi: 'ईंधन और खाली समय', group: 'Get better' },
-    { id: 'machine', icon: 'wrench', en: 'Machine', hi: 'मशीन', group: 'Machine' },
-    { id: 'settings', icon: 'settings', en: 'Settings', hi: 'सेटिंग्स', group: 'Machine' },
+    { id: 'home', icon: 'house', en: 'Home', hi: 'होम' },
+    { id: 'tasks', icon: 'list-checks', en: 'My tasks', hi: 'मेरे कार्य' },
+    { id: 'safety', icon: 'shield-check', en: 'Safety and reports', hi: 'सुरक्षा और रिपोर्ट' },
+    { id: 'training', icon: 'graduation-cap', en: 'Learn', hi: 'सीखें' },
+    { id: 'machine', icon: 'wrench', en: 'Machine', hi: 'मशीन' },
   ];
-  const GROUP_HI = { Work: 'काम', Safety: 'सुरक्षा', 'Get better': 'बेहतर बनें', Machine: 'मशीन' };
+  // second-level tabs: [route, English, Hindi]
+  const SUBTABS = {
+    tasks: [['tasks', 'Today', 'आज'], ['tasks/time', 'Job time', 'काम का समय']],
+    safety: [['safety', 'Safety', 'सुरक्षा'], ['safety/reports', 'Reports', 'रिपोर्ट']],
+    training: [['training', 'Videos', 'वीडियो'], ['training/habits', 'Your habits', 'आपकी आदतें']],
+  };
+  // old addresses still work, they just open the merged page
+  const OLD_ROUTES = { estimator: 'tasks/time', incidents: 'safety/reports', insights: 'training/habits' };
   const label = (id) => { const n = NAV.find((x) => x.id === id); return n[S.lang]; };
 
   /* ---------- helpers ---------- */
@@ -119,11 +124,8 @@
   /* ---------- nav ---------- */
   function renderNav() {
     const nav = $('#nav');
-    let last = '';
     nav.innerHTML = `<span class="nav-bar" id="navBar" aria-hidden="true"></span>` + NAV.map((n) => {
-      const head = n.group !== last ? `<div class="nav-group">${S.lang === 'hi' ? GROUP_HI[n.group] : n.group}</div>` : '';
-      last = n.group;
-      return `${head}<button class="nav-item${S.route === n.id ? ' active' : ''}" data-route="${n.id}" data-tip-c="${n[S.lang]}" type="button" ${S.route === n.id ? 'aria-current="page"' : ''}>
+      return `<button class="nav-item${S.route === n.id ? ' active' : ''}" data-route="${n.id}" data-tip-c="${n[S.lang]}" type="button" ${S.route === n.id ? 'aria-current="page"' : ''}>
         <i data-lucide="${n.icon}"></i><span>${n[S.lang]}</span></button>`;
     }).join('');
     icons();
@@ -132,15 +134,16 @@
   function positionNavBar() {
     const a = $('.nav-item.active'), bar = $('#navBar');
     if (bar) bar.style.opacity = a ? 1 : 0;
-    if (a && bar) bar.style.transform = `translateY(${a.offsetTop + 10}px)`;
+    if (a && bar) bar.style.transform = `translateY(${a.offsetTop + (a.offsetHeight - 20) / 2}px)`;
   }
   $('#nav').addEventListener('click', (e) => {
     const b = e.target.closest('[data-route]');
     if (b) go(b.dataset.route);
   });
 
-  const EXTRA_ROUTES = ['profile', 'video'];
+  const EXTRA_ROUTES = ['profile', 'video', 'settings'];
   function go(target) {
+    if (OLD_ROUTES[target]) target = OLD_ROUTES[target];
     let [route, arg] = String(target).split('/');
     if (!NAV.some((n) => n.id === route) && !EXTRA_ROUTES.includes(route)) route = 'home';
     S.route = route; S.routeArg = arg || null;
@@ -155,8 +158,11 @@
     });
     positionNavBar();
     if (route !== 'home') Machine3D.stop();
-    ({ home: renderHome, tasks: renderTasks, safety: renderSafety, training: renderTraining, insights: renderInsights,
-      estimator: renderEstimator, incidents: renderIncidents, machine: renderMachine,
+    ({ home: renderHome,
+      tasks: () => (arg === 'time' ? renderEstimator() : renderTasks()),
+      safety: () => (arg === 'reports' ? renderIncidents() : renderSafety()),
+      training: () => (arg === 'habits' ? renderInsights() : renderTraining()),
+      machine: renderMachine,
       settings: () => renderProfile('settings'), profile: () => renderProfile('profile'), video: () => renderVideo(S.routeArg) })[route]();
     main.scrollTop = 0; const pg = main.querySelector('.page'); if (pg) pg.scrollTop = 0;
     icons();
@@ -658,7 +664,13 @@
   /* =========================================================
      PAGES
      ========================================================= */
-  const head = (id, sub, right = '') => `<div class="page-head"><div><h1>${label(id)}</h1><p>${sub}</p></div>${right}</div>`;
+  const SUB_OF = { estimator: 'tasks/time', incidents: 'safety/reports', insights: 'training/habits' };
+  function head(id, sub, right = '') {
+    const here = SUB_OF[id] || id, parent = here.split('/')[0];
+    const tabs = SUBTABS[parent] ? `<div class="subtabs" role="tablist">${SUBTABS[parent].map(([r, en, hi]) =>
+      `<button class="subtab${r === here ? ' active' : ''}" role="tab" aria-selected="${r === here}" type="button" data-go="${r}">${S.lang === 'hi' ? hi : en}</button>`).join('')}</div>` : '';
+    return `<div class="page-head"><div><h1>${label(parent)}</h1><p>${sub}</p></div>${right}</div>${tabs}`;
+  }
   const WICON = { Sunny: 'sun', Rainy: 'cloud-rain', Cloudy: 'cloud', Windy: 'wind' };
 
   /* ---------- TASKS ---------- */
@@ -685,7 +697,7 @@
 
     main.innerHTML = `<div class="page">
       ${head('tasks', '5 jobs today on EXC001. The times already include the rain and your experience.',
-        `<button class="btn" type="button" data-go="estimator"><i data-lucide="timer"></i>Check a job time</button>`)}
+)}
       <div class="grid">
         <div class="card pcard c12 rise">
           <h3>Today's plan</h3><div class="sub">08:00 to 18:30. Striped ends mean the job will likely run late. The yellow line is now.</div>
@@ -1406,7 +1418,7 @@
           ${D.health.map((h) => `<div class="health-row"><i data-lucide="${h.icon}"></i><span>${h.name}</span><span class="st ${h.st}">${h.label}</span></div>`).join('')}
         </section>
         <section class="rp-sec">
-          <div class="sec-head"><i data-lucide="bell"></i><h2>Alerts</h2><span class="count">${D.alerts.length}</span><button class="link" type="button" data-go="incidents">View all <i data-lucide="chevron-right"></i></button></div>
+          <div class="sec-head"><i data-lucide="bell"></i><h2>Alerts</h2><span class="count">${D.alerts.length}</span><button class="link" type="button" data-go="safety/reports">View all <i data-lucide="chevron-right"></i></button></div>
           <div class="alert-list" id="alertList">
             ${D.alerts.map((a) => `
               <div class="alert-row"><span class="a-ico ${a.tone}"><i data-lucide="${a.icon}"></i></span>

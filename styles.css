@@ -1127,3 +1127,13 @@ html[data-theme="dark"] .tb-theme { color: var(--y); }
 
 /* text and icons on Cat yellow are always black, in day and night mode */
 .btn:not(.dark):not(.outline):not(.light):not(.ghost-dark) { color: #0B0B0B; }
+
+/* ============ Second-level tabs inside a page ============ */
+.subtabs { display: inline-flex; gap: 4px; padding: 4px; margin: -4px 0 18px; border-radius: 12px; background: var(--chip); }
+.subtab { height: 40px; padding: 0 20px; border-radius: 9px; font: 600 14px/1 var(--f-ui); color: var(--t2); transition: background-color 150ms ease, color 150ms ease, transform 120ms var(--ease-out); }
+.subtab:active { transform: scale(.97); }
+.subtab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 0 0 1px var(--line); }
+@media (hover: hover) and (pointer: fine) { .subtab:not(.active):hover { color: var(--text); } }
+/* with five items the menu needs no group headings; give the rows more room */
+.nav { gap: 6px; padding-top: 16px; }
+.nav-item { height: 46px; font-size: 14px; }
