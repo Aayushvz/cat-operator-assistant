@@ -713,7 +713,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-to
 
 /* ============ Responsive ============ */
 @media (max-height: 860px) {
-  .stage:has(.overview:not(.closed)) .ghost { opacity: 0; pointer-events: none; }
+  .stage:has(.overview:not(.closed)) .pace { opacity: 0; pointer-events: none; }
   .overview { top: 72px; }
   .xbtn { top: 84px; }
   .blueprint { height: 96px; }
@@ -964,3 +964,66 @@ a.btn { text-decoration: none; }
 .belt-strip .now { position: absolute; top: -2px; bottom: -2px; width: 2px; margin-left: -1px; background: var(--ink); border-radius: 1px; }
 @media (max-width: 1100px) { .belt { width: 210px; } }
 @media (max-width: 760px) { .belt { display: none; } }
+
+/* ============ Cab instruments: pace + seatbelt (look like a Cat monitor, not web cards) ============ */
+.hud {
+  position: absolute; top: 72px; width: 256px; z-index: 4; padding: 12px 14px 13px;
+  border-radius: 12px; color: #ECECE8;
+  background: linear-gradient(180deg, #1E1E1C 0%, #131312 100%);
+  border: 1px solid #2E2E2B;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), inset 0 -1px 0 rgba(0,0,0,.5), 0 14px 28px rgba(20,18,10,.22);
+  transition: opacity 200ms ease, border-color 250ms ease;
+}
+.hud.pace { left: 24px; }
+.hud.belt { right: 24px; width: 256px; }
+.hud-head { display: flex; align-items: center; gap: 7px; font: 600 12.5px/1 var(--f-ui); color: #C9C9C3; }
+.hud-head .ico-watch { width: 16px; height: 16px; color: var(--y); }
+.hud-head em { margin-left: auto; font-style: normal; font-weight: 500; font-size: 11.5px; color: #8E8E88; }
+.hud-live { display: inline-flex; align-items: center; gap: 5px; }
+.hud-live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #FF3B30; box-shadow: 0 0 6px rgba(255,59,48,.8); animation: blink 1.6s ease infinite; }
+.hud-read { display: flex; align-items: baseline; gap: 8px; margin-top: 10px; }
+.hud-read b { font: 700 42px/.9 var(--f-display); font-variant-numeric: tabular-nums; color: #F4F4F0; letter-spacing: .01em; }
+.hud-read span { font: 700 17px/1 var(--f-display); text-transform: uppercase; letter-spacing: .05em; color: #F4F4F0; }
+.pace.behind .hud-read b, .pace.behind .hud-read span { color: #FFB23E; }
+.pace.ahead .hud-read b, .pace.ahead .hud-read span { color: #5BD694; }
+.pace.idle .hud-read b { color: #6E6E69; }
+.hud-sub { font-size: 12px; color: #A3A39D; margin-top: 5px; line-height: 1.35; }
+.lap { display: grid; grid-template-columns: 34px 1fr 36px; align-items: center; gap: 8px; margin-top: 9px; font-size: 11.5px; color: #B8B8B2; }
+.lap:first-of-type { margin-top: 12px; }
+.lap b { color: #F4F4F0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.lap-bar { height: 7px; border-radius: 2px; background: #2B2B28; overflow: hidden; box-shadow: inset 0 1px 1px rgba(0,0,0,.5); }
+.lap-bar i { display: block; height: 100%; background: var(--y); transform-origin: 0 50%; transform: scaleX(0); transition: transform 300ms var(--ease-out); }
+.lap.best .lap-bar i { background: repeating-linear-gradient(90deg, #9A9A94 0 5px, transparent 5px 7px); }
+
+/* seatbelt telltale: dark lamp when the belt is on, red and flashing when it is off, like a real dash light */
+.telltale { --lamp-bg: #0C0C0B; width: 52px; height: 52px; border-radius: 10px; flex: none; display: grid; place-items: center;
+  background: var(--lamp-bg); border: 1px solid #2E2E2B; color: #3C3C39; box-shadow: inset 0 2px 6px rgba(0,0,0,.7); transition: color 200ms ease, background-color 200ms ease; }
+.telltale .ico-belt { width: 36px; height: 36px; }
+.hud.belt.on .telltale { color: #46C07A; }
+.hud.belt.off .telltale { --lamp-bg: #1C0907; background: var(--lamp-bg); color: #FF3B30; }
+.hud.belt.off .telltale .ico-belt { filter: drop-shadow(0 0 5px rgba(255,59,48,.85)); animation: lamp 1s steps(2, jump-none) infinite; }
+@keyframes lamp { 0% { opacity: 1; } 100% { opacity: .28; } }
+.hud.belt .belt-main { margin-top: 10px; gap: 12px; }
+.hud.belt .belt-ill { display: none; }
+.hud .belt-state { font: 700 28px/1 var(--f-display); text-transform: uppercase; letter-spacing: .02em; }
+.hud.belt.on .belt-state { color: #5BD694; }
+.hud.belt.off .belt-state { color: #FF6B61; }
+.hud.belt.na .belt-state { color: #8E8E88; }
+.hud .belt-txt small { color: #A3A39D; font-size: 12px; margin-top: 5px; }
+.hud.belt.danger { border-color: #FF3B30; animation: beltAlarm 1.2s ease-in-out infinite; }
+.hud.belt.danger .belt-txt small { color: #FF8A82; font-weight: 600; }
+.hud .belt-strip { background: #2B2B28; box-shadow: inset 0 1px 1px rgba(0,0,0,.5); border-radius: 2px; height: 7px; }
+.hud .belt-strip i.ok { background: #2FA866; }
+.hud .belt-strip i.br { background: #45453F; }
+.hud .belt-strip .now { background: #F4F4F0; }
+.hud-foot { display: flex; justify-content: space-between; font-size: 12px; color: #A3A39D; }
+.hud-foot b { color: #F4F4F0; font-weight: 600; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) { .hud { display: none; } }
+
+/* ============ Less "AI template" styling ============ */
+/* labels in normal sentence case instead of spaced-out capitals */
+.eyebrow { text-transform: none; letter-spacing: 0; font: 600 12px/1.2 var(--f-ui); color: var(--t2); }
+.panel-title, .nav-group { letter-spacing: .04em; }
+.st::after { display: none; }
+.note { background: transparent; border-left: 3px solid var(--y); border-radius: 0; padding: 4px 0 4px 12px; }
+.note svg { display: none; }

@@ -33,43 +33,43 @@ window.DATA = (() => {
   // 30 min idle before 08:00 snapshot window, 55 min idle with belt off around 10:00, 15 min idle before 14:00.
   const LIVE = 411; // 14:51, T002 in progress
   const segments = [
-    { from: 0, to: 58, kind: 'work', task: 'T001 Earth Excavation' },
+    { from: 0, to: 58, kind: 'work', task: 'Digging' },
     { from: 58, to: 70, kind: 'idle' },
-    { from: 70, to: 103, kind: 'work', task: 'T004 Grading' },
+    { from: 70, to: 103, kind: 'work', task: 'Grading' },
     { from: 103, to: 158, kind: 'idle', beltOff: [110, 158] },
     // restarted after the long idle without buckling up: the 10:38 alert on the replay
     { from: 158, to: 240, kind: 'work', task: 'Site prep, Zone B', beltOff: [158, 162] },
     { from: 240, to: 300, kind: 'break' },
     { from: 300, to: 365, kind: 'work', task: 'Site prep, Zone B' },
     { from: 365, to: 380, kind: 'idle' },
-    { from: 380, to: 600, kind: 'work', task: 'T002 Trenching' },
+    { from: 380, to: 600, kind: 'work', task: 'Trenching' },
   ];
   const alertsOnTrack = [
-    { t: 120, text: 'Seatbelt unfastened, 10:00' },
-    { t: 158, text: 'Idle 55 min, restart without belt check' },
+    { t: 120, text: 'Belt came off' },
+    { t: 158, text: 'Started again with belt off' },
   ];
 
   const alerts = [
-    { tone: 'crit', icon: 'armchair', title: 'Seatbelt unfastened while operating', time: '02 May 09:00' },
-    { tone: 'caution', icon: 'hourglass', title: 'Excessive idling: 60 min, 1 load cycle', time: '02 May 09:00' },
-    { tone: 'warn', icon: 'gauge', title: '3.7 engine hr logged for 1 load cycle', time: '01 May 14:00 to 02 May 09:00' },
-    { tone: 'crit', icon: 'armchair', title: 'Seatbelt unfastened + 55 min idle', time: '01 May 10:00' },
+    { tone: 'crit', icon: 'armchair', title: 'Belt off while working', time: '02 May 09:00' },
+    { tone: 'caution', icon: 'hourglass', title: 'Waited 60 min, only 1 load', time: '02 May 09:00' },
+    { tone: 'warn', icon: 'gauge', title: 'Engine ran 3.7 hours for 1 load', time: '01 May 14:00 to 02 May 09:00' },
+    { tone: 'crit', icon: 'armchair', title: 'Belt off during a 55 min wait', time: '01 May 10:00' },
   ];
 
   const health = [
-    { icon: 'cog', name: 'Engine', st: 'ok', label: 'Healthy' },
-    { icon: 'droplets', name: 'Hydraulics', st: 'ok', label: 'Healthy' },
-    { icon: 'tractor', name: 'Undercarriage', st: 'warn', label: 'Warning' },
-    { icon: 'shovel', name: 'Bucket teeth', st: 'ok', label: 'Healthy' },
-    { icon: 'thermometer', name: 'Cooling', st: 'ok', label: 'Healthy' },
+    { icon: 'cog', name: 'Engine', st: 'ok', label: 'OK' },
+    { icon: 'droplets', name: 'Hydraulics', st: 'ok', label: 'OK' },
+    { icon: 'tractor', name: 'Tracks', st: 'warn', label: 'Check soon' },
+    { icon: 'shovel', name: 'Bucket teeth', st: 'ok', label: 'OK' },
+    { icon: 'thermometer', name: 'Cooling', st: 'ok', label: 'OK' },
   ];
 
   // Ghost delta: each task on the replay compared with the operator's personal best on a similar task.
   // total = this run's actual (done) or predicted (running) minutes; pb = personal best (sample values).
   const ghosts = [
-    { id: 'T001', name: 'Earth Excavation', start: 0, total: 58, pb: 56, pbWhen: '28 Apr, sunny' },
-    { id: 'T004', name: 'Grading', start: 70, total: 33, pb: 34, pbWhen: '21 Apr, sunny' },
-    { id: 'T002', name: 'Trenching', start: 380, total: 52, pb: 47, pbWhen: '12 Apr, light rain' },
+    { id: 'T001', name: 'Digging', start: 0, total: 58, pb: 56, pbWhen: '28 Apr' },
+    { id: 'T004', name: 'Grading', start: 70, total: 33, pb: 34, pbWhen: '21 Apr' },
+    { id: 'T002', name: 'Trenching', start: 380, total: 52, pb: 47, pbWhen: '12 Apr, in rain' },
   ];
 
   const operator = {
@@ -79,14 +79,14 @@ window.DATA = (() => {
 
   // Real videos from the official Cat® Products YouTube channel (verified with YouTube oEmbed).
   const videos = [
-    { id: 'tgqk0jftKXc', title: 'Cat® 374F Large Excavator at Work | Truck Loading', topic: 'Material loading',
-      why: 'T003 Material Loading ran 40% over plan (42 min vs 30), your biggest overrun this week.' },
+    { id: 'tgqk0jftKXc', title: 'Cat® 374F Large Excavator at Work | Truck Loading', topic: 'Loading trucks',
+      why: 'Your last loading job took 42 min. The plan was 30.' },
     { id: 'CJM_qHYXJDA', title: 'Safety Tips for Your Cat® Excavator', topic: 'Safety',
-      why: '2 of 4 telemetry snapshots show the seatbelt unfastened after long idles.' },
-    { id: 's22FKB2Zrnk', title: 'Operator Coaching on Cat® Next Gen Excavators', topic: 'Efficiency',
-      why: 'Fuel per load cycle reached 2.0 L, 4x the 0.5 L target, during long idles.' },
-    { id: 'hRLb8oAKX30', title: 'How to Operate Your Cat® Medium Excavator', topic: 'Operating basics' },
-    { id: 'KwvguKaFliU', title: 'Cat® Next Generation Excavators: Starting Machine with Secure Start and Operator ID', topic: 'Machine start' },
+      why: 'Your belt came off during 2 long waits.' },
+    { id: 's22FKB2Zrnk', title: 'Operator Coaching on Cat® Next Gen Excavators', topic: 'Saving fuel',
+      why: 'Long waits used 4 times more fuel per load.' },
+    { id: 'hRLb8oAKX30', title: 'How to Operate Your Cat® Medium Excavator', topic: 'The basics' },
+    { id: 'KwvguKaFliU', title: 'Cat® Next Generation Excavators: Starting Machine with Secure Start and Operator ID', topic: 'Starting up' },
     { id: 'n24LwkpgBSM', title: 'Cat® Next Generation Excavator Operator Training: Grade Assist Boom', topic: 'Grading' },
     { id: 'uPlt7seVi9o', title: 'Cat® Next Generation Excavator Operator Training: Grade with 3D', topic: 'Grading' },
   ];

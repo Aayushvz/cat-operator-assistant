@@ -14,7 +14,7 @@
 <div class="app" id="app">
   <header class="topbar">
     <div class="tb-left">
-      <button class="icon-btn only-mobile" id="openNav" type="button" aria-label="Open navigation"><i data-lucide="menu"></i></button>
+      <button class="icon-btn only-mobile" id="openNav" type="button" aria-label="Open menu"><i data-lucide="menu"></i></button>
       <img class="tb-logo" src="assets/cat-logo.png" alt="Cat" width="54" height="33" />
       <span class="tb-product">Operator Assistant</span>
       <span class="tb-sep" aria-hidden="true"></span>
@@ -24,9 +24,9 @@
     <div class="tb-right">
       <span class="tb-chip"><i data-lucide="cloud-rain"></i>Rain · 24°C</span>
       <span class="tb-chip num-chip"><i data-lucide="clock"></i><span id="clock">14:51</span></span>
-      <button class="icon-btn only-mobile" id="openStatus" type="button" aria-label="Open live status"><i data-lucide="activity"></i></button>
-      <button class="tb-avatar" id="tbAvatar" type="button" aria-label="Open profile and settings"><img src="assets/operator.jpg" alt="" width="36" height="36" /></button>
-      <button class="sos" id="sosBtn" type="button" aria-label="Hold for 1.5 seconds to send SOS">
+      <button class="icon-btn only-mobile" id="openStatus" type="button" aria-label="Open right now panel"><i data-lucide="activity"></i></button>
+      <button class="tb-avatar" id="tbAvatar" type="button" aria-label="My profile and settings"><img src="assets/operator.jpg" alt="" width="36" height="36" /></button>
+      <button class="sos" id="sosBtn" type="button" aria-label="Press and hold to send SOS">
         <span class="sos-fill" aria-hidden="true"></span>
         <span class="sos-content"><i data-lucide="siren"></i><b>SOS</b><small>Hold</small></span>
       </button>
@@ -35,12 +35,12 @@
 
   <aside class="panel left" id="leftPanel" aria-label="Main navigation">
     <div class="panel-head">
-      <span class="panel-title">Navigation</span>
-      <button class="icon-btn" id="toggleLeft" type="button" aria-label="Collapse navigation" aria-expanded="true"><i data-lucide="panel-left-close"></i></button>
+      <span class="panel-title">Menu</span>
+      <button class="icon-btn" id="toggleLeft" type="button" aria-label="Hide menu" aria-expanded="true"><i data-lucide="panel-left-close"></i></button>
     </div>
     <nav class="nav" id="nav"></nav>
     <div class="panel-foot">
-      <button class="user" type="button" id="userBtn" data-tip-c="Aayush Raj · Profile" aria-label="Open profile and settings">
+      <button class="user" type="button" id="userBtn" data-tip-c="Aayush Raj · My profile" aria-label="My profile and settings">
         <img class="avatar" src="assets/operator.jpg" alt="" width="34" height="34" />
         <span class="user-meta"><b>Aayush Raj</b><small>Operator · F2 Licence</small></span>
         <i data-lucide="chevron-right"></i>

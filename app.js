@@ -21,11 +21,11 @@
     est: { type: 'Trenching', weather: 'Rainy', skill: 'Intermediate', age: 4 },
     slot: 1,
     incidents: [
-      { time: '02 May 09:00', type: 'Seatbelt unfastened while operating', src: 'Auto · telemetry', sev: 'crit', status: 'Open' },
-      { time: '02 May 09:00', type: 'Excessive idling, 60 min with 1 load cycle', src: 'Auto · telemetry', sev: 'caution', status: 'Open' },
-      { time: '01 May 14:00', type: '3.7 engine hr logged for 1 load cycle', src: 'Auto · telemetry', sev: 'warn', status: 'Review' },
-      { time: '01 May 10:00', type: 'Seatbelt unfastened + 55 min idle', src: 'Auto · telemetry', sev: 'crit', status: 'Coached' },
-      { time: '01 May 09:47', type: 'Near miss: ground worker entered swing radius', src: 'Operator · voice note', sev: 'crit', status: 'Closed' },
+      { time: '02 May 09:00', type: 'Belt off while working', src: 'Machine', sev: 'crit', status: 'Open' },
+      { time: '02 May 09:00', type: 'Idle 60 min, only 1 load', src: 'Machine', sev: 'caution', status: 'Open' },
+      { time: '01 May 14:00', type: 'Engine ran 3.7 hours for 1 load', src: 'Machine', sev: 'warn', status: 'Checking' },
+      { time: '01 May 10:00', type: 'Belt off during a 55 min wait', src: 'Machine', sev: 'crit', status: 'Talked through' },
+      { time: '01 May 09:47', type: 'Near miss: worker walked into swing area', src: 'You, voice note', sev: 'crit', status: 'Closed' },
     ],
     settings: { haptics: true, voice: true, contrast: false, budget: 3, presets: true, share: false },
     watched: new Set(),
@@ -34,17 +34,17 @@
   };
 
   const NAV = [
-    { id: 'home', icon: 'house', en: 'Home', hi: 'होम', group: 'Operate' },
-    { id: 'tasks', icon: 'list-checks', en: 'Tasks', hi: 'कार्य', group: 'Operate' },
-    { id: 'estimator', icon: 'timer', en: 'Estimator', hi: 'अनुमान', group: 'Operate' },
+    { id: 'home', icon: 'house', en: 'Home', hi: 'होम', group: 'Work' },
+    { id: 'tasks', icon: 'list-checks', en: 'My jobs', hi: 'मेरे काम', group: 'Work' },
+    { id: 'estimator', icon: 'timer', en: 'Job time', hi: 'काम का समय', group: 'Work' },
     { id: 'safety', icon: 'shield-check', en: 'Safety', hi: 'सुरक्षा', group: 'Safety' },
-    { id: 'incidents', icon: 'siren', en: 'Incidents', hi: 'घटनाएँ', group: 'Safety' },
-    { id: 'training', icon: 'graduation-cap', en: 'Training', hi: 'प्रशिक्षण', group: 'Improve' },
-    { id: 'insights', icon: 'activity', en: 'Insights', hi: 'विश्लेषण', group: 'Improve' },
-    { id: 'machine', icon: 'wrench', en: 'Machine', hi: 'मशीन', group: 'System' },
-    { id: 'settings', icon: 'settings', en: 'Settings', hi: 'सेटिंग्स', group: 'System' },
+    { id: 'incidents', icon: 'siren', en: 'Reports', hi: 'रिपोर्ट', group: 'Safety' },
+    { id: 'training', icon: 'graduation-cap', en: 'Learn', hi: 'सीखें', group: 'Get better' },
+    { id: 'insights', icon: 'fuel', en: 'Fuel and idle', hi: 'ईंधन और खाली समय', group: 'Get better' },
+    { id: 'machine', icon: 'wrench', en: 'Machine', hi: 'मशीन', group: 'Machine' },
+    { id: 'settings', icon: 'settings', en: 'Settings', hi: 'सेटिंग्स', group: 'Machine' },
   ];
-  const GROUP_HI = { Operate: 'संचालन', Safety: 'सुरक्षा', Improve: 'सुधार', System: 'सिस्टम' };
+  const GROUP_HI = { Work: 'काम', Safety: 'सुरक्षा', 'Get better': 'बेहतर बनें', Machine: 'मशीन' };
   const label = (id) => { const n = NAV.find((x) => x.id === id); return n[S.lang]; };
 
   /* ---------- helpers ---------- */
@@ -168,19 +168,19 @@
   const HS = {
     cab: { name: 'Cab', icon: 'armchair' },
     engine: { name: 'Engine', icon: 'cog', side: 'up' },
-    hydraulics: { name: 'Boom hydraulics', icon: 'droplets' },
+    hydraulics: { name: 'Boom', icon: 'droplets' },
     bucket: { name: 'Bucket', icon: 'shovel' },
     undercarriage: { name: 'Undercarriage', icon: 'tractor' },
-    proximity: { name: 'Proximity sensors', icon: 'radar', side: 'down' },
+    proximity: { name: 'Sensors', icon: 'radar', side: 'down' },
   };
 
   function hsStatus(key) {
     const st = stateAt(S.t);
     if (key === 'cab') return st.beltOff ? ['crit', 'Belt off'] : ['ok', 'Belt on'];
-    if (key === 'undercarriage') return ['warn', 'Wear 64%'];
-    if (key === 'proximity') return ['caution', '1 person, outer zone'];
-    if (key === 'engine') return st.kind === 'idle' ? ['caution', 'Idling'] : ['ok', 'Healthy'];
-    return ['ok', 'Healthy'];
+    if (key === 'undercarriage') return ['warn', 'Tracks worn'];
+    if (key === 'proximity') return ['caution', '1 person near'];
+    if (key === 'engine') return st.kind === 'idle' ? ['caution', 'Idling'] : ['ok', 'OK'];
+    return ['ok', 'OK'];
   }
   const toneColor = { ok: 'var(--ok)', warn: 'var(--warn)', crit: 'var(--crit)', caution: 'var(--mango)' };
 
@@ -189,50 +189,50 @@
     const rpm = st.kind === 'work' ? '1,650' : st.kind === 'idle' ? '900' : 'Off';
     const R = (icon, l, v, tone = '', bar) => ({ icon, l, v, tone, bar });
     switch (key) {
-      case 'cab': return { title: 'Cab · Operator', rows: [
+      case 'cab': return { title: 'Cab', rows: [
         R('user-round', 'Operator', 'OP1001 · Aayush Raj'),
         R('armchair', 'Seatbelt', st.beltOff ? 'Unfastened' : 'Fastened', st.beltOff ? 'crit' : 'ok'),
-        R('vibrate', 'Seat haptics', 'On'),
+        R('vibrate', 'Seat buzz', 'On'),
         R('thermometer', 'Cab temperature', '24 °C'),
-        R('activity', 'Machine state', st.kind === 'work' ? 'Working' : st.kind === 'idle' ? 'Idle' : 'Break', st.kind === 'idle' ? 'mango' : ''),
+        R('activity', 'Machine', st.kind === 'work' ? 'Working' : st.kind === 'idle' ? 'Idle' : 'Break', st.kind === 'idle' ? 'mango' : ''),
       ] };
       case 'engine': return { title: 'Engine', rows: [
         R('clock', 'Engine hours', `${fmt(eng, 1)} hr`),
         R('fuel', 'Fuel used today', `${fmt(fuel, 1)} L`),
-        R('repeat', 'Fuel per load cycle', `${fmt(fuel / Math.max(cyc, 1), 2)} L`, fuel / Math.max(cyc, 1) > 0.6 ? 'mango' : ''),
+        R('repeat', 'Fuel per load', `${fmt(fuel / Math.max(cyc, 1), 2)} L`, fuel / Math.max(cyc, 1) > 0.6 ? 'mango' : ''),
         R('gauge', 'Engine speed', `${rpm} rpm`),
-        R('thermometer', 'Coolant', '88 °C', 'ok'),
+        R('thermometer', 'Coolant temp', '88 °C', 'ok'),
       ] };
-      case 'hydraulics': return { title: 'Boom hydraulics', rows: [
+      case 'hydraulics': return { title: 'Boom and hydraulics', rows: [
         R('thermometer', 'Hydraulic oil', '62 °C', 'ok'),
         R('gauge', 'Pump pressure', st.kind === 'work' ? '318 bar' : '40 bar'),
-        R('repeat', 'Load cycles today', fmt(cyc)),
-        R('shield-check', 'Status', 'Healthy', 'ok'),
+        R('repeat', 'Loads today', fmt(cyc)),
+        R('shield-check', 'Status', 'OK', 'ok'),
       ] };
       case 'bucket': return { title: 'Bucket', rows: [
-        R('repeat', 'Load cycles today', fmt(cyc)),
-        R('timer', 'Average cycle', '21 s'),
+        R('repeat', 'Loads today', fmt(cyc)),
+        R('timer', 'Time per load', '21 sec'),
         R('shovel', 'Teeth wear', '18%', '', 0.18),
-        R('weight', 'Est. payload per pass', '1.1 t'),
+        R('weight', 'Weight per bucket', 'About 1.1 t'),
       ] };
       case 'undercarriage': return { title: 'Undercarriage', rows: [
         R('tractor', 'Track wear', '64%', 'warn', 0.64),
-        R('triangle-alert', 'Left track tension', 'Low', 'warn'),
-        R('calendar', 'Next inspection', 'in 12 hr'),
+        R('triangle-alert', 'Left track', 'Too loose', 'warn'),
+        R('calendar', 'Next check', 'In 12 hours'),
         R('cloud-rain', 'Ground', 'Wet clay'),
       ] };
-      case 'proximity': return { title: 'Proximity sensors', rows: [
-        R('radar', 'Swing radius', 'Clear', 'ok'),
-        R('user-round', 'People nearby', '1 · outer zone', 'mango'),
-        R('truck', 'Dump truck', 'Approaching · give way'),
+      case 'proximity': return { title: 'Sensors and cameras', rows: [
+        R('radar', 'Swing area', 'Clear', 'ok'),
+        R('user-round', 'People near', '1, in slow zone', 'mango'),
+        R('truck', 'Dump truck', 'Coming, give way'),
         R('camera', 'Rear camera', 'Online', 'ok'),
       ] };
-      default: return { title: 'Machine overview', rows: [
+      default: return { title: 'Machine', rows: [
         R('fuel', 'Fuel level', `${Math.round(73 - fuel * 0.3)}%`, '', (73 - fuel * 0.3) / 100),
         R('clock', 'Engine hours', `${fmt(eng, 1)} hr`),
-        R('repeat', 'Load cycles today', fmt(cyc)),
+        R('repeat', 'Loads today', fmt(cyc)),
         R('hourglass', 'Idle today', `${Math.round(idleAt(t))} min`, 'mango'),
-        R('wrench', 'Next service', `in ${Math.round(1600.2 - eng)} hr`),
+        R('wrench', 'Next service', `In ${Math.round(1600.2 - eng)} hours`),
       ] };
     }
   }
@@ -280,6 +280,10 @@
       ${r.bar != null ? `<div class="ov-bar"><i style="transform:scaleX(${r.bar.toFixed(3)})"></i></div>` : ''}`).join('');
   }
 
+  /* Instrument icons drawn like real cab telltales (not generic UI icons). */
+  const ICON_BELT = `<svg viewBox="0 0 48 48" class="ico-belt"><circle cx="22" cy="8" r="4.6" fill="currentColor"/><path fill="currentColor" d="M15.5 16.2c0-1.8 1.4-3.2 3.2-3.2h4.5c1.7 0 3.1 1.3 3.2 3l.7 11h7.4c1.6 0 3 1.2 3.2 2.8l1.4 10.4c.2 1.5-1 2.8-2.5 2.8-1.2 0-2.3-.9-2.5-2.1l-1.1-7.8H22.7c-4 0-7.2-3.2-7.2-7.2z"/><path d="M13.5 13.5 31 32.5" stroke="var(--lamp-bg)" stroke-width="7" stroke-linecap="round"/><path d="M13.5 13.5 31 32.5" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><rect x="28.2" y="30" width="7.6" height="5.4" rx="1.2" fill="currentColor" stroke="var(--lamp-bg)" stroke-width="1.6"/></svg>`;
+  const ICON_WATCH = `<svg viewBox="0 0 24 24" class="ico-watch" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="7.6"/><path d="M12 13.5V9.4M9.6 2.6h4.8M12 2.6v3.3M18.6 6.4l1.6-1.6"/></svg>`;
+
   function renderHome() {
     const st = stateAt(S.t);
     const ticks = Array.from({ length: 61 }, (_, i) => `<i class="${i % 6 === 0 ? 'h' : ''}"></i>`).join('');
@@ -300,54 +304,48 @@
         </div>
 
         <div class="segmented" role="tablist">
-          <button class="seg-icon" type="button" id="resetView" data-tip="Machine overview" aria-label="Show machine overview"><i data-lucide="layout-grid"></i></button>
+          <button class="seg-icon" type="button" id="resetView" data-tip="Machine details" aria-label="Show machine details"><i data-lucide="layout-grid"></i></button>
           <div class="seg-tabs">
             <span class="seg-pill" id="segPill" style="transform:translateX(${S.labels ? 132 : 0}px)"></span>
-            <button class="seg-tab${S.labels ? '' : ' active'}" role="tab" data-seg="ops" type="button">Operations</button>
-            <button class="seg-tab${S.labels ? ' active' : ''}" role="tab" data-seg="status" type="button">Machine Status</button>
+            <button class="seg-tab${S.labels ? '' : ' active'}" role="tab" data-seg="ops" type="button">Machine</button>
+            <button class="seg-tab${S.labels ? ' active' : ''}" role="tab" data-seg="status" type="button">Show parts</button>
           </div>
         </div>
 
-        <div class="card ghost rise" id="ghost" style="--i:1" aria-live="polite">
-          <div class="gh-top"><span class="eyebrow">Ghost delta</span><span class="gh-task" id="ghTask"></span></div>
-          <div class="gh-delta num" id="ghDelta">0:00</div>
-          <div class="gh-sub" id="ghSub"></div>
-          <div class="gh-track" aria-hidden="true"><span class="gh-pin ghost-pin" id="ghGhost"><i data-lucide="ghost"></i></span><span class="gh-pin you-pin" id="ghYou"></span><span class="gh-fill" id="ghFill"></span></div>
-          <div class="gh-legend"><span><i class="lg you"></i>You <b id="ghYouPct">0%</b></span><span><i class="lg best"></i>Your best <b id="ghBestPct">0%</b></span></div>
+        <div class="hud pace rise" id="ghost" style="--i:1" aria-live="polite">
+          <div class="hud-head">${ICON_WATCH}<span>Your pace</span><em id="ghTask"></em></div>
+          <div class="hud-read"><b class="num" id="ghDelta">0:00</b><span id="ghWord"></span></div>
+          <div class="hud-sub" id="ghSub"></div>
+          <div class="lap"><span>You</span><div class="lap-bar"><i id="ghFill"></i></div><b id="ghYouPct">0%</b></div>
+          <div class="lap best"><span>Best</span><div class="lap-bar"><i id="ghBestFill"></i></div><b id="ghBestPct">0%</b></div>
         </div>
 
-        <div class="card belt rise" id="beltCard" style="--i:2" aria-live="polite">
-          <div class="gh-top"><span class="eyebrow">Seatbelt</span><span class="belt-live">Live</span></div>
+        <div class="hud belt rise" id="beltCard" style="--i:2" aria-live="polite">
+          <div class="hud-head"><span>Seatbelt</span><em class="hud-live">Live</em></div>
           <div class="belt-main">
-            <svg class="belt-ill" viewBox="0 0 56 56" aria-hidden="true">
-              <path class="seat" d="M19 5h14a4 4 0 0 1 4 4v23H15V9a4 4 0 0 1 4-4z"/>
-              <path class="seat" d="M10 33h32a4 4 0 0 1 4 4v5H6v-5a4 4 0 0 1 4-4z"/>
-              <path class="seat" d="M13 42v8M39 42v8"/>
-              <g class="strap-on"><path class="strap" d="M18 9 L35 35"/><rect class="buckle" x="31.5" y="32" width="8" height="6" rx="1.6"/></g>
-              <g class="strap-off"><path class="strap" d="M18 9 C 11 15, 10 22, 13 27"/><rect class="buckle" x="9" y="26" width="8" height="6" rx="1.6"/><rect class="latch" x="34" y="33" width="5" height="4" rx="1"/></g>
-            </svg>
-            <div class="belt-txt"><b class="belt-state" id="beltState">Fastened</b><small id="beltSub"></small></div>
+            <span class="telltale" aria-hidden="true">${ICON_BELT}</span>
+            <div class="belt-txt"><b class="belt-state" id="beltState">Belt on</b><small id="beltSub"></small></div>
           </div>
           <div class="belt-strip" id="beltStrip" aria-hidden="true"></div>
-          <div class="gh-legend"><span>Compliance today</span><b id="beltPct">100%</b></div>
+          <div class="hud-foot"><span>Belt on today</span><b id="beltPct">100%</b></div>
         </div>
 
-        <div class="pitstop" id="pitstop" role="dialog" aria-label="Pit stop lesson">
+        <div class="pitstop" id="pitstop" role="dialog" aria-label="Short video while you wait">
           <div class="ps-head">
-            <span class="ps-badge"><i data-lucide="hourglass"></i>Pit stop</span>
+            <span class="ps-badge"><i data-lucide="hourglass"></i>While you wait</span>
             <span class="ps-time" id="psTime"></span>
             <button class="icon-btn ps-x" type="button" data-ps="later" aria-label="Not now"><i data-lucide="x"></i></button>
           </div>
-          <div class="ps-belt" id="psBelt"><i data-lucide="armchair"></i>Belt is off. Buckle up before you restart.</div>
+          <div class="ps-belt" id="psBelt"><i data-lucide="armchair"></i>Your belt is off. Put it on before you start again.</div>
           <button class="ps-body" type="button" data-ps="watch">
             <span class="ps-thumb"><img id="psImg" alt="" /><span class="playb"><i data-lucide="play"></i></span></span>
-            <span class="ps-txt"><small>Picked for this idle</small><b id="psTitle"></b><em id="psWhy"></em></span>
+            <span class="ps-txt"><small>Short video for you</small><b id="psTitle"></b><em id="psWhy"></em></span>
           </button>
           <div class="ps-actions">
             <button class="btn dark" type="button" data-ps="watch"><i data-lucide="play"></i>Watch now</button>
             <button class="btn outline" type="button" data-ps="later">Later</button>
           </div>
-          <div class="ps-note"><i data-lucide="lock"></i>Hydraulics stay locked while a lesson plays. It stops when the joystick moves.</div>
+          <div class="ps-note"><i data-lucide="lock"></i>The arm stays locked. The video stops when you move the joystick.</div>
         </div>
 
         <div class="overview${S.overviewOpen ? '' : ' closed'}" id="overview">
@@ -356,16 +354,16 @@
           <div class="ov-id"><span>Machine ID: EXC001</span><span class="online">Online</span></div>
           ${BLUEPRINT}
           <div class="ov-body" id="ovBody"></div>
-          <button class="ov-cta" type="button" data-go="machine"><span>View Full Details</span><i data-lucide="chevron-right"></i></button>
+          <button class="ov-cta" type="button" data-go="machine"><span>See all machine details</span><i data-lucide="chevron-right"></i></button>
         </div>
         <button class="xbtn${S.overviewOpen ? '' : ' closed'}" id="xbtn" type="button" aria-label="Close overview"><i data-lucide="x"></i></button>
 
         <div class="card replay rise" style="--i:3">
           <div class="replay-top">
             <button class="play" id="playBtn" type="button" aria-label="Pause replay"><i data-lucide="${S.paused ? 'play' : 'pause'}"></i></button>
-            <span class="label">Playback Speed:</span>
+            <span class="label">Replay speed</span>
             <div class="pills">${[1, 2, 4].map((s) => `<button class="pill${S.speed === s ? ' active' : ''}" data-speed="${s}" type="button">${s}x</button>`).join('')}</div>
-            <button class="live" id="liveBtn" type="button">Live</button>
+            <button class="live" id="liveBtn" type="button">Back to now</button>
           </div>
           <div class="track" id="track" aria-label="Shift replay timeline, 08:00 to 18:00">
             <div class="ticks">${ticks}</div>
@@ -375,10 +373,10 @@
             <div class="playhead" id="playhead"><span class="playhead-time" id="phTime"></span></div>
           </div>
           <div class="chips">
-            <span class="k">Current Status:</span><span class="chip ink" id="chipStatus"></span>
+            <span class="k">Now:</span><span class="chip ink" id="chipStatus"></span>
             <span class="chip"><i data-lucide="user-round"></i>Operator: OP1001</span>
-            <span class="chip" id="chipTask"><i data-lucide="shovel"></i>Task: T002 Trenching</span>
-            <span class="chip"><i data-lucide="cloud-rain"></i>Weather: Rain · 24°C</span>
+            <span class="chip" id="chipTask"><i data-lucide="shovel"></i>Job: Trenching</span>
+            <span class="chip"><i data-lucide="cloud-rain"></i>Rain, 24°C</span>
           </div>
         </div>
       </section>
@@ -406,7 +404,7 @@
     D.segments.forEach((s) => {
       if (s.kind === 'break') return;
       const a = s.from, b = Math.min(s.to, D.LIVE);
-      if (b > a) out.push(`<span class="seg ${s.kind}" style="left:${pct(a, 0, 600)}%;width:${pct(b, 0, 600) - pct(a, 0, 600)}%" data-tip="<b>${hhmm(a)} to ${hhmm(b)}</b> ${s.kind === 'work' ? 'Working' : 'Idle'}${s.task ? ' · ' + s.task : ''}${s.beltOff ? ' · belt off' : ''}"></span>`);
+      if (b > a) out.push(`<span class="seg ${s.kind}" style="left:${pct(a, 0, 600)}%;width:${pct(b, 0, 600) - pct(a, 0, 600)}%" data-tip="<b>${hhmm(a)} to ${hhmm(b)}</b> ${s.kind === 'work' ? 'Working' : 'Waiting'}${s.task ? ' · ' + s.task : ''}${s.beltOff ? ' · belt off' : ''}"></span>`);
     });
     out.push(`<span class="seg future" style="left:${pct(D.LIVE, 0, 600)}%;width:${100 - pct(D.LIVE, 0, 600)}%"></span>`);
     return out.join('');
@@ -507,18 +505,18 @@
     if (!box) return;
     const r = ghostAt(S.t);
     box.classList.toggle('idle', !r);
-    if (!r) { $('#ghTask').textContent = 'No task yet'; $('#ghDelta').textContent = '0:00'; $('#ghSub').textContent = 'Starts with your first task'; return; }
+    if (!r) { $('#ghTask').textContent = ''; $('#ghDelta').textContent = '--:--'; $('#ghWord').textContent = ''; $('#ghSub').textContent = 'Starts with your first job.'; return; }
     const behind = r.delta > 0.05, ahead = r.delta < -0.05;
     box.classList.toggle('behind', behind);
     box.classList.toggle('ahead', ahead);
-    $('#ghTask').textContent = `${r.g.id} ${r.g.name}`;
-    $('#ghDelta').textContent = `${behind ? '+' : ahead ? '-' : ''}${mmss(r.delta)}`;
+    $('#ghTask').textContent = r.g.name;
+    $('#ghDelta').textContent = mmss(r.delta);
+    $('#ghWord').textContent = behind ? 'slower' : ahead ? 'faster' : 'level';
     $('#ghSub').textContent = r.done
-      ? `${behind ? 'Behind' : 'Ahead of'} your best by ${mmss(r.delta)} · finished in ${r.g.total} min`
-      : `${behind ? 'behind' : ahead ? 'ahead of' : 'level with'} your best · ${r.g.pb} min on ${r.g.pbWhen}`;
-    $('#ghYou').style.left = `${r.you * 100}%`;
-    $('#ghGhost').style.left = `${r.best * 100}%`;
+      ? `Finished in ${r.g.total} min. Your best is ${r.g.pb} min.`
+      : `than your best time of ${r.g.pb} min (${r.g.pbWhen}).`;
     $('#ghFill').style.transform = `scaleX(${r.you})`;
+    $('#ghBestFill').style.transform = `scaleX(${r.best})`;
     $('#ghYouPct').textContent = `${Math.round(r.you * 100)}%`;
     $('#ghBestPct').textContent = `${Math.round(r.best * 100)}%`;
   }
@@ -542,10 +540,10 @@
     // time since the last change of belt state
     const offNow = wins.find(([f, e]) => t >= f && t < e);
     const lastOn = wins.filter(([, e]) => e <= t).map(([, e]) => e).pop() ?? 0;
-    $('#beltState').textContent = state === 'na' ? 'Engine off' : state === 'off' ? 'Unfastened' : 'Fastened';
-    $('#beltSub').textContent = state === 'na' ? 'On break · not tracked'
-      : state === 'off' ? (st.kind === 'work' ? 'Machine moving. Stop and buckle up.' : `Unbuckled for ${Math.floor(t - offNow[0])} min · idle`)
-      : `Buckled since ${hhmm(lastOn)}`;
+    $('#beltState').textContent = state === 'na' ? 'Engine off' : state === 'off' ? 'Belt off' : 'Belt on';
+    $('#beltSub').textContent = state === 'na' ? 'Lunch break'
+      : state === 'off' ? (st.kind === 'work' ? 'Stop. Put your belt on.' : `Off for ${Math.floor(t - offNow[0])} min while waiting`)
+      : `Since ${hhmm(lastOn)}`;
     $('#beltPct').textContent = `${pct}%`;
     // strip: belt history from 08:00 to now
     const parts = [];
@@ -574,9 +572,9 @@
         p.dataset.video = v.id;
         $('#psImg').src = `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`;
         $('#psTitle').textContent = v.title;
-        $('#psWhy').textContent = st.beltOff ? 'You unbuckled during this idle. 2 of 4 snapshots show the same pattern.' : 'Idle burns fuel: 2.0 L per load cycle at worst, 4x the target.';
+        $('#psWhy').textContent = st.beltOff ? 'Your belt came off during this wait.' : 'Waiting with the engine on burns fuel. See how to cut it.';
       }
-      $('#psTime').textContent = `Idle ${Math.floor(idleFor)} min`;
+      $('#psTime').textContent = `Waiting ${Math.floor(idleFor)} min`;
       p.classList.toggle('belt', st.beltOff);
     }
     p.classList.toggle('on', show);
@@ -600,10 +598,10 @@
     updateBelt(st);
     updatePitstop(st);
     const chip = $('#chipStatus');
-    chip.textContent = st.kind === 'work' ? (st.beltOff ? 'Working · belt off' : 'Working') : st.kind === 'idle' ? (st.beltOff ? 'Idle · belt off' : 'Idle') : 'Break';
+    chip.textContent = st.kind === 'work' ? (st.beltOff ? 'Working, belt off' : 'Working') : st.kind === 'idle' ? (st.beltOff ? 'Waiting, belt off' : 'Waiting') : 'Lunch';
     chip.className = `chip ink${st.kind === 'idle' ? ' idle' : st.kind === 'break' ? ' break' : ''}`;
     const task = $('#chipTask');
-    if (task) task.lastChild.textContent = `Task: ${st.task || (st.kind === 'break' ? 'Lunch break' : 'Waiting for truck')}`;
+    if (task) task.lastChild.textContent = `Job: ${st.task || (st.kind === 'break' ? 'Lunch break' : 'Waiting for a truck')}`;
     $$('.hs').forEach((h) => {
       const [tone, text] = hsStatus(h.dataset.hs);
       h.classList.toggle('alert', tone === 'crit');
@@ -679,23 +677,23 @@
       const over = done ? 0 : Math.max(0, P(p.t) - p.t.est);
       const w = pct(len, 0, MAX);
       return `<div class="stint ${p.status} rise" style="--i:${i};left:${pct(p.start, 0, MAX)}%;width:${w}%"
-        data-tip="<b>${p.t.id} ${p.t.type}</b><br>${hhmm(p.start)} to ${hhmm(p.start + len)} · ${done ? `actual ${p.t.actual} min` : `predicted ${Math.round(P(p.t))} min (planned ${p.t.est})`}">
+        data-tip="<b>${p.t.id} ${p.t.type}</b><br>${hhmm(p.start)} to ${hhmm(p.start + len)} · ${done ? `took ${p.t.actual} min` : `expect ${Math.round(P(p.t))} min (plan was ${p.t.est})`}">
         ${over ? `<span class="over" style="width:${(over / len) * 100}%"></span>` : ''}
         <b>${p.t.id}</b><small>${p.t.type}</small></div>`;
     }).join('');
 
     main.innerHTML = `<div class="page">
-      ${head('tasks', 'Today is a five-stint shift on EXC001. Predicted times already include weather, skill and machine age.',
-        `<button class="btn" type="button" data-go="estimator"><i data-lucide="timer"></i>Estimate a task</button>`)}
+      ${head('tasks', '5 jobs today on EXC001. The times already include the rain and your experience.',
+        `<button class="btn" type="button" data-go="estimator"><i data-lucide="timer"></i>Check a job time</button>`)}
       <div class="grid">
         <div class="card pcard c12 rise">
-          <h3>Stint strategy</h3><div class="sub">Shift plan, 08:00 to 18:30. Hatched ends show predicted overrun. The yellow line is now.</div>
-          <div class="legend" style="margin-top:12px"><span><i class="sw" style="background:#EDEDEA;border:1px solid var(--line)"></i>Done</span><span><i class="sw" style="background:var(--ink)"></i>Active</span><span><i class="sw" style="background:#fff;border:1px solid var(--line)"></i>Up next</span><span><i class="sw" style="background:repeating-linear-gradient(-45deg,rgba(255,170,2,.7) 0 3px,rgba(255,170,2,.25) 3px 6px)"></i>Predicted overrun</span><span><i class="sw" style="border:1px dashed var(--info)"></i>Rain window</span></div>
+          <h3>Today's plan</h3><div class="sub">08:00 to 18:30. Striped ends mean the job will likely run late. The yellow line is now.</div>
+          <div class="legend" style="margin-top:12px"><span><i class="sw" style="background:#EDEDEA;border:1px solid var(--line)"></i>Done</span><span><i class="sw" style="background:var(--ink)"></i>Doing now</span><span><i class="sw" style="background:#fff;border:1px solid var(--line)"></i>Next</span><span><i class="sw" style="background:repeating-linear-gradient(-45deg,rgba(255,170,2,.7) 0 3px,rgba(255,170,2,.25) 3px 6px)"></i>Likely late</span><span><i class="sw" style="border:1px dashed var(--info)"></i>Rain</span></div>
           <div class="strip" style="margin-top:36px">
             <div class="strip-row">
-              <div class="rain-zone" style="left:${pct(360, 0, MAX)}%;width:${pct(480, 0, MAX) - pct(360, 0, MAX)}%"><span class="rain-tag" style="left:8px"><i data-lucide="cloud-rain"></i>Rain 14:00 to 16:00 · +3.9 min on T002</span></div>
+              <div class="rain-zone" style="left:${pct(360, 0, MAX)}%;width:${pct(480, 0, MAX) - pct(360, 0, MAX)}%"><span class="rain-tag" style="left:8px"><i data-lucide="cloud-rain"></i>Rain 14:00 to 16:00, adds 4 min to trenching</span></div>
               ${blocks}
-              <span class="pause" style="position:absolute;left:${pct(240, 0, MAX)}%;width:${pct(60, 0, MAX)}%;top:26px;text-align:center;font-size:11px;color:var(--t3)">Pit stop</span>
+              <span class="pause" style="position:absolute;left:${pct(240, 0, MAX)}%;width:${pct(60, 0, MAX)}%;top:26px;text-align:center;font-size:11px;color:var(--t3)">Lunch</span>
               <span class="now-line" style="left:${pct(D.LIVE, 0, MAX)}%" data-tip="<b>Now</b> ${hhmm(D.LIVE)}"></span>
             </div>
             <div class="strip-hours">${[0, 120, 240, 360, 480, 600].map((m) => `<span style="left:${pct(m, 0, MAX)}%">${hhmm(m)}</span>`).join('')}</div>
@@ -705,18 +703,18 @@
           const pr = P(p.t), done = p.status === 'done';
           const hi = Math.max(p.t.est, pr * 1.08, p.t.actual) * 1.15;
           return `<div class="card task-card c4 rise" style="--i:${i + 1}">
-            <div class="task-top"><span class="tag ${p.status === 'active' ? 'active' : done ? 'done' : ''}">${done ? '<i data-lucide="check" style="width:12px;height:12px"></i>Done' : p.status === 'active' ? 'Active' : 'Up next'}</span><span class="num" style="font-size:14px;color:var(--t2)">${p.t.id}</span></div>
+            <div class="task-top"><span class="tag ${p.status === 'active' ? 'active' : done ? 'done' : ''}">${done ? '<i data-lucide="check" style="width:12px;height:12px"></i>Done' : p.status === 'active' ? 'Doing now' : 'Next'}</span><span class="num" style="font-size:14px;color:var(--t2)">${p.t.id}</span></div>
             <h4>${p.t.type}</h4>
-            <div class="meta"><span><i data-lucide="map-pin"></i>${p.zone}</span><span><i data-lucide="${WICON[p.t.weather]}"></i>${p.t.weather}</span><span><i data-lucide="hard-hat"></i>${p.t.skill}</span><span><i data-lucide="calendar"></i>Machine ${p.t.age} yr</span></div>
+            <div class="meta"><span><i data-lucide="map-pin"></i>${p.zone}</span><span><i data-lucide="${WICON[p.t.weather]}"></i>${p.t.weather}</span><span><i data-lucide="hard-hat"></i>${p.t.skill}</span><span><i data-lucide="calendar"></i>Machine ${p.t.age} years old</span></div>
             <div>
-              <div class="range" data-tip="Planned <b>${p.t.est}</b> · predicted <b>${pr.toFixed(0)}</b>${done ? ` · actual <b>${p.t.actual}</b>` : ''} min">
+              <div class="range" data-tip="Plan <b>${p.t.est}</b> · expect <b>${pr.toFixed(0)}</b>${done ? ` · took <b>${p.t.actual}</b>` : ''} min">
                 <div class="range-track"></div>
                 <div class="range-band" style="left:${pct(pr * 0.92, 0, hi)}%;width:${pct(pr * 1.08, 0, hi) - pct(pr * 0.92, 0, hi)}%"></div>
                 ${done ? `<div class="range-fill growx" style="width:${pct(p.t.actual, 0, hi)}%"></div>` : p.status === 'active' ? `<div class="range-fill growx" style="width:${pct(31, 0, hi)}%"></div>` : ''}
                 <span class="range-tick plan" style="left:${pct(p.t.est, 0, hi)}%"></span>
                 <span class="range-tick pred" style="left:${pct(pr, 0, hi)}%"></span>
               </div>
-              <div class="range-scale"><span>Planned ${p.t.est} min</span><span><b style="color:var(--text)">${done ? `Actual ${p.t.actual}` : `Likely ${Math.round(pr * 0.92)} to ${Math.round(pr * 1.08)}`}</b> min</span></div>
+              <div class="range-scale"><span>Plan ${p.t.est} min</span><span><b style="color:var(--text)">${done ? `Took ${p.t.actual}` : `Expect ${Math.round(pr * 0.92)} to ${Math.round(pr * 1.08)}`}</b> min</span></div>
             </div>
           </div>`;
         }).join('')}
@@ -725,14 +723,14 @@
 
   /* ---------- SAFETY ---------- */
   const FLAGS = {
-    green: { icon: 'flag', t: 'Green flag', s: 'All clear. Work normally.' },
-    yellow: { icon: 'triangle-alert', t: 'Yellow flag', s: 'Hazard nearby. Slow down, watch the outer zone.' },
-    red: { icon: 'octagon-x', t: 'Red flag', s: 'Stop now. Person inside swing radius.' },
-    blue: { icon: 'truck', t: 'Blue flag', s: 'Give way. Dump truck approaching from the left.' },
+    green: { icon: 'flag', t: 'All clear', s: 'Work as normal.' },
+    yellow: { icon: 'triangle-alert', t: 'Slow down', s: 'Someone is near the machine. Watch your swing.' },
+    red: { icon: 'octagon-x', t: 'Stop now', s: 'A person is inside your swing area.' },
+    blue: { icon: 'truck', t: 'Give way', s: 'A dump truck is coming from the left.' },
   };
   const CHECKS = [
-    { icon: 'footprints', l: 'Walkaround' }, { icon: 'scan-eye', l: 'Mirrors' }, { icon: 'droplet', l: 'Fluids' },
-    { icon: 'camera', l: 'Camera' }, { icon: 'armchair', l: 'Seatbelt' },
+    { icon: 'footprints', l: 'Walk around' }, { icon: 'scan-eye', l: 'Mirrors' }, { icon: 'droplet', l: 'Oil and fluids' },
+    { icon: 'camera', l: 'Cameras' }, { icon: 'armchair', l: 'Belt on' },
   ];
 
   function renderSafety() {
@@ -743,12 +741,12 @@
     const W = 520, H = 210, pl = 34, pb = 44, pt = 22, bw = 58;
     const x = (i) => pl + 30 + i * ((W - pl - 60) / 3);
     const y = (v) => pt + (1 - v / 70) * (H - pt - pb);
-    const belt = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Idle minutes per snapshot, colored by seatbelt status">
+    const belt = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Minutes waiting at each reading, and whether the belt was on">
       <defs><pattern id="hatchC" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#D61D1D"/><rect width="2.5" height="6" fill="#F07B7B"/></pattern></defs>
       ${[0, 20, 40, 60].map((v) => `<line class="grid-l" x1="${pl}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text x="${pl - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`).join('')}
       ${tel.map((r, i) => {
         const off = r.belt === 'Unfastened';
-        return `<g data-tip="<b>${r.label}</b><br>Idle ${r.idle} min · belt ${r.belt.toLowerCase()} · ${r.cycles} load cycles">
+        return `<g data-tip="<b>${r.label}</b><br>Waiting ${r.idle} min · belt ${r.belt === 'Fastened' ? 'on' : 'off'} · ${r.cycles} loads">
           <rect class="grow" style="--i:${i}" x="${x(i) - bw / 2}" y="${y(r.idle)}" width="${bw}" height="${y(0) - y(r.idle)}" rx="4" fill="${off ? 'url(#hatchC)' : '#080808'}"/>
           <text class="lbl" x="${x(i)}" y="${y(r.idle) - 7}" text-anchor="middle">${r.idle} min</text>
           <text x="${x(i)}" y="${H - 24}" text-anchor="middle">${r.label}</text>
@@ -759,63 +757,63 @@
     const ang = (deg, r) => [140 + r * Math.cos((deg * Math.PI) / 180), 140 + r * Math.sin((deg * Math.PI) / 180)];
     const [px, py] = ang(205, 94), [tx, ty] = ang(-35, 122);
     const radar = `<div class="radar-wrap"><div class="sweep"></div>
-      <svg viewBox="0 0 280 280" role="img" aria-label="Proximity radar: one person in the outer zone, one truck approaching">
+      <svg viewBox="0 0 280 280" role="img" aria-label="One person in the slow zone, one truck coming closer">
         <circle cx="140" cy="140" r="132" fill="none" stroke="#E6E6E3"/>
         <circle cx="140" cy="140" r="104" fill="rgba(255,170,2,.08)" stroke="#FFAA02" stroke-dasharray="4 4"/>
         <circle cx="140" cy="140" r="62" fill="rgba(214,29,29,.07)" stroke="#D61D1D"/>
         <line x1="140" y1="8" x2="140" y2="272" stroke="#EFEFEC"/><line x1="8" y1="140" x2="272" y2="140" stroke="#EFEFEC"/>
         <g transform="rotate(-20 140 140)"><rect x="126" y="122" width="28" height="36" rx="4" fill="#FFCD11" stroke="#080808"/><rect x="134" y="84" width="8" height="40" rx="2" fill="#FFCD11" stroke="#080808"/></g>
         <circle class="blip" cx="${px}" cy="${py}" r="7" fill="#FFAA02"/>
-        <circle cx="${px}" cy="${py}" r="6" fill="#FFAA02" stroke="#fff" stroke-width="2" data-tip="<b>Ground worker</b> · 9.4 m · outer zone"/>
-        <rect x="${tx - 7}" y="${ty - 7}" width="14" height="14" rx="3" fill="#3A8DFF" stroke="#fff" stroke-width="2" data-tip="<b>Dump truck</b> · 12 m · approaching"/>
+        <circle cx="${px}" cy="${py}" r="6" fill="#FFAA02" stroke="#fff" stroke-width="2" data-tip="<b>Worker</b> · 9.4 m away · slow zone"/>
+        <rect x="${tx - 7}" y="${ty - 7}" width="14" height="14" rx="3" fill="#3A8DFF" stroke="#fff" stroke-width="2" data-tip="<b>Dump truck</b> · 12 m away · coming closer"/>
         <text x="140" y="${140 - 68}" text-anchor="middle" style="font:500 10px Roboto Condensed;fill:#B3161B">6 m stop</text>
         <text x="140" y="${140 - 110}" text-anchor="middle" style="font:500 10px Roboto Condensed;fill:#9A6300">10 m slow</text>
       </svg></div>`;
 
     main.innerHTML = `<div class="page">
-      ${head('safety', 'Safety alerts work without reading: color, shape, and the glow around the screen edge. Designed for gloves, noise and glare.')}
+      ${head('safety', 'Warnings show as a colour around the screen, so you see them without reading.')}
       <div class="grid">
         <div class="card pcard c5 rise flag-tile">
-          <div><h3>Flag status</h3><div class="sub">Tap a flag to preview what the operator sees.</div></div>
+          <div><h3>Site warning</h3><div class="sub">Tap one to see how it looks in the cab.</div></div>
           <div class="flag-big ${S.flag}" id="flagBig"><i data-lucide="${f.icon}"></i><div><b>${f.t}</b><small>${f.s}</small></div></div>
-          <div class="opt-row">${Object.keys(FLAGS).map((k) => `<button class="opt${S.flag === k ? ' active' : ''}" data-flag="${k}" type="button" style="height:48px;padding:0 18px">${k[0].toUpperCase() + k.slice(1)}</button>`).join('')}</div>
+          <div class="opt-row">${Object.keys(FLAGS).map((k) => `<button class="opt${S.flag === k ? ' active' : ''}" data-flag="${k}" type="button" style="height:48px;padding:0 18px">${FLAGS[k].t}</button>`).join('')}</div>
         </div>
         <div class="card pcard c7 rise" style="--i:1">
-          <h3>Start lights</h3><div class="sub">The machine will not start work until every check is done. The seatbelt is always last.</div>
+          <h3>Before you start</h3><div class="sub">Do all 5 checks. The red lights go out when you are ready. Belt goes last.</div>
           <div class="gantry${allDone ? ' go' : ''}" id="gantry">${S.lights.map((d) => `<span class="light${d ? '' : ' on'}"></span>`).join('')}</div>
           <div class="checks">${CHECKS.map((c, i) => `<button class="check${S.lights[i] ? ' done' : ''}" data-check="${i}" type="button"><i data-lucide="${S.lights[i] ? 'check' : c.icon}"></i>${c.l}</button>`).join('')}</div>
-          <div class="go-msg" id="goMsg">${allDone ? '<i data-lucide="circle-check" style="color:var(--ok)"></i>Lights out. Good to go.' : `${S.lights.filter(Boolean).length} of 5 checks done`}</div>
+          <div class="go-msg" id="goMsg">${allDone ? '<i data-lucide="circle-check" style="color:var(--ok)"></i>All done. You can start.' : `${S.lights.filter(Boolean).length} of 5 done`}</div>
         </div>
         <div class="card pcard c7 rise" style="--i:2">
-          <h3>Seatbelt compliance</h3><div class="sub">Idle minutes per telemetry snapshot. Hatched red means the belt was off.</div>
+          <h3>When the belt came off</h3><div class="sub">Minutes spent waiting at each machine reading. Red stripes mean the belt was off.</div>
           ${belt}
-          <div class="note"><i data-lucide="lightbulb"></i><span><b>Both belt-off snapshots had 55+ min of idle.</b> Operators unbuckle while waiting, so the risk peaks when work restarts. The assistant checks the belt the moment the joystick moves after an idle.</span></div>
+          <div class="note"><i data-lucide="lightbulb"></i><span><b>Both times, the belt came off during a wait of about an hour.</b> The risky part is starting work again. The screen checks your belt as soon as you move the joystick.</span></div>
         </div>
         <div class="card pcard c5 rise" style="--i:3">
-          <h3>Proximity radar</h3><div class="sub">Swing radius zones from rear and side sensors.</div>
+          <h3>Who is near you</h3><div class="sub">People and vehicles around the machine.</div>
           ${radar}
           <div class="legend" style="justify-content:center;margin-top:10px"><span><i class="sw" style="background:#FFAA02;border-radius:50%"></i>Person</span><span><i class="sw" style="background:#3A8DFF"></i>Vehicle</span><span><i class="sw" style="border:1px solid #D61D1D"></i>Stop zone</span></div>
         </div>
         <div class="card pcard c5 rise" style="--i:4">
-          <h3>Working conditions</h3><div class="sub">Live site conditions that change how the assistant behaves.</div>
+          <h3>Site conditions</h3><div class="sub">Right now on site.</div>
           <div class="cond">
             <div><span><i data-lucide="cloud-rain"></i>Weather</span><b>Rain</b></div>
             <div><span><i data-lucide="thermometer"></i>Temperature</span><b>24 °C</b></div>
             <div><span><i data-lucide="eye"></i>Visibility</span><b>1.2 km</b></div>
             <div><span><i data-lucide="layers"></i>Ground</span><b>Wet clay</b></div>
             <div><span><i data-lucide="wind"></i>Wind</span><b>18 km/h</b></div>
-            <div><span><i data-lucide="sun"></i>Heat stress</span><b>Low</b></div>
+            <div><span><i data-lucide="sun"></i>Heat risk</span><b>Low</b></div>
           </div>
-          <div class="note"><i data-lucide="hand"></i><span><b>Rain mode is on:</b> bigger touch targets for wet gloves and higher contrast.</span></div>
+          <div class="note"><i data-lucide="hand"></i><span><b>Rain mode is on.</b> Bigger buttons for wet gloves.</span></div>
         </div>
         <div class="card pcard c7 rise" style="--i:5">
-          <h3>Incident log</h3><div class="sub">Hold for 1.2 s. Saves the last 60 s of machine data and records a voice note.</div>
+          <h3>Report something</h3><div class="sub">Hold the button for 1 second, then say what happened.</div>
           <div class="hold-wrap">
             <button class="hold" id="holdBtn" type="button" aria-label="Hold to log incident">
               <svg viewBox="0 0 108 108" aria-hidden="true"><circle class="bg" cx="54" cy="54" r="52" fill="none" stroke-width="3"/><circle class="fg" cx="54" cy="54" r="52" fill="none" stroke-width="3" stroke-linecap="round"/></svg>
               HOLD
             </button>
-            <div style="font-size:12.5px;color:var(--t2)">Works with gloves. A bump or a pothole cannot trigger it. Voice notes are saved in the operator's language and translated for the supervisor.</div>
+            <div style="font-size:12.5px;color:var(--t2)">Works with gloves on. A bump will not set it off. Speak in your own language.</div>
           </div>
           <div class="inc-list" id="incList">${incRows(3)}</div>
         </div>
@@ -824,12 +822,12 @@
             <svg class="ring" viewBox="0 0 124 124" aria-hidden="true"><circle class="fg" cx="62" cy="62" r="59" fill="none" stroke-width="3" stroke-linecap="round"/></svg>SOS</button>
           <div style="flex:1;min-width:260px">
             <h3>Emergency SOS</h3>
-            <div class="sub">Hold for 1.5 s, here or in the top bar. On the machine it is the red button on the right console. One press does all of this:</div>
+            <div class="sub">Hold for 1.5 seconds, here or at the top of the screen. In the cab it is the red button on the right. It does all of this at once:</div>
             <div class="sos-list" style="margin-top:14px">
-              <div><i data-lucide="octagon-pause"></i>Safe-stop: hydraulics lock, engine to low idle</div>
-              <div><i data-lucide="radio"></i>Supervisor alerted on radio and phone</div>
-              <div><i data-lucide="ambulance"></i>Site medic dispatched with location</div>
-              <div><i data-lucide="hard-drive"></i>Last 60 s of data saved to the log</div>
+              <div><i data-lucide="octagon-pause"></i>Stops the machine and locks the arm</div>
+              <div><i data-lucide="radio"></i>Calls your supervisor on radio and phone</div>
+              <div><i data-lucide="ambulance"></i>Sends the site medic to you</div>
+              <div><i data-lucide="hard-drive"></i>Saves what the machine was doing</div>
             </div>
           </div>
         </div>
@@ -856,8 +854,8 @@
   }
   function logIncident() {
     S.incidents.forEach((x) => (x.fresh = false));
-    S.incidents.unshift({ time: 'Now', type: 'Operator report: last 60 s captured + voice note', src: 'Operator · hold button', sev: 'info', status: 'New', fresh: true });
-    toast('Incident logged. Last 60 s of data saved.', 'mic');
+    S.incidents.unshift({ time: 'Now', type: 'Your report, with voice note', src: 'You', sev: 'info', status: 'New', fresh: true });
+    toast('Report saved. Your supervisor can see it.', 'mic');
   }
 
   function bindSafety() {
@@ -874,14 +872,14 @@
       const ch = e.target.closest('[data-check]');
       if (ch) {
         const i = +ch.dataset.check;
-        if (i === 4 && !S.lights.slice(0, 4).every(Boolean)) { toast('Finish the other checks first. Seatbelt goes last.', 'armchair'); return; }
+        if (i === 4 && !S.lights.slice(0, 4).every(Boolean)) { toast('Do the other 4 checks first. Belt goes last.', 'armchair'); return; }
         S.lights[i] = !S.lights[i];
         if (!S.lights[i] && i < 4) S.lights[4] = false;
         const all = S.lights.every(Boolean);
         $$('.light').forEach((l, k) => l.classList.toggle('on', !S.lights[k]));
         $('#gantry').classList.toggle('go', all);
         $$('[data-check]').forEach((b, k) => { b.classList.toggle('done', S.lights[k]); b.innerHTML = `<i data-lucide="${S.lights[k] ? 'check' : CHECKS[k].icon}"></i>${CHECKS[k].l}`; });
-        $('#goMsg').innerHTML = all ? '<i data-lucide="circle-check" style="color:var(--ok)"></i>Lights out. Good to go.' : `${S.lights.filter(Boolean).length} of 5 checks done`;
+        $('#goMsg').innerHTML = all ? '<i data-lucide="circle-check" style="color:var(--ok)"></i>All done. You can start.' : `${S.lights.filter(Boolean).length} of 5 done`;
         icons();
       }
     });
@@ -892,42 +890,42 @@
   function renderTraining() {
     const slots = [['Thu', '09:30'], ['Thu', '13:00'], ['Fri', '08:00'], ['Fri', '12:30'], ['Sat', '10:00'], ['Sat', '14:00']];
     main.innerHTML = `<div class="page">
-      ${head('training', 'Training is picked from your own data. Lessons play during idle time, so waiting turns into learning.')}
+      ${head('training', 'Videos picked from how you worked this week. They only play when the machine is stopped.')}
       <div class="grid">
         <div class="licence c4 rise">
-          <div class="eyebrow" style="color:rgba(255,255,255,.6)">Operator licence</div>
+          <div class="eyebrow" style="color:rgba(255,255,255,.6)">Your level</div>
           <div style="display:flex;align-items:flex-end;gap:14px;margin-top:10px"><span class="lic-class">F2</span><span style="font-size:13px;color:rgba(255,255,255,.75);padding-bottom:6px">Intermediate<br>Aayush Raj · OP1001</span></div>
-          <div style="margin-top:22px;font-size:12px;color:rgba(255,255,255,.7);display:flex;justify-content:space-between"><span>Progress to F1</span><span>${Math.min(100, 62 + S.watched.size * 4)}%</span></div>
+          <div style="margin-top:22px;font-size:12px;color:rgba(255,255,255,.7);display:flex;justify-content:space-between"><span>To reach F1</span><span>${Math.min(100, 62 + S.watched.size * 4)}%</span></div>
           <div class="prog"><i style="width:${Math.min(100, 62 + S.watched.size * 4)}%"></i></div>
-          <div style="margin-top:18px;font-size:12px;color:rgba(255,255,255,.7);display:flex;justify-content:space-between"><span>Penalty points</span><span>2 of 12 · expire in 30 days</span></div>
+          <div style="margin-top:18px;font-size:12px;color:rgba(255,255,255,.7);display:flex;justify-content:space-between"><span>Warning points</span><span>2 of 12 · cleared in 30 days</span></div>
           <div class="points">${Array.from({ length: 12 }, (_, i) => `<i class="${i < 2 ? 'on' : ''}"></i>`).join('')}</div>
-          <div style="margin-top:18px;font-size:12px;color:rgba(255,255,255,.6)">Demolition tasks unlock at F1.</div>
+          <div style="margin-top:18px;font-size:12px;color:rgba(255,255,255,.6)">At F1 you can do demolition jobs.</div>
         </div>
         <div class="card pcard c8 rise" style="--i:1">
-          <h3>Recommended for you</h3><div class="sub">Ranked by the biggest gap in your recent data.</div>
+          <h3>Watch these first</h3><div class="sub">Based on your last shifts.</div>
           <div style="margin-top:8px">
-            <div class="rec"><span class="rec-ico hot"><i data-lucide="container"></i></span><div style="flex:1"><b>Material loading</b><small>T003 ran 40% over plan (42 min vs 30). Biggest overrun this week.</small></div><button class="btn dark" type="button" data-go="video/tgqk0jftKXc"><i data-lucide="play"></i>Watch</button></div>
-            <div class="rec"><span class="rec-ico"><i data-lucide="armchair"></i></span><div style="flex:1"><b>Belt on before you restart</b><small>2 of 4 snapshots show the belt off after long idles.</small></div><button class="btn outline" type="button" data-go="video/CJM_qHYXJDA"><i data-lucide="play"></i>Watch</button></div>
-            <div class="rec"><span class="rec-ico"><i data-lucide="fuel"></i></span><div style="flex:1"><b>Idle management</b><small>Fuel per cycle reached 2.0 L, 4x the 0.5 L target.</small></div><button class="btn outline" type="button" data-go="video/s22FKB2Zrnk"><i data-lucide="play"></i>Watch</button></div>
+            <div class="rec"><span class="rec-ico hot"><i data-lucide="container"></i></span><div style="flex:1"><b>Loading trucks</b><small>Your last loading job took 42 min. The plan was 30.</small></div><button class="btn dark" type="button" data-go="video/tgqk0jftKXc"><i data-lucide="play"></i>Watch</button></div>
+            <div class="rec"><span class="rec-ico"><i data-lucide="armchair"></i></span><div style="flex:1"><b>Belt on before you start again</b><small>Your belt was off after 2 long waits.</small></div><button class="btn outline" type="button" data-go="video/CJM_qHYXJDA"><i data-lucide="play"></i>Watch</button></div>
+            <div class="rec"><span class="rec-ico"><i data-lucide="fuel"></i></span><div style="flex:1"><b>Less waiting, less fuel</b><small>Long waits used 4 times more fuel per load.</small></div><button class="btn outline" type="button" data-go="video/s22FKB2Zrnk"><i data-lucide="play"></i>Watch</button></div>
           </div>
         </div>
         <div class="card pcard c8 rise" style="--i:2">
-          <h3>Video lessons from Cat</h3><div class="sub">Official Cat® Products videos. On the machine they only play when it is parked or has idled for 3 minutes.</div>
-          <div class="lessons">${D.videos.slice(0, 6).map((v) => `<button class="lesson" type="button" data-go="video/${v.id}"><div class="thumb"><img src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg" alt="" loading="lazy" /><span class="playb"><i data-lucide="play"></i></span>${S.watched.has(v.id) ? '<span class="dur">Completed</span>' : ''}</div><div class="t"><b>${v.title}</b><small>${v.topic}</small></div></button>`).join('')}</div>
+          <h3>Cat videos</h3><div class="sub">From the official Cat® Products channel.</div>
+          <div class="lessons">${D.videos.slice(0, 6).map((v) => `<button class="lesson" type="button" data-go="video/${v.id}"><div class="thumb"><img src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg" alt="" loading="lazy" /><span class="playb"><i data-lucide="play"></i></span>${S.watched.has(v.id) ? '<span class="dur">Watched</span>' : ''}</div><div class="t"><b>${v.title}</b><small>${v.topic}</small></div></button>`).join('')}</div>
         </div>
         <div class="card pcard c4 rise" style="--i:3">
-          <h3>Book an expert</h3><div class="sub">Ride along with an F1 operator from your site.</div>
-          <div style="display:flex;gap:10px;align-items:center;margin-top:14px"><span class="avatar" style="width:40px;height:40px">SM</span><div><b style="font-size:13px">S. Mehta · F1</b><div style="font-size:12px;color:var(--t2)">Material loading · 14 yrs</div></div></div>
+          <h3>Learn from a senior operator</h3><div class="sub">Sit in with S. Mehta on site.</div>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:14px"><span class="avatar" style="width:40px;height:40px">SM</span><div><b style="font-size:13px">S. Mehta · F1</b><div style="font-size:12px;color:var(--t2)">Loading expert · 14 years</div></div></div>
           <div class="slots">${slots.map(([d, t], i) => `<button class="slot${S.slot === i ? ' active' : ''}" data-slot="${i}" type="button">${d}<b>${t}</b></button>`).join('')}</div>
           <button class="btn" type="button" style="width:100%;justify-content:center;margin-top:12px" data-book>Book ${slots[S.slot][0]} ${slots[S.slot][1]}</button>
         </div>
         <div class="card pcard c12 rise" style="--i:4">
-          <h3>Park-mode simulator</h3><div class="sub">When the machine is parked, hydraulics lock and the real joysticks drive a simulator on this screen.</div>
+          <h3>Practice on this screen</h3><div class="sub">When the machine is parked, the joysticks control a practice game here. The arm stays locked.</div>
           <div class="sim">
             <svg class="grid-bg" aria-hidden="true"><defs><pattern id="g" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="rgba(255,255,255,.07)"/></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>
             <div class="content" style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
-              <div style="flex:1;min-width:240px"><div class="eyebrow" style="color:var(--y)">Scenario</div><div style="font:700 28px/1.1 var(--f-display);text-transform:uppercase;margin-top:6px">Load a truck in 4 passes</div><div style="font-size:12.5px;color:rgba(255,255,255,.7);margin-top:6px">Target: 3 min 20 s · your best: 3 min 52 s · expert: 3 min 05 s</div></div>
-              <div style="display:flex;gap:10px;align-items:center"><span class="chip" style="background:rgba(255,255,255,.08);color:#fff"><i data-lucide="lock"></i>Hydraulics locked</span><button class="btn" type="button" data-toast="Simulator starts when the machine is parked">Start simulator</button></div>
+              <div style="flex:1;min-width:240px"><div class="eyebrow" style="color:var(--y)">Practice</div><div style="font:700 28px/1.1 var(--f-display);text-transform:uppercase;margin-top:6px">Load a truck in 4 passes</div><div style="font-size:12.5px;color:rgba(255,255,255,.7);margin-top:6px">Goal 3:20 · your best 3:52 · expert 3:05</div></div>
+              <div style="display:flex;gap:10px;align-items:center"><span class="chip" style="background:rgba(255,255,255,.08);color:#fff"><i data-lucide="lock"></i>Arm locked</span><button class="btn" type="button" data-toast="Park the machine to start practice">Start practice</button></div>
             </div>
           </div>
         </div>
@@ -1010,36 +1008,36 @@
     </svg>`;
 
     main.innerHTML = `<div class="page">
-      ${head('insights', 'Unusual machine behaviour, found automatically in the telemetry. Each finding comes with one action.')}
+      ${head('insights', 'Where fuel and time went, and what to do about it.')}
       <div class="grid">
-        <div class="card pcard c3 rise kpi"><span class="eyebrow">Worst idle share</span><b><span data-count="${Math.round(intervals[0].share * 100)}">0</span>%</b><span class="delta"><span class="st crit">High</span>08:00 to 10:00 on 01 May</span></div>
-        <div class="card pcard c3 rise kpi" style="--i:1"><span class="eyebrow">Worst fuel per cycle</span><b><span data-count="2" data-dec="1">0</span> L</b><span class="delta"><span class="st crit">4x target</span>02 May 09:00</span></div>
-        <div class="card pcard c3 rise kpi" style="--i:2"><span class="eyebrow">Seatbelt off</span><b><span data-count="2">0</span> of 4</b><span class="delta"><span class="st crit">Both after long idles</span></span></div>
-        <div class="card pcard c3 rise kpi" style="--i:3"><span class="eyebrow">Engine hr per cycle</span><b><span data-count="3.7" data-dec="1">0</span> hr</b><span class="delta"><span class="st warn">Unusual</span>01 May 14:00 to 02 May 09:00</span></div>
+        <div class="card pcard c3 rise kpi"><span class="eyebrow">Most time waiting</span><b><span data-count="${Math.round(intervals[0].share * 100)}">0</span>%</b><span class="delta"><span class="st crit">High</span>08:00 to 10:00 on 01 May</span></div>
+        <div class="card pcard c3 rise kpi" style="--i:1"><span class="eyebrow">Most fuel per load</span><b><span data-count="2" data-dec="1">0</span> L</b><span class="delta"><span class="st crit">4 times normal</span>02 May 09:00</span></div>
+        <div class="card pcard c3 rise kpi" style="--i:2"><span class="eyebrow">Belt off</span><b><span data-count="2">0</span> of 4</b><span class="delta"><span class="st crit">Both during long waits</span></span></div>
+        <div class="card pcard c3 rise kpi" style="--i:3"><span class="eyebrow">Engine hours per load</span><b><span data-count="3.7" data-dec="1">0</span> hr</b><span class="delta"><span class="st warn">Check this</span>01 May 14:00 to 02 May 09:00</span></div>
 
-        <div class="card pcard c7 rise" style="--i:4"><h3>Fuel per load cycle</h3><div class="sub">Fuel used ÷ load cycles per snapshot. Red means more than double the target.</div>${lolli}</div>
-        <div class="card pcard c5 rise" style="--i:5"><h3>Idle share of engine time</h3><div class="sub">Between telemetry snapshots, from the engine-hour change.</div>
+        <div class="card pcard c7 rise" style="--i:4"><h3>Fuel per load</h3><div class="sub">Fuel used, divided by loads moved. Red is more than double the normal amount.</div>${lolli}</div>
+        <div class="card pcard c5 rise" style="--i:5"><h3>Time spent waiting</h3><div class="sub">Share of engine time when the machine was not working.</div>
           <div style="display:flex;justify-content:space-around;margin-top:18px;flex-wrap:wrap;gap:8px">${intervals.map(donut).join('')}</div>
           <div class="legend" style="justify-content:center;margin-top:14px"><span><i class="sw" style="background:#FFAA02"></i>Idle</span><span><i class="sw" style="background:#080808"></i>Working or travelling</span></div></div>
 
-        <div class="card pcard c7 rise" style="--i:6"><h3>Sector timing</h3><div class="sub">Each load cycle split into Dig, Swing, Dump, Return. Sample: 12 cycles from the 08:00 block.</div>
+        <div class="card pcard c7 rise" style="--i:6"><h3>Each load, step by step</h3><div class="sub">Dig, swing, dump and return times for 12 loads this morning.</div>
           <div class="legend" style="margin-top:12px"><span><i class="sw" style="background:var(--s-pb)"></i>P · Personal best</span><span><i class="sw" style="background:var(--s-best)"></i>B · Best this shift</span><span><i class="sw" style="background:var(--s-slow)"></i>S · Slower than usual</span><span><i class="sw" style="background:#E9E9E6"></i>On pace (seconds)</span></div>
           ${heat}
-          <div class="note"><i data-lucide="lightbulb"></i><span><b>Swing is the slow sector.</b> The training hub picks a swing-control lesson for the next idle.</span></div></div>
-        <div class="card pcard c5 rise" style="--i:7"><h3>Engine hours per load cycle</h3><div class="sub">A high value means the engine ran without productive work.</div>${hbars}
-          <div class="note"><i data-lucide="search"></i><span><b>3.7 engine hr for 1 load cycle.</b> Check for travel, unlogged use, or a sensor gap.</span></div></div>
+          <div class="note"><i data-lucide="lightbulb"></i><span><b>Swing is your slowest step.</b> A swing video is lined up for your next break.</span></div></div>
+        <div class="card pcard c5 rise" style="--i:7"><h3>Engine hours per load</h3><div class="sub">High means the engine ran but no work got done.</div>${hbars}
+          <div class="note"><i data-lucide="search"></i><span><b>3.7 engine hours for just 1 load.</b> Was the machine moving between sites, or is a sensor faulty? Ask your supervisor.</span></div></div>
 
         ${[
-          ['hourglass', 'caution', 'Excessive idling', '55 and 60 min idle in two snapshots, with 2 and 1 load cycles.', 'Burns fuel at 4x the target and leads to unbuckling.', 'Auto engine shutdown after 5 min idle, and a pit-stop lesson.'],
-          ['armchair', 'crit', 'Restart without seatbelt', 'The belt was off in both high-idle snapshots.', 'The riskiest moment is the joystick moving again after an idle.', 'Belt check runs the moment the joystick moves after idle.'],
-          ['gauge', 'warn', 'Engine time without work', '3.7 engine hr with a single load cycle recorded.', 'Could mean unlogged use, long travel, or a faulty cycle sensor.', 'Send to the supervisor for review with GPS trace.'],
+          ['hourglass', 'caution', 'Long waits', 'Waited 55 and 60 min, with only 2 and 1 loads.', 'Uses 4 times more fuel. People take their belt off while waiting.', 'The engine turns off after 5 min of waiting, and a short video plays.'],
+          ['armchair', 'crit', 'Starting without a belt', 'The belt was off both times after a long wait.', 'Moving the arm again is when accidents happen.', 'The screen checks your belt as soon as the joystick moves.'],
+          ['gauge', 'warn', 'Engine on, no work', '3.7 engine hours for only 1 load.', 'Could be moving between sites, use nobody wrote down, or a bad sensor.', 'Send it to your supervisor with the GPS track.'],
         ].map(([ic, tone, t, what, why, act], i) => `
           <div class="card pcard c4 rise" style="--i:${8 + i}">
             <div style="display:flex;gap:10px;align-items:center"><span class="a-ico ${tone}"><i data-lucide="${ic}"></i></span><h3>${t}</h3></div>
             <div style="margin-top:14px;display:grid;gap:10px;font-size:12.5px">
-              <div><span class="eyebrow">What happened</span><div style="margin-top:4px">${what}</div></div>
+              <div><span class="eyebrow">What we saw</span><div style="margin-top:4px">${what}</div></div>
               <div><span class="eyebrow">Why it matters</span><div style="margin-top:4px">${why}</div></div>
-              <div><span class="eyebrow">Suggested action</span><div style="margin-top:4px;font-weight:600">${act}</div></div>
+              <div><span class="eyebrow">What to do</span><div style="margin-top:4px;font-weight:600">${act}</div></div>
             </div>
           </div>`).join('')}
       </div></div>`;
@@ -1070,27 +1068,27 @@
     </svg>`;
 
     main.innerHTML = `<div class="page">
-      ${head('estimator', 'Predicts how long a task will take from past jobs and site conditions. Shows a range, not a single number.')}
+      ${head('estimator', 'How long will a job take? Pick the job and today\'s conditions.')}
       <div class="grid">
         <div class="card pcard c5 rise">
-          <h3>Task inputs</h3><div class="sub">Change any input to update the prediction.</div>
-          <div class="field"><span>Task type</span><div class="opt-row">${Object.keys(PLANNED).map((k) => `<button class="opt${S.est.type === k ? ' active' : ''}" data-e="type" data-v="${k}" type="button">${k}</button>`).join('')}</div></div>
+          <h3>The job</h3><div class="sub">Change anything and the time updates.</div>
+          <div class="field"><span>Job</span><div class="opt-row">${Object.keys(PLANNED).map((k) => `<button class="opt${S.est.type === k ? ' active' : ''}" data-e="type" data-v="${k}" type="button">${k}</button>`).join('')}</div></div>
           <div class="field"><span>Weather</span><div class="opt-row">${['Sunny', 'Cloudy', 'Windy', 'Rainy'].map((k) => `<button class="opt${S.est.weather === k ? ' active' : ''}" data-e="weather" data-v="${k}" type="button"><i data-lucide="${WICON[k]}"></i>${k}</button>`).join('')}</div></div>
-          <div class="field"><span>Operator skill</span><div class="opt-row">${['Beginner', 'Intermediate', 'Expert'].map((k) => `<button class="opt${S.est.skill === k ? ' active' : ''}" data-e="skill" data-v="${k}" type="button">${k}</button>`).join('')}</div></div>
+          <div class="field"><span>Operator level</span><div class="opt-row">${['Beginner', 'Intermediate', 'Expert'].map((k) => `<button class="opt${S.est.skill === k ? ' active' : ''}" data-e="skill" data-v="${k}" type="button">${k}</button>`).join('')}</div></div>
           <div class="field"><span>Machine age · <b id="ageV" style="color:var(--text)">${S.est.age} yr</b></span><input type="range" min="1" max="10" value="${S.est.age}" id="ageIn" aria-label="Machine age in years"/></div>
         </div>
         <div class="card pcard c7 rise" style="--i:1" id="estOut"></div>
         <div class="card pcard c12 rise" style="--i:2">
           <div style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end">
-            <div><h3>Planned vs actual vs model</h3><div class="sub">The five tasks in the dataset. The model is closer to what really happened on every task.</div></div>
+            <div><h3>How close were we?</h3><div class="sub">Your 5 finished jobs: the plan, what really happened, and this tool's guess.</div></div>
             <div style="display:flex;gap:28px">
-              <div class="kpi"><span class="eyebrow">Planner error</span><b style="font-size:32px"><span data-count="${(D.plannerError * 100).toFixed(1)}" data-dec="1">0</span>%</b></div>
-              <div class="kpi"><span class="eyebrow">Model error</span><b style="font-size:32px"><span data-count="${(D.modelError * 100).toFixed(1)}" data-dec="1">0</span>%</b></div>
+              <div class="kpi"><span class="eyebrow">Plan was off by</span><b style="font-size:32px"><span data-count="${(D.plannerError * 100).toFixed(1)}" data-dec="1">0</span>%</b></div>
+              <div class="kpi"><span class="eyebrow">This tool was off by</span><b style="font-size:32px"><span data-count="${(D.modelError * 100).toFixed(1)}" data-dec="1">0</span>%</b></div>
             </div>
           </div>
           <div class="legend" style="margin:14px 0 4px"><span><i class="sw" style="background:#fff;border:2px solid #6B6B6B;border-radius:50%"></i>Planned</span><span><i class="sw" style="background:#080808;border-radius:50%"></i>Actual</span><span><i class="sw" style="background:#FFCD11;border:1px solid #080808;transform:rotate(45deg)"></i>Model</span></div>
           ${dumbbell}
-          <div class="note"><i data-lucide="info"></i><span><b>Mean absolute error.</b> The factors were fitted on these five tasks, so they recalibrate as every new job finishes. The range narrows as more jobs are logged.</span></div>
+          <div class="note"><i data-lucide="info"></i><span><b>Average difference from the real time.</b> The tool learns from every job you finish, so it gets closer over time.</span></div>
         </div>
       </div></div>`;
     renderEstOut();
@@ -1113,11 +1111,11 @@
     const chip = (v, l) => { const d = v; return Math.abs(d) < 0.05 ? '' : `<span class="factor" style="${d < 0 ? 'background:#E3F4EA;color:var(--ok-ink)' : ''}">${d > 0 ? '+' : ''}${d.toFixed(1)} min ${l}</span>`; };
     const out = $('#estOut');
     out.innerHTML = `
-      <h3>Prediction</h3><div class="sub">${type} · ${weather} · ${skill} · ${age} yr machine</div>
+      <h3>Expected time</h3><div class="sub">${type} · ${weather} · ${skill} · ${age} yr machine</div>
       <div style="display:flex;align-items:baseline;gap:10px;margin-top:18px">
-        <b class="num" style="font-size:88px;line-height:.9;font-weight:700" data-count="${pred.toFixed(0)}">0</b><span style="font:500 16px var(--f-ui);color:var(--t2)">min likely</span>
+        <b class="num" style="font-size:88px;line-height:.9;font-weight:700" data-count="${pred.toFixed(0)}">0</b><span style="font:500 16px var(--f-ui);color:var(--t2)">minutes</span>
       </div>
-      <div style="font-size:13px;color:var(--t2);margin-top:6px">Range <b style="color:var(--text)">${Math.round(lo)} to ${Math.round(hi)} min</b> · planner says ${plan} min</div>
+      <div style="font-size:13px;color:var(--t2);margin-top:6px">Between <b style="color:var(--text)">${Math.round(lo)} and ${Math.round(hi)} min</b> · the plan says ${plan} min</div>
       <div class="range" style="margin-top:22px;height:30px">
         <div class="range-track" style="top:12px"></div>
         <div class="range-band" style="left:${pct(lo, 0, max)}%;width:${pct(hi, 0, max) - pct(lo, 0, max)}%;top:6px;height:18px;border-radius:9px"></div>
@@ -1126,30 +1124,30 @@
       </div>
       <div class="range-scale"><span>0</span><span>${Math.round(max / 2)}</span><span>${Math.round(max)} min</span></div>
       <div class="factors" style="margin-top:16px">
-        ${chip(plan * (fs - 1), 'skill')}${chip(plan * fs * (fw - 1), weather.toLowerCase())}${chip(plan * fs * fw * (fa - 1), 'machine age')}
-        ${fs === 1 && fw === 1 && fa === 1 ? '<span class="factor" style="background:var(--chip);color:var(--t2)">No adjustments</span>' : ''}
+        ${chip(plan * (fs - 1), 'for experience')}${chip(plan * fs * (fw - 1), `for ${weather.toLowerCase()} weather`)}${chip(plan * fs * fw * (fa - 1), 'for an older machine')}
+        ${fs === 1 && fw === 1 && fa === 1 ? '<span class="factor" style="background:var(--chip);color:var(--t2)">No extra time</span>' : ''}
       </div>
-      <div class="note"><i data-lucide="sigma"></i><span><b>planned × skill × weather × age</b> = ${plan} × ${fs} × ${fw} × ${fa} = ${pred.toFixed(1)} min</span></div>`;
+      <div class="note"><i data-lucide="sigma"></i><span><b>How we worked it out:</b> plan ${plan} min × level ${fs} × weather ${fw} × machine age ${fa} = ${pred.toFixed(1)} min</span></div>`;
     icons(); countUp(out);
   }
 
   /* ---------- INCIDENTS ---------- */
   function renderIncidents() {
-    const stTone = { Open: 'crit', Review: 'warn', Coached: 'ok', Closed: 'ok', New: 'warn' };
+    const stTone = { Open: 'crit', Checking: 'warn', 'Talked through': 'ok', Closed: 'ok', New: 'warn' };
     main.innerHTML = `<div class="page">
-      ${head('incidents', 'Every alert and operator report in one log. Auto-detected events come from telemetry.')}
+      ${head('incidents', 'Everything that went wrong or nearly did. The machine adds some, you add the rest.')}
       <div class="grid">
         <div class="card pcard c8 rise">
-          <h3>Incident log</h3><div class="sub">${S.incidents.length} records · EXC001</div>
-          <table class="tbl"><thead><tr><th>Time</th><th>Event</th><th>Source</th><th>Status</th></tr></thead>
+          <h3>All reports</h3><div class="sub">${S.incidents.length} reports</div>
+          <table class="tbl"><thead><tr><th>When</th><th>What happened</th><th>From</th><th>Status</th></tr></thead>
           <tbody id="incBody">${S.incidents.map((x, i) => `<tr class="${x.fresh && i === 0 ? 'new' : ''}"><td>${x.time}</td><td style="display:flex;gap:10px;align-items:center"><span class="a-ico ${SEV[x.sev][0]}" style="width:26px;height:26px"><i data-lucide="${SEV[x.sev][1]}" style="width:13px;height:13px"></i></span>${x.type}</td><td style="color:var(--t2)">${x.src}</td><td><span class="st ${stTone[x.status]}">${x.status}</span></td></tr>`).join('')}</tbody></table>
         </div>
         <div class="card pcard c4 rise" style="--i:1">
-          <h3>Report an incident</h3><div class="sub">Hold for 1.2 s. The last 60 s of machine data are attached.</div>
+          <h3>Report something</h3><div class="sub">Hold the button for 1 second.</div>
           <div class="hold-wrap" style="flex-direction:column;align-items:flex-start">
             <button class="hold" id="holdBtn" type="button" aria-label="Hold to log incident">
               <svg viewBox="0 0 108 108" aria-hidden="true"><circle class="bg" cx="54" cy="54" r="52" fill="none" stroke-width="3"/><circle class="fg" cx="54" cy="54" r="52" fill="none" stroke-width="3" stroke-linecap="round"/></svg>HOLD</button>
-            <div style="font-size:12.5px;color:var(--t2)">On the machine, the same action is a double-tap on the joystick thumb button, so the operator never lets go of the controls.</div>
+            <div style="font-size:12.5px;color:var(--t2)">In the cab, double-tap the thumb button on the joystick. Your hands stay on the controls.</div>
           </div>
         </div>
       </div></div>`;
@@ -1160,23 +1158,23 @@
   function renderMachine() {
     const eng = 1530.2, next = 1600.2, since = 1350.2;
     main.innerHTML = `<div class="page">
-      ${head('machine', 'EXC001 · 20-tonne class hydraulic excavator. Component health from on-board sensors.')}
+      ${head('machine', 'EXC001, 20-tonne excavator. How each part is doing.')}
       <div class="grid">
         <div class="card pcard c7 rise">
-          <h3>Component health</h3><div class="sub">Status, wear and the next action for each system.</div>
-          <table class="tbl"><thead><tr><th>Component</th><th>Status</th><th>Wear</th><th>Next action</th></tr></thead><tbody>
+          <h3>Parts</h3><div class="sub">What needs attention, and when.</div>
+          <table class="tbl"><thead><tr><th>Part</th><th>Status</th><th>Wear</th><th>Next step</th></tr></thead><tbody>
           ${[['cog', 'Engine', 'ok', 'Healthy', 22, 'Oil change at 1,600 hr'], ['droplets', 'Hydraulics', 'ok', 'Healthy', 31, 'Filter check at 1,600 hr'], ['tractor', 'Undercarriage', 'warn', 'Warning', 64, 'Adjust left track tension'], ['shovel', 'Bucket teeth', 'ok', 'Healthy', 18, 'Rotate teeth in 40 hr'], ['thermometer', 'Cooling', 'ok', 'Healthy', 12, 'Clean radiator in rain season']]
             .map(([ic, n, st, l, w, a], i) => `<tr><td><span style="display:flex;gap:10px;align-items:center"><i data-lucide="${ic}"></i>${n}</span></td><td><span class="st ${st}">${l}</span></td>
               <td style="width:160px"><div style="height:6px;border-radius:3px;background:var(--chip);overflow:hidden" data-tip="${w}% wear"><div class="growx" style="--i:${i};height:100%;width:${w}%;background:${w > 50 ? 'var(--warn)' : 'var(--ink)'};border-radius:3px"></div></div></td><td style="color:var(--t2)">${a}</td></tr>`).join('')}
           </tbody></table>
         </div>
         <div class="card pcard c5 rise" style="--i:1">
-          <h3>Next service</h3><div class="sub">250-hour service interval.</div>
+          <h3>Next service</h3><div class="sub">Every 250 engine hours.</div>
           <div class="kpi" style="margin-top:16px"><b><span data-count="${Math.round(next - eng)}">0</span> hr</b><span class="delta">left until ${fmt(next, 0)} hr · now ${fmt(eng, 1)} hr</span></div>
           <div style="height:8px;border-radius:4px;background:var(--chip);margin-top:14px;overflow:hidden"><div class="growx" style="height:100%;width:${pct(eng, since, next)}%;background:var(--ink)"></div></div>
           <div class="cond" style="margin-top:18px">
             <div><span>Machine ID</span><b>EXC001</b></div><div><span>Operator</span><b>OP1001</b></div>
-            <div><span>Engine hours</span><b>${fmt(eng, 1)}</b></div><div><span>Telematics</span><b style="color:var(--ok-ink)">Online</b></div>
+            <div><span>Engine hours</span><b>${fmt(eng, 1)}</b></div><div><span>Connected</span><b style="color:var(--ok-ink)">Online</b></div>
           </div>
         </div>
       </div></div>`;
@@ -1190,8 +1188,8 @@
     const next = D.videos.filter((x) => x.id !== v.id);
     main.innerHTML = `<div class="page video-page">
       <div class="vp-top">
-        <button class="back" type="button" data-go="training"><i data-lucide="arrow-left"></i>Training</button>
-        <span class="parked"><i data-lucide="lock"></i>Machine parked · hydraulics locked</span>
+        <button class="back" type="button" data-go="training"><i data-lucide="arrow-left"></i>Learn</button>
+        <span class="parked"><i data-lucide="lock"></i>Machine parked, arm locked</span>
       </div>
       <div class="grid">
         <div class="c8 rise" style="min-width:0">
@@ -1205,25 +1203,25 @@
             <div class="vp-row">
               <span class="channel"><img src="assets/cat-logo.png" alt="" width="34" height="21" /><span><b>Cat® Products</b><small>Official Caterpillar channel</small></span></span>
               <div class="vp-actions">
-                <button class="btn ${watched ? 'outline' : 'dark'}" type="button" id="markDone"><i data-lucide="${watched ? 'circle-check' : 'check'}"></i>${watched ? 'Completed' : 'Mark as completed'}</button>
+                <button class="btn ${watched ? 'outline' : 'dark'}" type="button" id="markDone"><i data-lucide="${watched ? 'circle-check' : 'check'}"></i>${watched ? 'Watched' : 'I watched this'}</button>
                 <a class="btn outline" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener"><i data-lucide="external-link"></i>YouTube</a>
               </div>
             </div>
-            ${v.why ? `<div class="note"><i data-lucide="sparkles"></i><span><b>Why you are seeing this:</b> ${v.why}</span></div>` : ''}
+            ${v.why ? `<div class="note"><i data-lucide="info"></i><span><b>Why this video:</b> ${v.why}</span></div>` : ''}
           </div>
         </div>
         <aside class="card pcard c4 rise" style="--i:1;align-self:start">
-          <h3>Up next</h3><div class="sub">${next.length} more from Cat® Products</div>
+          <h3>More videos</h3><div class="sub">${next.length} more from Cat</div>
           <div class="upnext">${next.map((x, i) => `
             <button class="un-item rise" style="--i:${i + 2}" type="button" data-go="video/${x.id}">
-              <span class="un-thumb"><img src="${ytThumb(x.id)}" alt="" loading="lazy" />${S.watched.has(x.id) ? '<i class="done-dot" aria-label="Completed"></i>' : ''}</span>
+              <span class="un-thumb"><img src="${ytThumb(x.id)}" alt="" loading="lazy" />${S.watched.has(x.id) ? '<i class="done-dot" aria-label="Watched"></i>' : ''}</span>
               <span class="un-txt"><b>${x.title}</b><small>${x.topic}</small></span>
             </button>`).join('')}</div>
         </aside>
       </div></div>`;
     $('#markDone').addEventListener('click', () => {
       S.watched.has(v.id) ? S.watched.delete(v.id) : S.watched.add(v.id);
-      if (S.watched.has(v.id)) toast('Lesson completed. Licence progress updated.', 'graduation-cap');
+      if (S.watched.has(v.id)) toast('Marked as watched. Your level went up.', 'graduation-cap');
       renderVideo(v.id); icons();
     });
   }
@@ -1235,13 +1233,13 @@
     const belt = D.telemetry.filter((r) => r.belt === 'Fastened').length;
     const progress = Math.min(100, 62 + S.watched.size * 4);
     const profileBody = `
-      <div class="card pcard c3 rise kpi" style="--i:1"><span class="eyebrow">Tasks today</span><b>2 <small class="of">of 5</small></b><span class="delta">T001 and T004 done, both under plan</span></div>
-      <div class="card pcard c3 rise kpi" style="--i:2"><span class="eyebrow">Seatbelt compliance</span><b>${belt} <small class="of">of ${D.telemetry.length}</small></b><span class="delta"><span class="st crit">Needs work</span>snapshots fastened</span></div>
-      <div class="card pcard c3 rise kpi" style="--i:3"><span class="eyebrow">Progress to F1</span><b><span data-count="${progress}">0</span>%</b><span class="delta">+4% per completed Cat lesson</span></div>
-      <div class="card pcard c3 rise kpi" style="--i:4"><span class="eyebrow">Penalty points</span><b>2 <small class="of">of 12</small></b><span class="delta">Expire in 30 days</span></div>
+      <div class="card pcard c3 rise kpi" style="--i:1"><span class="eyebrow">Jobs today</span><b>2 <small class="of">of 5</small></b><span class="delta">2 done, both faster than planned</span></div>
+      <div class="card pcard c3 rise kpi" style="--i:2"><span class="eyebrow">Belt on</span><b>${belt} <small class="of">of ${D.telemetry.length}</small></b><span class="delta"><span class="st crit">Needs work</span>machine readings</span></div>
+      <div class="card pcard c3 rise kpi" style="--i:3"><span class="eyebrow">To reach F1</span><b><span data-count="${progress}">0</span>%</b><span class="delta">+4% for each video you finish</span></div>
+      <div class="card pcard c3 rise kpi" style="--i:4"><span class="eyebrow">Warning points</span><b>2 <small class="of">of 12</small></b><span class="delta">Cleared in 30 days</span></div>
 
       <div class="card pcard c6 rise" style="--i:5">
-        <h3>Licence and certifications</h3><div class="sub">Sample records for the demo.</div>
+        <h3>Licences and training</h3><div class="sub">Sample records for the demo.</div>
         <div class="cert-list">
           ${[['badge-check', 'F2 · Hydraulic excavator, 20 t class', 'Valid until Mar 2027', 'ok'],
              ['hard-hat', 'Site safety induction', 'Valid until Dec 2026', 'ok'],
@@ -1251,39 +1249,39 @@
         </div>
       </div>
       <div class="card pcard c6 rise" style="--i:6">
-        <h3>Cat video lessons</h3><div class="sub">${S.watched.size} of ${D.videos.length} completed</div>
+        <h3>Cat videos</h3><div class="sub">${S.watched.size} of ${D.videos.length} watched</div>
         <div class="prog light"><i style="width:${(S.watched.size / D.videos.length) * 100}%"></i></div>
         <div class="mini-vids">${D.videos.slice(0, 4).map((x) => `
-          <button class="mv" type="button" data-go="video/${x.id}"><img src="${ytThumb(x.id)}" alt="" loading="lazy" /><span><b>${x.title}</b><small>${S.watched.has(x.id) ? 'Completed' : x.topic}</small></span>${S.watched.has(x.id) ? '<i data-lucide="circle-check" class="mv-done"></i>' : ''}</button>`).join('')}</div>
+          <button class="mv" type="button" data-go="video/${x.id}"><img src="${ytThumb(x.id)}" alt="" loading="lazy" /><span><b>${x.title}</b><small>${S.watched.has(x.id) ? 'Watched' : x.topic}</small></span>${S.watched.has(x.id) ? '<i data-lucide="circle-check" class="mv-done"></i>' : ''}</button>`).join('')}</div>
       </div>
       <div class="card pcard c12 rise" style="--i:7">
-        <h3>Recent activity</h3>
+        <h3>Today</h3>
         <div class="activity">
-          ${[['check', '09:43', 'Finished T004 Grading in 33 min (planned 35)'], ['hourglass', '10:00', 'Idled 55 min waiting for a truck, seatbelt unfastened'], ['check', '08:58', 'Finished T001 Earth Excavation in 58 min (planned 60)'], ['log-in', '07:52', 'Signed in to EXC001 with Operator ID']].map(([ic, t, s2]) => `
+          ${[['check', '09:43', 'Finished grading in 33 min. Plan was 35.'], ['hourglass', '10:00', 'Waited 55 min for a truck. Belt was off.'], ['check', '08:58', 'Finished digging in 58 min. Plan was 60.'], ['log-in', '07:52', 'Signed in to EXC001']].map(([ic, t, s2]) => `
             <div class="act"><span class="act-ico"><i data-lucide="${ic}"></i></span><span class="act-t">${t}</span><span>${s2}</span></div>`).join('')}
         </div>
       </div>`;
     const settingsBody = `
       <div class="card pcard c6 rise">
-        <h3>Language</h3><div class="sub">Voice prompts and labels. Incident notes are translated for the supervisor.</div>
+        <h3>Language</h3><div class="sub">For the screen and spoken warnings.</div>
         <div class="opt-row" style="margin-top:14px"><button class="opt${S.lang === 'en' ? ' active' : ''}" data-lang="en" type="button">English</button><button class="opt${S.lang === 'hi' ? ' active' : ''}" data-lang="hi" type="button" lang="hi">हिंदी</button></div>
-        <div class="set-row" style="margin-top:14px"><div class="txt"><b>Voice prompts</b><small>Short spoken cues, for example "Belt on".</small></div>${sw('voice')}</div>
+        <div class="set-row" style="margin-top:14px"><div class="txt"><b>Spoken warnings</b><small>Short words like "Belt on".</small></div>${sw('voice')}</div>
       </div>
       <div class="card pcard c6 rise" style="--i:1">
-        <h3>Alerts and feedback</h3><div class="sub">Fewer alerts get more attention.</div>
-        <div class="set-row"><div class="txt"><b>Seat haptics</b><small>Directional vibration shows where a hazard is.</small></div>${sw('haptics')}</div>
-        <div class="set-row"><div class="txt"><b>High contrast</b><small>For direct sunlight and glare.</small></div>${sw('contrast')}</div>
-        <div class="set-row"><div class="txt"><b>Alert budget · <span id="budgetV">${S.settings.budget}</span> per hour</b><small>Non-critical alerts above this wait for the next idle. Safety alerts are never held back.</small></div>
+        <h3>Warnings</h3><div class="sub">Fewer warnings, so you notice the ones that matter.</div>
+        <div class="set-row"><div class="txt"><b>Seat buzz</b><small>The seat buzzes on the side where the danger is.</small></div>${sw('haptics')}</div>
+        <div class="set-row"><div class="txt"><b>Bright sun mode</b><small>Easier to read in strong sun.</small></div>${sw('contrast')}</div>
+        <div class="set-row"><div class="txt"><b>Up to <span id="budgetV">${S.settings.budget}</span> small warnings an hour</b><small>Extra ones wait until you stop. Safety warnings always show.</small></div>
           <input type="range" min="1" max="6" value="${S.settings.budget}" id="budgetIn" style="width:140px" aria-label="Alert budget per hour"/></div>
       </div>
       <div class="card pcard c6 rise" style="--i:2">
-        <h3>Machine sign-in</h3><div class="sub">How the machine knows it is you.</div>
-        <div class="set-row"><div class="txt"><b>Operator ID</b><small>${P.id} · used with Cat Secure Start</small></div><span class="tag">${P.id}</span></div>
-        <div class="set-row"><div class="txt"><b>Load my seat and joystick presets</b><small>Applied when you sign in to any machine.</small></div>${sw('presets')}</div>
+        <h3>Signing in</h3><div class="sub">How the machine knows it is you.</div>
+        <div class="set-row"><div class="txt"><b>Operator ID</b><small>${P.id} · used to start the machine</small></div><span class="tag">${P.id}</span></div>
+        <div class="set-row"><div class="txt"><b>Set up my seat and joysticks</b><small>On any machine you sign in to.</small></div>${sw('presets')}</div>
       </div>
       <div class="card pcard c6 rise" style="--i:3">
-        <h3>Privacy</h3><div class="sub">Coaching data is yours first.</div>
-        <div class="set-row"><div class="txt"><b>Share coaching data with supervisor</b><small>Off: only safety events are shared. You always see what your supervisor sees.</small></div>${sw('share')}</div>
+        <h3>Who sees my data</h3><div class="sub">Your work data is yours.</div>
+        <div class="set-row"><div class="txt"><b>Share my work data with my supervisor</b><small>When off, only safety events are shared.</small></div>${sw('share')}</div>
       </div>`;
 
     main.innerHTML = `<div class="page">
@@ -1335,20 +1333,20 @@
     const rp = $('#rightPanel');
     rp.innerHTML = `
       <div class="panel-head">
-        <button class="icon-btn" id="toggleRight" type="button" aria-label="Collapse live status" aria-expanded="true"><i data-lucide="panel-right-close"></i></button>
-        <span class="panel-title">Live status</span>
+        <button class="icon-btn" id="toggleRight" type="button" aria-label="Hide right now panel" aria-expanded="true"><i data-lucide="panel-right-close"></i></button>
+        <span class="panel-title">Right now</span>
         <span class="rp-head-extra">Live</span>
       </div>
       <div class="rp-body">
         <section class="rp-sec">
-          <div class="sec-head"><i data-lucide="timer"></i><h2>Current task</h2><span class="status-chip">In progress</span></div>
-          <div class="eyebrow">Stint 2 · T002 Trenching</div>
+          <div class="sec-head"><i data-lucide="timer"></i><h2>Current job</h2><span class="status-chip">Working</span></div>
+          <div class="eyebrow">Job 3 of 5 · Trenching</div>
           <div class="eta" style="margin-top:10px"><b class="num">0</b><small>HR</small><b class="num" data-count="52">52</b><small>MIN</small></div>
-          <div class="eta-cap">Predicted finish · range 48 to 56 min</div>
+          <div class="eta-cap">Should take 48 to 56 min</div>
           <div class="mini">
             <div><span>Planned</span><b>45 min</b></div>
             <div><span>Weather</span><b>Rainy</b></div>
-            <div><span>Skill</span><b>Intermediate</b></div>
+            <div><span>Your level</span><b>Intermediate</b></div>
           </div>
           <div class="range" data-tip="<b>31 min</b> elapsed · predicted 52 · planned 45">
             <div class="range-track"></div>
@@ -1358,20 +1356,20 @@
             <span class="range-tick pred" style="left:${pct(52, 0, 60)}%"></span>
           </div>
           <div class="range-scale"><span>0</span><span>15</span><span>30</span><span>45</span><span>60 min</span></div>
-          <div class="factors"><span class="factor">+${skillAdd.toFixed(1)} min skill</span><span class="factor">+${rainAdd.toFixed(1)} min rain</span></div>
-          ${(() => { const r = ghostAt(D.LIVE); return r ? `<div class="rp-ghost"><i data-lucide="ghost"></i><span>vs your best</span><b class="${r.delta > 0 ? 'behind' : 'ahead'}">${r.delta > 0 ? '+' : '-'}${mmss(r.delta)}</b></div>` : ''; })()}
+          <div class="factors"><span class="factor">+${Math.round(skillAdd)} min for experience</span><span class="factor">+${Math.round(rainAdd)} min for rain</span></div>
+          ${(() => { const r = ghostAt(D.LIVE); return r ? `<div class="rp-ghost"><i data-lucide="ghost"></i><span>vs your best time</span><b class="${r.delta > 0 ? 'behind' : 'ahead'}">${r.delta > 0 ? '+' : '-'}${mmss(r.delta)}</b></div>` : ''; })()}
           <div class="stops">
             <div class="stop"><i></i>Trench line, Zone B</div>
             <div class="stop"><i class="hollow"></i>Dump point D2</div>
           </div>
-          <button class="btn-ghost" type="button" data-go="tasks">View task plan <i data-lucide="chevron-right"></i></button>
+          <button class="btn-ghost" type="button" data-go="tasks">See today's jobs <i data-lucide="chevron-right"></i></button>
         </section>
         <section class="rp-sec">
           <div class="sec-head"><i data-lucide="heart-pulse"></i><h2>Machine health</h2><button class="link" type="button" data-go="machine">View all <i data-lucide="chevron-right"></i></button></div>
           ${D.health.map((h) => `<div class="health-row"><i data-lucide="${h.icon}"></i><span>${h.name}</span><span class="st ${h.st}">${h.label}</span></div>`).join('')}
         </section>
         <section class="rp-sec">
-          <div class="sec-head"><i data-lucide="bell"></i><h2>Recent alerts</h2><span class="count">${D.alerts.length}</span><button class="link" type="button" data-go="incidents">View all <i data-lucide="chevron-right"></i></button></div>
+          <div class="sec-head"><i data-lucide="bell"></i><h2>Alerts</h2><span class="count">${D.alerts.length}</span><button class="link" type="button" data-go="incidents">View all <i data-lucide="chevron-right"></i></button></div>
           <div class="alert-list" id="alertList">
             ${D.alerts.map((a) => `
               <div class="alert-row"><span class="a-ico ${a.tone}"><i data-lucide="${a.icon}"></i></span>
@@ -1380,9 +1378,9 @@
         </section>
       </div>
       <div class="rp-strip">
-        <button class="glance" type="button" data-expand data-tip="<b>Current task</b> · 52 min predicted"><i data-lucide="timer"></i><b>52m</b></button>
+        <button class="glance" type="button" data-expand data-tip="<b>Current job</b> · about 52 min"><i data-lucide="timer"></i><b>52m</b></button>
         <button class="glance" type="button" data-expand data-tip="<b>Seatbelt</b>" id="glBelt"><i data-lucide="armchair"></i><span class="dot" style="background:var(--ok)"></span></button>
-        <button class="glance" type="button" data-expand data-tip="<b>Machine health</b> · undercarriage warning"><i data-lucide="heart-pulse"></i><span class="dot" style="background:var(--warn)"></span></button>
+        <button class="glance" type="button" data-expand data-tip="<b>Machine health</b> · tracks need a check"><i data-lucide="heart-pulse"></i><span class="dot" style="background:var(--warn)"></span></button>
         <button class="glance" type="button" data-expand data-tip="<b>${D.alerts.length} alerts</b> open"><i data-lucide="bell"></i><b>${D.alerts.length}</b><span class="dot" style="background:var(--crit)"></span></button>
       </div>`;
     icons();
@@ -1418,12 +1416,12 @@
     const tl = $('#toggleLeft'), tr = $('#toggleRight');
     if (tl) {
       tl.innerHTML = `<i data-lucide="${leftC ? 'panel-left-open' : 'panel-left-close'}"></i>`;
-      tl.setAttribute('aria-label', leftC ? 'Expand navigation' : 'Collapse navigation');
+      tl.setAttribute('aria-label', leftC ? 'Show menu' : 'Hide menu');
       tl.setAttribute('aria-expanded', String(!leftC));
     }
     if (tr) {
       tr.innerHTML = `<i data-lucide="${rightC ? 'panel-right-open' : 'panel-right-close'}"></i>`;
-      tr.setAttribute('aria-label', rightC ? 'Expand live status' : 'Collapse live status');
+      tr.setAttribute('aria-label', rightC ? 'Show right now panel' : 'Hide right now panel');
       tr.setAttribute('aria-expanded', String(!rightC));
     }
     icons();
@@ -1480,7 +1478,7 @@
     btn.addEventListener('pointerdown', start);
     btn.addEventListener('keydown', start);
     ['pointerup', 'pointerleave', 'pointercancel', 'keyup', 'blur'].forEach((ev) => btn.addEventListener(ev, cancel));
-    btn.addEventListener('click', (e) => { if (e.detail === 0) return; toast('Hold the SOS button for 1.5 seconds to send.', 'hand'); });
+    btn.addEventListener('click', (e) => { if (e.detail === 0) return; toast('Press and hold SOS to send it.', 'hand'); });
   }
 
   let sosTimers = [];
@@ -1488,21 +1486,21 @@
     const o = $('#sosOverlay');
     const sentAt = $('#clock').textContent;
     const steps = [
-      ['octagon-pause', 'Machine safe-stop engaged', 'Hydraulics locked, engine to low idle, travel disabled'],
-      ['radio', 'Supervisor A. Singh alerted', 'Radio channel 2 and phone, with live camera feed'],
-      ['ambulance', 'Site medic dispatched', 'Estimated arrival 4 min'],
-      ['map-pin', 'Location shared', 'Zone B, trench line · EXC001'],
-      ['hard-drive', 'Last 60 s of machine data saved', 'Attached to the incident log'],
+      ['octagon-pause', 'Machine stopped', 'Arm locked and engine slowed down. Tracks will not move.'],
+      ['radio', 'Supervisor A. Singh told', 'By radio and phone, with the camera view.'],
+      ['ambulance', 'Site medic on the way', 'About 4 minutes away.'],
+      ['map-pin', 'Your location sent', 'Zone B, trench line.'],
+      ['hard-drive', 'What the machine was doing is saved', 'The last 60 seconds are added to the report.'],
     ];
     o.innerHTML = `
       <div class="sos-card">
         <div class="sos-top">
           <div class="beacon"><i></i><i></i><i></i><span><i data-lucide="siren"></i></span></div>
-          <div><h2 id="sosTitle">SOS sent</h2><p>Help is on the way. Stay in the cab if it is safe to do so.</p></div>
+          <div><h2 id="sosTitle">SOS sent</h2><p>Help is coming. Stay in the cab if it is safe.</p></div>
         </div>
         <ol class="sos-steps">${steps.map(([ic, t, s2]) => `<li><span class="step-ico"><i data-lucide="check"></i></span><div><b>${t}</b><small>${s2}</small></div></li>`).join('')}</ol>
         <div class="sos-foot">
-          <span class="meta">Sent at ${sentAt} · Incident logged</span>
+          <span class="meta">Sent at ${sentAt}</span>
           <button class="btn ghost-dark" type="button" data-sos="cancel">Cancel SOS</button>
           <button class="btn light" type="button" data-sos="ok">I'm safe</button>
         </div>
@@ -1518,7 +1516,7 @@
       sosTimers.push(setTimeout(() => { li.classList.remove('working'); li.classList.add('done'); }, 650 + i * 650));
     });
     S.incidents.forEach((x) => (x.fresh = false));
-    S.incidents.unshift({ time: sentAt, type: 'SOS raised by operator', src: 'Operator · SOS button', sev: 'crit', status: 'Open', fresh: true });
+    S.incidents.unshift({ time: sentAt, type: 'SOS sent', src: 'You', sev: 'crit', status: 'Open', fresh: true });
     o.querySelector('[data-sos="ok"]').focus();
   }
   function closeSOS(msg) {
@@ -1535,9 +1533,9 @@
     $('#sosOverlay').addEventListener('click', (e) => {
       const b = e.target.closest('[data-sos]');
       if (!b) return;
-      closeSOS(b.dataset.sos === 'cancel' ? 'SOS cancelled. Supervisor told it was a false alarm.' : 'Marked safe. Supervisor will still check in.');
+      closeSOS(b.dataset.sos === 'cancel' ? 'SOS cancelled. Your supervisor was told it was a mistake.' : 'Thanks. Your supervisor will still call you.');
     });
-    addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#sosOverlay').hidden) closeSOS('SOS cancelled. Supervisor told it was a false alarm.'); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#sosOverlay').hidden) closeSOS('SOS cancelled. Your supervisor was told it was a mistake.'); });
   }
 
   /* ---------- global clicks ---------- */
