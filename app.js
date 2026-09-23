@@ -1500,6 +1500,9 @@
               <rect x="44" y="92" width="10" height="120" fill="#1B1B1A"/><rect x="546" y="92" width="10" height="120" fill="#1B1B1A"/>
               <rect x="62" y="48" width="476" height="332" rx="24" fill="url(#cgMat)"/>
               <rect x="62" y="48" width="476" height="332" rx="24" fill="url(#cgRibs)" opacity=".55"/>
+              <!-- Cat logo moulded into the floor mat -->
+              <rect x="104" y="66" width="92" height="66" rx="10" fill="#2F2F2D" stroke="#1E1E1C" stroke-width="2"/>
+              <image href="assets/cat-logo-white.png" x="118" y="77" width="64" height="39" opacity=".32" preserveAspectRatio="xMidYMid meet"/>
               <!-- travel pedals and levers -->
               <g filter="url(#cgShadow)">
                 <rect x="222" y="106" width="58" height="40" rx="7" fill="#5A5A56"/><rect x="320" y="106" width="58" height="40" rx="7" fill="#5A5A56"/>
@@ -1511,7 +1514,7 @@
               <g filter="url(#cgShadow)">
                 <rect x="416" y="50" width="120" height="74" rx="9" fill="#0F0F0E"/>
                 <rect x="424" y="57" width="104" height="60" rx="4" fill="#12181C"/>
-                <rect x="430" y="64" width="40" height="6" rx="2" fill="#FFCD11"/><rect x="430" y="76" width="92" height="4" rx="2" fill="#3A4A52"/><rect x="430" y="85" width="70" height="4" rx="2" fill="#3A4A52"/>
+                <image href="assets/cat-logo-white.png" x="429" y="61" width="22" height="13.3" preserveAspectRatio="xMidYMid meet"/><rect x="456" y="65" width="26" height="5" rx="2" fill="#FFCD11"/><rect x="430" y="76" width="92" height="4" rx="2" fill="#3A4A52"/><rect x="430" y="85" width="70" height="4" rx="2" fill="#3A4A52"/>
                 <rect x="430" y="96" width="30" height="14" rx="3" fill="#2FB36A"/><rect x="466" y="96" width="30" height="14" rx="3" fill="#3A4A52"/>
               </g>
               <!-- hydraulic lock lever (yellow) by the door -->
@@ -1546,6 +1549,7 @@
                 <rect x="236" y="196" width="128" height="118" rx="24" fill="url(#cgSeat)"/>
               </g>
               <path d="M258 214 V296 M342 214 V296 M254 320 H346" stroke="#1E1E1C" stroke-width="2" stroke-dasharray="5 4" opacity=".8"/>
+              <image href="assets/cat-logo-white.png" x="276" y="222" width="48" height="29" opacity=".22" preserveAspectRatio="xMidYMid meet"/>
               <path d="M238 292 Q300 306 362 292" stroke="#E07B00" stroke-width="10" fill="none" stroke-linecap="round"/>
               <rect x="288" y="288" width="24" height="18" rx="4" fill="#C9CCCF" stroke="#8C9094" stroke-width="1.5"/>
             </svg>
