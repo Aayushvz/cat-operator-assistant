@@ -93,9 +93,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   column-gap: 14px;
   transition: grid-template-columns 560ms var(--spring);
 }
-.app.left-collapsed { grid-template-columns: 68px minmax(0, 1fr) 320px; }
+.app.left-collapsed { grid-template-columns: 64px minmax(0, 1fr) 320px; }
 .app.right-collapsed { grid-template-columns: 224px minmax(0, 1fr) 64px; }
-.app.left-collapsed.right-collapsed { grid-template-columns: 68px minmax(0, 1fr) 64px; }
+.app.left-collapsed.right-collapsed { grid-template-columns: 64px minmax(0, 1fr) 64px; }
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -2528,3 +2528,6 @@ html[data-theme="dark"] .heat .cell.n { color: #B8B8B2; }
 .app.right-collapsed .panel.right .rp-strip { flex: 1; min-height: 0; }
 .app.right-collapsed .panel.right .panel-vlabel, .app.left-collapsed .panel.left .panel-vlabel { display: block; }
 @media (max-width: 760px) { .panel-vlabel { display: none !important; } }
+/* collapsed panels: the expand button sits dead centre, nothing hidden beside it takes space */
+.app.left-collapsed .panel.left .panel-title, .app.right-collapsed .panel.right .panel-title, .app.right-collapsed .panel.right .rp-head-extra { display: none; }
+.app.left-collapsed .panel.left .panel-head, .app.right-collapsed .panel.right .panel-head { padding: 0; justify-content: center; gap: 0; }
