@@ -2023,3 +2023,8 @@ html[data-theme="dark"] .login::before { opacity: .1; }
 /* backdrop photo 30% stronger */
 .login::before { opacity: .091; }
 html[data-theme="dark"] .login::before { opacity: .13; }
+/* SOS inside its card: the beacon rings stay within the card */
+@keyframes beaconIn { 0% { transform: scale(.85); opacity: .8; } 100% { transform: scale(1.3); opacity: 0; } }
+.sos-card-inline { overflow: hidden; }
+.sos-card-inline .sos-big { margin: 18px; }
+.sos-card-inline .sos-big::before, .sos-card-inline .sos-big::after { animation-name: beaconIn; }
