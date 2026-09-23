@@ -628,6 +628,8 @@
       p.classList.toggle('belt', st.beltOff);
     }
     p.classList.toggle('on', show);
+    // while it shows, it takes the left side so the seatbelt card stays in view
+    $('#stage')?.classList.toggle('ps-on', show);
   }
 
   let lastMinute = -1;

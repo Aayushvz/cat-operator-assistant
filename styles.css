@@ -2531,3 +2531,14 @@ html[data-theme="dark"] .heat .cell.n { color: #B8B8B2; }
 /* collapsed panels: the expand button sits dead centre, nothing hidden beside it takes space */
 .app.left-collapsed .panel.left .panel-title, .app.right-collapsed .panel.right .panel-title, .app.right-collapsed .panel.right .rp-head-extra { display: none; }
 .app.left-collapsed .panel.left .panel-head, .app.right-collapsed .panel.right .panel-head { padding: 0; justify-content: center; gap: 0; }
+
+/* "While you wait" never covers the seatbelt card: it takes the left side while it shows */
+@media (min-width: 761px) {
+  .stage.ps-on .pitstop { left: 24px; right: auto; top: 72px; bottom: auto; transform-origin: 0 0; max-height: calc(100% - 72px - 190px); overflow-y: auto; }
+  .stage.ps-on .overview, .stage.ps-on .xbtn, .stage.ps-on .connector, .stage.ps-on .pace { opacity: 0 !important; pointer-events: none !important; }
+}
+/* Today's shift: same 24px gap from the bottom of the grey bay as from its sides */
+@media (min-width: 761px) {
+  .stage .replay { bottom: 24px; }
+  .stage.ps-on .pitstop { max-height: calc(100% - 72px - 214px); }
+}
