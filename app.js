@@ -9,8 +9,9 @@
 
   const S = {
     route: 'home',
-    hotspot: 'machine',
-    overviewOpen: false,
+    // first-visit default: bucket card open on the machine
+    hotspot: 'bucket',
+    overviewOpen: true,
     t: D.LIVE,
     speed: 1,
     paused: false,
@@ -1332,7 +1333,8 @@
 
   /* ---------- NIGHT MODE ---------- */
   const mqDark = matchMedia('(prefers-color-scheme: dark)');
-  function themePref() { try { return localStorage.getItem('cat-theme') || 'auto'; } catch (e) { return 'auto'; } }
+  // first visit opens in day mode; Night and Auto are the operator's choice after that
+  function themePref() { try { return localStorage.getItem('cat-theme') || 'light'; } catch (e) { return 'light'; } }
   function applyTheme(pref, fade) {
     try { localStorage.setItem('cat-theme', pref); } catch (e) { /* storage blocked */ }
     const dark = pref === 'dark' || (pref === 'auto' && mqDark.matches);
@@ -1478,7 +1480,8 @@
     let saved = null;
     try { saved = JSON.parse(localStorage.getItem('cat-panels')); } catch (e) { /* storage blocked */ }
     app.style.transition = 'none';
-    setPanels(saved && !mqLeft.matches ? saved.leftC : mqLeft.matches, saved && !mqRight.matches ? saved.rightC : mqRight.matches, false);
+    // first visit: menu open, right panel collapsed to its icon strip; after that, the operator's own choice
+    setPanels(saved && !mqLeft.matches ? saved.leftC : mqLeft.matches, saved && !mqRight.matches ? saved.rightC : true, false);
     requestAnimationFrame(() => requestAnimationFrame(() => { app.style.transition = ''; }));
     mqRight.addEventListener('change', (e) => setPanels(S.leftCollapsed, e.matches, false));
     mqLeft.addEventListener('change', (e) => setPanels(e.matches, S.rightCollapsed, false));

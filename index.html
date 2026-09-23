@@ -12,8 +12,8 @@
 <script>
   /* Night mode: saved choice, or follow the device when set to auto. Runs before paint. */
   (function () {
-    var pref = 'auto';
-    try { pref = localStorage.getItem('cat-theme') || 'auto'; } catch (e) {}
+    var pref = 'light';  /* first visit opens in day mode */
+    try { pref = localStorage.getItem('cat-theme') || 'light'; } catch (e) {}
     var dark = pref === 'dark' || (pref === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   })();
