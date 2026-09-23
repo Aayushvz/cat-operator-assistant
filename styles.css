@@ -1622,13 +1622,14 @@ button, a, [role="button"], .dd-btn, .dd-opt, summary { touch-action: manipulati
   }
   .main { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
   .panel.left, .panel.right {
-    top: calc(72px + env(safe-area-inset-top, 0px));
-    bottom: 0;
-    border-radius: 0;
-    border-top: 1px solid var(--line);
-    border-bottom: none;
+    top: calc(72px + env(safe-area-inset-top, 0px)) !important;
+    bottom: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
     overscroll-behavior: contain;
   }
+  .panel.left { left: 0 !important; transform: translateX(calc(-100% - 40px)); }
+  .panel.right { right: 0 !important; transform: translateX(calc(100% + 40px)); }
   /* removed redundant transforms */
 
   /* top bar: logo, machine, then only what a phone needs */
