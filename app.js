@@ -628,8 +628,14 @@
       p.classList.toggle('belt', st.beltOff);
     }
     p.classList.toggle('on', show);
-    // while it shows, it takes the left side so the seatbelt card stays in view
+    // right side, just under the seatbelt card, and never over Today's shift
     $('#stage')?.classList.toggle('ps-on', show);
+    const belt = $('#beltCard'), rep = $('.stage .replay');
+    if (show && belt && rep && belt.offsetParent && innerWidth > 760) {
+      const top = belt.offsetTop + belt.offsetHeight + 12;
+      p.style.top = `${top}px`;
+      p.style.maxHeight = `${Math.max(160, rep.offsetTop - top - 12)}px`;
+    } else { p.style.top = ''; p.style.maxHeight = ''; }
   }
 
   let lastMinute = -1;

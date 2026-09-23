@@ -2534,11 +2534,16 @@ html[data-theme="dark"] .heat .cell.n { color: #B8B8B2; }
 
 /* "While you wait" never covers the seatbelt card: it takes the left side while it shows */
 @media (min-width: 761px) {
-  .stage.ps-on .pitstop { left: 24px; right: auto; top: 72px; bottom: auto; transform-origin: 0 0; max-height: calc(100% - 72px - 190px); overflow-y: auto; }
-  .stage.ps-on .overview, .stage.ps-on .xbtn, .stage.ps-on .connector, .stage.ps-on .pace { opacity: 0 !important; pointer-events: none !important; }
 }
 /* Today's shift: same 24px gap from the bottom of the grey bay as from its sides */
 @media (min-width: 761px) {
   .stage .replay { bottom: 24px; }
-  .stage.ps-on .pitstop { max-height: calc(100% - 72px - 214px); }
+}
+/* While you wait: back on the right, under the seatbelt card (top and max height set from the live layout) */
+@media (min-width: 761px) {
+  .stage.ps-on .pitstop { left: auto; right: 24px; bottom: auto; width: 300px; transform-origin: 100% 0; overflow-y: auto; }
+  /* compact while docked: one line of video text, no footnote */
+  .stage.ps-on .ps-note { display: none; }
+  .stage.ps-on .ps-thumb { width: 104px; }
+  .stage.ps-on .ps-txt b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 }
