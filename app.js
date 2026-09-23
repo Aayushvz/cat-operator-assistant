@@ -760,7 +760,7 @@
     D.schedule.filter((s) => s.done).forEach((s) => { const t = taskById(s.id); rows.push({ ...s, t, start: s.start, end: s.start + t.actual, len: t.actual, state: 'done' }); });
     const act = D.schedule.find((s) => s.active);
     const at = taskById(act.id);
-    const actLen = S.actualDone ?? expect(at);
+    const actLen = S.actualDone ?? expect(at) + (S.late || 0);
     rows.push({ ...act, t: at, start: act.start, end: act.start + actLen, len: actLen, state: S.actualDone != null ? 'done' : 'active', justDone: S.actualDone != null });
     let cursor = act.start + actLen + GAP;
     const later = [];
@@ -794,6 +794,7 @@
             <span>Finished?</span>
             <div class="stepper"><button type="button" data-step="-5" aria-label="5 minutes less">−</button><b id="stepVal">${S.stepVal}</b><em>min</em><button type="button" data-step="5" aria-label="5 minutes more">+</button></div>
             <button class="btn dark" type="button" id="markDone2"><i data-lucide="check"></i>Done</button>
+            <button class="btn outline" type="button" id="runLate"><i data-lucide="clock-alert"></i>Running late +15${S.late ? ` <em class="late-n">(+${S.late})</em>` : ''}</button>
           </div>` : ''}
         </div>
         <div class="job-tag">${tag(r)}</div>
@@ -850,6 +851,13 @@
         renderTasks(); icons();
         return before;
       }
+      if (e.target.closest('#runLate')) {
+        // one tap: this job takes 15 min longer, the rest of the day moves
+        S.late = (S.late || 0) + 15;
+        const moved = planDay().later.length;
+        toast(moved ? `Added 15 min. A job no longer fits and moves to tomorrow.` : 'Added 15 min. Your later jobs moved.', 'clock-alert');
+        renderTasks(); icons(); return;
+      }
       if (e.target.closest('#undoDone')) { S.actualDone = null; window.LIVE?.jobUndo?.(); renderTasks(); icons(); return; } // LIVE
       if (e.target.closest('#addJob')) { S.addOpen = !S.addOpen; renderTasks(); icons(); return; }
       const as = e.target.closest('[data-astep]');
@@ -901,32 +909,15 @@
         <text x="140" y="${140 - 74}" text-anchor="middle" style="font:500 10px Roboto Condensed;fill:#B3161B">${rule('stop')} m stop</text>
         <text x="140" y="${140 - 116}" text-anchor="middle" style="font:500 10px Roboto Condensed;fill:#9A6300">${rule('slow')} m slow</text>
       </svg></div>`;
-    const engineOn = S.engine === 'on';
     main.innerHTML = `<div class="page">
       ${head('safety', 'Warnings show as a colour around the screen, so you see them without reading.')}
       <div class="grid">
-        <div class="card pcard c7 rise">
-          <h3>Start the engine</h3><div class="sub">The engine will not start with the seatbelt off. This is a hard lock, the same as on Cat machines.</div>
-          <div class="interlock ${S.beltOn ? 'belt-ok' : 'belt-no'}">
-            <div class="il-belt">
-              <span class="il-lamp">${ICON_BELT}</span>
-              <div><b>${S.beltOn ? 'Belt on' : 'Belt off'}</b><small>${S.beltOn ? 'You can start the engine.' : 'Put your belt on to start.'}</small></div>
-              <button class="btn outline" type="button" id="beltToggle">${S.beltOn ? 'Take belt off (demo)' : 'Put belt on (demo)'}</button>
-            </div>
-            <div class="il-checks">${CHECKS.map((c, i) => `<button class="check${S.lights[i] ? ' done' : ''}" data-check="${i}" type="button"><i data-lucide="${S.lights[i] ? 'check' : c.icon}"></i>${c.l}</button>`).join('')}</div>
-            <div class="il-foot">
-              <span>${S.lights.slice(0, 4).filter(Boolean).length} of 4 checks done${S.lights.slice(0, 4).every(Boolean) ? '' : ' (recommended)'}</span>
-              <button class="btn ${engineOn ? 'dark' : ''}" type="button" id="engineBtn" ${!S.beltOn && !engineOn ? 'disabled' : ''}><i data-lucide="${engineOn ? 'power-off' : 'power'}"></i>${engineOn ? 'Stop engine' : S.beltOn ? 'Start engine' : 'Locked: belt off'}</button>
-            </div>
-            ${engineOn ? '<div class="il-running"><i data-lucide="activity"></i>Engine running</div>' : ''}
-          </div>
-        </div>
-        <div class="card pcard c5 rise flag-tile" style="--i:1">
+        <div class="card pcard c5 rise flag-tile">
           <div><h3>Site warning</h3><div class="sub">Tap one to see how it looks in the cab.</div></div>
           <div class="flag-big ${S.flag}" id="flagBig"><i data-lucide="${f.icon}"></i><div><b>${f.t}</b><small>${f.s}</small></div></div>
           <div class="opt-row">${Object.keys(FLAGS).map((k) => `<button class="opt${S.flag === k ? ' active' : ''}" data-flag="${k}" type="button" style="height:48px;padding:0 16px">${FLAGS[k].t}</button>`).join('')}</div>
         </div>
-        <div class="card pcard c7 rise" style="--i:2">
+        <div class="card pcard c7 rise" style="--i:1">
           <div class="plan-head"><div><h3>Who is near you</h3><div class="sub">When someone crosses a zone, it is logged. In a real machine this comes from the Cat radar and cameras; here it is simulated.</div></div>
             <button class="btn outline" type="button" id="simPerson"><i data-lucide="user-round"></i>Someone walks close (demo)</button></div>
           <div class="prox">
@@ -950,7 +941,7 @@
             <tr><td>Engine off after waiting</td><td>${RULES.idle} min</td><td><b>${rule('idle')} min</b></td></tr>
           </tbody></table>
         </div>
-        <div class="card pcard c12 rise sos-card-inline" style="--i:4">
+        <div class="card pcard c7 rise sos-card-inline" style="--i:3">
           <button class="sos-big" id="sosBig" type="button" aria-label="Press and hold to send SOS">
             <svg class="ring" viewBox="0 0 124 124" aria-hidden="true"><circle class="fg" cx="62" cy="62" r="59" fill="none" stroke-width="3" stroke-linecap="round"/></svg>SOS</button>
           <div style="flex:1;min-width:260px">
@@ -1006,15 +997,6 @@
         big.innerHTML = `<i data-lucide="${f.icon}"></i><div><b>${f.t}</b><small>${f.s}</small></div>`;
         $$('[data-flag]').forEach((b) => b.classList.toggle('active', b === fl));
         icons(); return;
-      }
-      const ch = e.target.closest('[data-check]');
-      if (ch) { S.lights[+ch.dataset.check] = !S.lights[+ch.dataset.check]; renderSafety(); icons(); return; }
-      if (e.target.closest('#beltToggle')) { S.beltOn = !S.beltOn; renderSafety(); icons(); return; }
-      if (e.target.closest('#engineBtn')) {
-        if (S.engine === 'on') { S.engine = 'off'; toast('Engine stopped.', 'power-off'); }
-        else if (!S.beltOn) { toast('Put your belt on first. The engine is locked.', 'armchair'); return; }
-        else { S.engine = 'on'; toast('Engine started.', 'power'); }
-        renderSafety(); icons(); return;
       }
       if (e.target.closest('#simPerson')) {
         const t = $('#clock').textContent;
@@ -1276,6 +1258,9 @@
   }
 
   /* ---------- REPORTS (SRS 3.4 incident recording, 5 offline first) ---------- */
+  // two taps after the hold: what happened, then how bad
+  const REP_TYPES = [['Near miss', 'triangle-alert'], ['Hit something', 'construction'], ['Machine fault', 'wrench'], ['Someone hurt', 'heart-pulse'], ['Other', 'message-square']];
+  const REP_SEV = [['Minor', 'minor', 'warn'], ['Serious', 'serious', 'crit'], ['Critical', 'critical', 'crit']];
   function renderIncidents() {
     const stTone = { Open: 'crit', Checking: 'warn', 'Talked through': 'ok', Closed: 'ok', New: 'warn' };
     const snapRow = (x) => x.snap ? `
@@ -1307,16 +1292,35 @@
             </details>`).join('')}</div>
         </div>
         <div class="card pcard c4 rise" style="--i:1">
-          <h3>Report something</h3><div class="sub">Hold the button for 1 second. The machine's current readings are added for you.</div>
+          <h3>Report something</h3>
+          ${!S.rep ? `<div class="sub">Hold for 1 second, then two taps: what happened, and how bad. The machine's readings are added for you.</div>
           <div class="hold-wrap" style="flex-direction:column;align-items:flex-start">
             <button class="hold" id="holdBtn" type="button" aria-label="Hold to report">
               <svg viewBox="0 0 108 108" aria-hidden="true"><circle class="bg" cx="54" cy="54" r="52" fill="none" stroke-width="3"/><circle class="fg" cx="54" cy="54" r="52" fill="none" stroke-width="3" stroke-linecap="round"/></svg>HOLD</button>
-            <div style="font-size:12.5px;color:var(--t2)">In the cab, double-tap the thumb button on the joystick. It works while moving too.</div>
-          </div>
+          </div>` : `<div class="rep-pick">
+            <div class="rp-step"><span class="${S.rep === 'what' ? 'on' : 'done'}">1</span>What happened?${S.rep !== 'what' ? ` <b>${S.rep}</b>` : ''}</div>
+            ${S.rep === 'what' ? `<div class="rp-grid">${REP_TYPES.map(([t, ic]) => `<button type="button" data-rtype="${t}"><i data-lucide="${ic}"></i>${t}</button>`).join('')}</div>`
+              : `<div class="rp-step"><span class="on">2</span>How bad?</div>
+              <div class="rp-grid sev">${REP_SEV.map(([t, c]) => `<button type="button" class="${c}" data-rsev="${t}">${t}</button>`).join('')}</div>`}
+            <button class="linkbtn" type="button" id="repCancel">Cancel</button>
+          </div>`}
           <div class="sync-box ${S.offline ? 'off' : ''}"><i data-lucide="${S.offline ? 'cloud-off' : 'cloud-check'}"></i><div><b>${S.offline ? 'No signal' : 'Connected'}</b><small>${S.offline ? `${S.pending} report${S.pending === 1 ? '' : 's'} saved on the tablet. They send when signal is back.` : 'Reports send straight away.'}</small></div></div>
         </div>
       </div></div>`;
-    bindHold(() => { logIncident(); renderIncidents(); icons(); });
+    bindHold(() => { S.rep = 'what'; renderIncidents(); icons(); });
+    main.querySelector('.page').addEventListener('click', (e) => {
+      const t = e.target.closest('[data-rtype]');
+      if (t) { S.rep = t.dataset.rtype; renderIncidents(); icons(); return; }
+      const v = e.target.closest('[data-rsev]');
+      if (v) {
+        const sev = REP_SEV.find(([n]) => n === v.dataset.rsev);
+        addIncident(`${S.rep} · ${sev[0]}`, 'You', sev[2]);
+        S.rep = null;
+        toast(S.offline ? 'Report saved on the tablet. It will send when there is signal.' : 'Report saved. Your supervisor can see it.', 'check');
+        renderIncidents(); icons(); return;
+      }
+      if (e.target.closest('#repCancel')) { S.rep = null; renderIncidents(); icons(); }
+    });
   }
 
   /* ---------- MACHINE (SRS 3.2: part health by severity, same colours as the 3D model) ---------- */
@@ -1853,66 +1857,131 @@
   /* =========================================================
      LOGIN (SRS 3.1): PIN pad or badge, sized for gloves
      ========================================================= */
-  function showLogin() {
+  // Who can drive EXC001. Level sets the job time estimates. PIN for the demo = the last 4 digits of the ID.
+  const OPERATORS = [
+    { id: 'OP1001', name: 'Aayush Raj', level: 'Intermediate', licence: 'F2 Licence', photo: 'assets/operator.jpg' },
+    { id: 'OP1002', name: 'Meera Nair', level: 'Expert', licence: 'F1 Licence' },
+    { id: 'OP1003', name: 'Sunil Yadav', level: 'Beginner', licence: 'F3 Licence' },
+  ];
+  const initials = (n) => n.split(' ').map((w) => w[0]).join('');
+  const avatar = (op, cls = '') => op.photo ? `<img class="${cls}" src="${op.photo}" alt="" />` : `<span class="${cls} ini" aria-hidden="true">${initials(op.name)}</span>`;
+
+  // the signed-in operator shows everywhere: menu, reports, job time level
+  function applyOperator(id) {
+    const op = OPERATORS.find((x) => x.id === id) || OPERATORS[0];
+    S.op = op;
+    Object.assign(D.operator, { name: op.name, id: op.id });
+    S.est.skill = op.level;
+    const ub = $('#userBtn');
+    if (ub) {
+      ub.querySelector('.user-meta').innerHTML = `<b>${op.name}</b><small>Operator · ${op.licence}</small>`;
+      const old = ub.querySelector('.avatar');
+      old.outerHTML = op.photo ? `<img class="avatar" src="${op.photo}" alt="" width="34" height="34" />` : `<span class="avatar ini" aria-hidden="true">${initials(op.name)}</span>`;
+    }
+    const tb = $('#tbAvatar');
+    if (tb) tb.innerHTML = op.photo ? `<img src="${op.photo}" alt="" width="36" height="36" />` : `<span class="ini">${initials(op.name)}</span>`;
+  }
+
+  function session(k, v) {
+    try { if (v === undefined) return sessionStorage.getItem(k); if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch (e) { /* storage blocked */ }
+    return null;
+  }
+
+  // step: 'who' (pick the operator) -> 'pin' -> 'start' (belt on, then start the engine) -> main screen
+  function showLogin(step = 'who') {
+    $('#login')?.remove();
     const o = document.createElement('div');
     o.className = 'login'; o.id = 'login';
     o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', 'Sign in');
-    let pin = '', role = 'operator';
-    const draw = () => {
-      o.innerHTML = `<div class="login-card">
-        <div class="login-side">
-          <img src="assets/cat-logo.png" alt="Cat" class="login-logo" />
-          <h1>Operator Assistant</h1>
-          <p>EXC001 · 320 Hydraulic Excavator</p>
-          <div class="login-role" role="tablist">
-            <button class="${role === 'operator' ? 'active' : ''}" data-role="operator" type="button">Operator</button>
-            <button class="${role === 'manager' ? 'active' : ''}" data-role="manager" type="button">Fleet manager</button>
+    let pin = '', shake = false;
+    let op = OPERATORS.find((x) => x.id === session('cat-op')) || OPERATORS[0];
+    const side = `<div class="login-side">
+        <img src="assets/cat-logo.png" alt="Cat" class="login-logo" />
+        <h1>Operator Assistant</h1>
+        <p>EXC001 · 320 Hydraulic Excavator</p>
+        <ol class="login-steps">${[['who', 'Who is driving'], ['pin', 'Your PIN'], ['start', 'Belt on, start']].map(([k, l], i) => `<li class="${k === step ? 'on' : ['who', 'pin', 'start'].indexOf(step) > i ? 'done' : ''}"><span>${i + 1}</span>${l}</li>`).join('')}</ol>
+      </div>`;
+    const views = {
+      who: () => `<div class="login-main who">
+          <h2>Who is driving?</h2>
+          <div class="op-list">${OPERATORS.map((x) => `<button class="op-card" type="button" data-op="${x.id}">
+            ${avatar(x, 'op-av')}<span class="op-txt"><b>${x.name}</b><small>${x.id} · ${x.licence}</small></span>
+            <span class="op-lvl ${x.level.toLowerCase()}">${x.level}</span><i data-lucide="chevron-right"></i></button>`).join('')}</div>
+          <div class="mgr-box">
+            <span class="mgr-ico"><i data-lucide="building-2"></i></span>
+            <div class="mgr-txt"><b>Fleet manager</b><small>See every machine, operator and report on this site.</small></div>
+            <button class="btn outline" type="button" data-k="manager">Open fleet view<i data-lucide="arrow-right"></i></button>
           </div>
-        </div>
-        ${role === 'operator' ? `<div class="login-main">
-          <div class="login-who"><img src="assets/operator.jpg" alt="" /><div><b>${D.operator.name}</b><small>${D.operator.id} · F2 Licence</small></div></div>
-          <div class="pin-dots" aria-label="${pin.length} of 4 digits entered">${[0, 1, 2, 3].map((i) => `<i class="${i < pin.length ? 'on' : ''}"></i>`).join('')}</div>
-          <div class="pin-msg" id="pinMsg">Enter your 4-digit PIN · demo PIN 1001</div>
+        </div>`,
+      pin: () => `<div class="login-main">
+          <button class="login-who" type="button" data-k="change">${avatar(op)}<div><b>${op.name}</b><small>${op.id} · ${op.level}</small></div><span class="lw-change">Change</span></button>
+          <div class="pin-dots${shake ? ' shake' : ''}" aria-label="${pin.length} of 4 digits entered">${[0, 1, 2, 3].map((i) => `<i class="${i < pin.length ? 'on' : ''}"></i>`).join('')}</div>
+          <div class="pin-msg${shake ? ' bad' : ''}" id="pinMsg">${shake ? 'That PIN is not right. Try again.' : `Enter your 4-digit PIN · demo PIN ${op.id.slice(2)}`}</div>
           <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join('')}<button type="button" data-k="clear" aria-label="Clear">Clear</button><button type="button" data-k="0">0</button><button type="button" data-k="back" aria-label="Delete"><i data-lucide="delete"></i></button></div>
           <button class="btn badge-btn" type="button" data-k="badge"><i data-lucide="id-card"></i>Scan ID badge instead</button>
-        </div>` : `<div class="login-main mgr">
-          <i data-lucide="building-2" class="mgr-ico"></i>
-          <h2>Fleet view</h2><p>See every operator and machine on this site, with logs, charts and a review list. Read-only.</p>
-          <button class="btn dark" type="button" data-k="manager"><i data-lucide="log-in"></i>Open fleet view</button>
-          <small>Demo sign-in, no password.</small>
-        </div>`}
-      </div>`;
-      icons();
+        </div>`,
+      start: () => `<div class="login-main start">
+          <div class="gate-lamp ${S.beltOn ? 'ok' : ''}${shake ? ' shake' : ''}">${ICON_BELT}</div>
+          <h2>${S.beltOn ? 'Belt on. Start the engine.' : 'Put your seatbelt on'}</h2>
+          <p>${S.beltOn ? `Good morning, ${op.name.split(' ')[0]}.` : 'The engine stays locked until your belt is on.'}</p>
+          <button class="btn outline gate-belt" type="button" data-k="belt">${S.beltOn ? 'Take belt off (demo)' : 'Put belt on (demo)'}</button>
+          <div class="gate-checks"><span>Walk-around (recommended)</span>
+            <div>${CHECKS.map((c, i) => `<button class="check${S.lights[i] ? ' done' : ''}" data-check="${i}" type="button"><i data-lucide="${S.lights[i] ? 'check' : c.icon}"></i>${c.l}</button>`).join('')}</div></div>
+          <button class="btn gate-start${S.beltOn ? '' : ' locked'}" type="button" data-k="engine"><i data-lucide="${S.beltOn ? 'power' : 'lock'}"></i>${S.beltOn ? 'Start engine' : 'Locked: belt off'}</button>
+          <small class="gate-note" id="gateNote">${shake ? 'Put your belt on first. This try was logged.' : ''}</small>
+        </div>`,
     };
-    const done = (asRole) => {
-      try { sessionStorage.setItem('cat-session', asRole); } catch (e) { /* storage blocked */ }
+    const draw = () => { o.innerHTML = `<div class="login-card">${side}${views[step]()}</div>`; icons(); };
+    const to = (st) => showLogin(st);
+    const finish = (role) => {
+      clearInterval(showLogin.beltWatch);
+      session('cat-session', role);
       o.classList.add('out');
       setTimeout(() => o.remove(), 320);
-      go(asRole === 'manager' ? 'fleet' : 'home');
+      go(role === 'manager' ? 'fleet' : 'home');
     };
+    const signedIn = () => { session('cat-op', op.id); applyOperator(op.id); session('cat-session', 'pending'); to('start'); };
     o.addEventListener('click', (e) => {
-      const r = e.target.closest('[data-role]');
-      if (r) { role = r.dataset.role; pin = ''; draw(); return; }
+      const c = e.target.closest('[data-op]');
+      if (c) { op = OPERATORS.find((x) => x.id === c.dataset.op); session('cat-op', op.id); to('pin'); return; }
+      const ch = e.target.closest('[data-check]');
+      if (ch) { S.lights[+ch.dataset.check] = !S.lights[+ch.dataset.check]; draw(); return; }
       const k = e.target.closest('[data-k]');
       if (!k) return;
       const v = k.dataset.k;
-      if (v === 'badge') { toast('Badge read: Aayush Raj', 'id-card'); done('operator'); return; }
-      if (v === 'manager') { done('manager'); return; }
+      if (v === 'manager') { finish('manager'); return; }
+      if (v === 'change') { to('who'); return; }
+      if (v === 'badge') { toast(`Badge read: ${op.name}`, 'id-card'); signedIn(); return; }
+      if (v === 'belt') { S.beltOn = !S.beltOn; shake = false; draw(); return; }
+      if (v === 'engine') {
+        if (!S.beltOn) {
+          // a blocked start is logged, like on the machine
+          addIncident('Engine start blocked, belt off', 'Machine', 'warn');
+          shake = true; draw(); setTimeout(() => { shake = false; }, 450); return;
+        }
+        S.engine = 'on';
+        toast('Engine started.', 'power');
+        finish('operator'); return;
+      }
       if (v === 'clear') pin = '';
       else if (v === 'back') pin = pin.slice(0, -1);
       else if (pin.length < 4) pin += v;
-      draw();
+      shake = false; draw();
       if (pin.length === 4) {
-        if (pin === '1001') { done('operator'); }
-        else { $('#pinMsg').textContent = 'That PIN is not right. Try again.'; $('#pinMsg').classList.add('bad'); o.querySelector('.pin-dots').classList.add('shake'); pin = ''; setTimeout(draw, 700); }
+        if (pin === op.id.slice(2)) signedIn();
+        else { pin = ''; shake = true; setTimeout(() => { shake = false; draw(); }, 900); draw(); }
       }
     });
     document.body.appendChild(o);
     draw();
+    // the belt can also change from the machine (backend remote): keep the gate in step
+    clearInterval(showLogin.beltWatch);
+    if (step === 'start') { let last = S.beltOn; showLogin.beltWatch = setInterval(() => { if (!document.body.contains(o)) return clearInterval(showLogin.beltWatch); if (S.beltOn !== last) { last = S.beltOn; draw(); } }, 400); }
   }
   function signOut() {
-    try { sessionStorage.removeItem('cat-session'); } catch (e) { /* storage blocked */ }
-    showLogin();
+    session('cat-session', null); session('cat-op', null);
+    S.engine = 'off'; S.beltOn = false; S.lights = S.lights.map(() => false);
+    showLogin('who');
   }
 
   /* =========================================================
@@ -2321,7 +2390,10 @@
   go(location.hash.slice(1) || 'home');
   $('#driveBtn').addEventListener('click', () => setMoving(!S.moving));
   updateSync();
-  let hasSession = false;
-  try { hasSession = !!sessionStorage.getItem('cat-session'); } catch (e) { hasSession = true; }
-  if (!hasSession) showLogin();
+  // where the shift is: not signed in, signed in but engine off (belt gate), or working
+  const sess = session('cat-session');
+  if (session('cat-op')) applyOperator(session('cat-op'));
+  if (sess === 'operator') { S.engine = 'on'; S.beltOn = true; }
+  else if (sess === 'pending') showLogin('start');
+  else if (sess !== 'manager') showLogin('who');
 })();

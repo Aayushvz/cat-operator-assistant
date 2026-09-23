@@ -1838,3 +1838,83 @@ button, a, [role="button"], .dd-btn, .dd-opt, summary { touch-action: manipulati
 .ctrl-card .ctrl-name { margin: 4px 0 6px; font-size: 28px; }
 .ctrl-card .ctrl-row { padding: 8px 0; }
 .cv-head { padding-top: 12px; }
+
+/* ============ Sign in: who is driving -> PIN -> belt on, start engine ============ */
+.login-card { min-height: 520px; }
+.login-steps { list-style: none; margin: auto 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.login-steps li { display: flex; align-items: center; gap: 10px; font: 600 14px var(--f-ui); color: rgba(255,255,255,.45); }
+.login-steps li span { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 700 13px var(--f-display); border: 1.5px solid rgba(255,255,255,.3); }
+.login-steps li.on { color: #fff; }
+.login-steps li.on span { background: var(--y); border-color: var(--y); color: #0B0B0B; }
+.login-steps li.done { color: rgba(255,255,255,.75); }
+.login-steps li.done span { background: rgba(255,255,255,.14); border-color: transparent; color: #fff; }
+.login-main h2 { margin: 0; font: 700 28px/1.05 var(--f-display); text-transform: uppercase; align-self: stretch; }
+.login-main.who { align-items: stretch; justify-content: center; }
+.op-list { display: flex; flex-direction: column; gap: 8px; }
+.op-card { display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); text-align: left; transition: border-color 150ms ease, transform 120ms var(--ease-out); }
+.op-card:active { transform: scale(.98); }
+@media (hover: hover) and (pointer: fine) { .op-card:hover { border-color: var(--ink); } }
+.op-card > svg { width: 18px; height: 18px; color: var(--t3); }
+.op-av, .ini { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex: none; }
+.ini { display: grid; place-items: center; background: #2B2B29; color: var(--y); font: 700 17px var(--f-display); letter-spacing: .02em; }
+.op-txt { flex: 1; min-width: 0; }
+.op-txt b { display: block; font-size: 16px; }
+.op-txt small { color: var(--t2); font-size: 12.5px; }
+.op-lvl { font: 600 12.5px var(--f-ui); padding: 4px 10px; border-radius: 8px; background: var(--chip); }
+.op-lvl.expert { color: var(--ok-ink); }
+.op-lvl.beginner { color: var(--warn-ink); }
+button.login-who { text-align: left; border: 0; }
+.login-who .ini { width: 52px; height: 52px; }
+.lw-change { margin-left: auto; font-size: 12.5px; font-weight: 600; color: var(--t2); text-decoration: underline; }
+.tb-avatar .ini, .user .avatar.ini { width: 100%; height: 100%; font-size: 14px; }
+.user .avatar.ini { width: 34px; height: 34px; }
+
+/* belt gate: the machine's own telltale, big */
+.login-main.start { justify-content: center; text-align: center; gap: 12px; }
+.login-main.start h2 { text-align: center; }
+.login-main.start p { margin: 0; color: var(--t2); font-size: 14.5px; }
+.gate-lamp { width: 112px; height: 112px; border-radius: 22px; background: #1C0907; color: #FF3B30; display: grid; place-items: center; box-shadow: inset 0 0 0 2px #3A0F0B; transition: background-color 250ms ease, color 250ms ease; }
+.gate-lamp .ico-belt { width: 70px; height: 70px; filter: drop-shadow(0 0 8px rgba(255,59,48,.85)); animation: lamp 1s steps(2, jump-none) infinite; }
+.gate-lamp.ok { background: #0C0C0B; color: #46C07A; box-shadow: inset 0 0 0 2px #1E3A2A; }
+.gate-lamp.ok .ico-belt { filter: drop-shadow(0 0 6px rgba(70,192,122,.6)); animation: none; }
+.gate-lamp.shake, .gate-start.shake { animation: shake 360ms ease; }
+.gate-belt { height: 44px; }
+.gate-checks { align-self: stretch; text-align: left; margin-top: 4px; }
+.gate-checks > span { font-size: 12.5px; font-weight: 600; color: var(--t2); }
+.gate-checks > div { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 6px; }
+.gate-start { align-self: stretch; height: 60px; justify-content: center; font-size: 17px; margin-top: 4px; }
+.gate-start.locked { background: var(--chip); color: var(--t2); }
+.gate-note { min-height: 16px; color: var(--crit-ink); font-weight: 600; font-size: 12.5px; }
+@media (max-width: 760px) { .gate-checks > div { grid-template-columns: 1fr 1fr; } .gate-lamp { width: 88px; height: 88px; } .gate-lamp .ico-belt { width: 54px; height: 54px; } .login-card { min-height: 0; } .login-steps { flex-direction: row; gap: 14px; margin-top: 12px; } .login-steps li { font-size: 0; gap: 0; } .login-steps li.on { font-size: 13px; gap: 8px; } }
+
+/* running late: one tap adds 15 min to the job in progress */
+#runLate { height: 44px; }
+.late-n { font-style: normal; color: var(--warn-ink); margin-left: 4px; }
+
+/* report: two taps after the hold */
+.rep-pick { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.rp-step { display: flex; align-items: center; gap: 8px; font: 600 14px var(--f-ui); }
+.rp-step span { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 700 12px var(--f-display); background: var(--chip); }
+.rp-step span.on { background: var(--y); color: #0B0B0B; }
+.rp-step span.done { background: var(--ok); color: #fff; }
+.rp-step b { margin-left: auto; font-weight: 700; }
+.rp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rp-grid button { min-height: 56px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); display: flex; align-items: center; gap: 8px; padding: 0 12px; font: 600 14px var(--f-ui); text-align: left; transition: transform 120ms var(--ease-out); }
+.rp-grid button:active { transform: scale(.97); }
+.rp-grid button svg { width: 18px; height: 18px; color: var(--t2); }
+.rp-grid.sev { grid-template-columns: 1fr; }
+.rp-grid.sev button { justify-content: center; font-size: 15px; }
+.rp-grid.sev .minor { background: var(--warn-bg); border-color: transparent; color: var(--warn-ink); }
+.rp-grid.sev .serious { background: var(--crit-bg); border-color: transparent; color: var(--crit-ink); }
+.rp-grid.sev .critical { background: var(--crit); border-color: var(--crit); color: #fff; }
+.rep-pick .linkbtn { align-self: flex-start; }
+/* fleet manager entry on the sign-in screen: separate from the operators, with its own button */
+.mgr-box { display: flex; align-items: center; gap: 14px; margin-top: 10px; padding: 16px 0 0; border-top: 1px solid var(--line); }
+.mgr-box .mgr-ico { width: 48px; height: 48px; border-radius: 12px; background: var(--chip); display: grid; place-items: center; flex: none; }
+.mgr-box .mgr-ico svg { width: 22px; height: 22px; }
+.mgr-txt { flex: 1; min-width: 0; }
+.mgr-txt b { display: block; font-size: 15px; }
+.mgr-txt small { color: var(--t2); font-size: 13px; }
+.mgr-box .btn { height: 48px; flex: none; gap: 8px; }
+.mgr-box .btn svg { width: 16px; height: 16px; }
+@media (max-width: 760px) { .mgr-box { flex-wrap: wrap; } .mgr-box .btn { width: 100%; justify-content: center; } }

@@ -3,7 +3,7 @@
 A smart operator assistant for Cat® machinery, built for the "Smart Operator Assistant for CAT machinery" hackathon challenge. It supports an excavator operator through the whole shift: tasks, safety, training, unusual machine behaviour and task time estimation, all driven by the telemetry and task data from the problem statement. Written in plain words an operator uses on site.
 
 **Live demo:** https://aayushvz.github.io/cat-operator-assistant/
-Sign in with the demo PIN **1001**, or choose **Fleet manager** for the manager view.
+Pick an operator, enter the demo PIN (the last 4 digits of their ID, e.g. **1001**), put the belt on and start the engine. Or choose **Open fleet view** for the manager view.
 
 ## Run it locally
 
@@ -17,10 +17,11 @@ Then open http://localhost:4173.
 
 ## Features
 
-### Sign in (SRS 3.1)
-- PIN pad with large keys for gloved hands, or "Scan ID badge".
-- Two roles: **Operator** (cab screen) and **Fleet manager** (fleet view).
-- Every report made after sign-in is tied to the operator and machine. Sign out from the profile.
+### Start of shift (SRS 3.1, 3.4)
+- **1. Who is driving**: pick an operator; each shows their level (Beginner, Intermediate, Expert), which sets the job time estimates. Fleet managers open the fleet view from the same screen.
+- **2. PIN**: PIN pad with large keys for gloved hands, or "Scan ID badge".
+- **3. Belt on, start**: the engine stays locked until the seatbelt is on. A blocked start is logged as a report. Walk-around checks are offered before starting. With the backend running, the belt comes from the machine.
+- Then the main screen opens. Every report is tied to the operator and machine. Sign out from the profile.
 
 ### Home: the machine (SRS 3.2)
 - Realistic 3D model of excavator EXC001 with Cat branding. Opens in a fixed pose and turns slowly; drag to rotate.
@@ -33,7 +34,7 @@ Then open http://localhost:4173.
 
 ### My tasks (SRS 3.3, 3.7)
 - **Today**: Now / Next / Shift left tiles, then the job list with one line per job.
-- **Dynamic rescheduling**: mark a job done with its real time; later jobs move. A job that no longer fits before 18:00 moves to tomorrow and shorter jobs move ahead of it.
+- **Dynamic rescheduling**: mark a job done with its real time, or tap **Running late +15**; later jobs move. A job that no longer fits before 18:00 moves to tomorrow and shorter jobs move ahead of it.
 - **Add job**: pick the job, place and planned time; it joins the plan with an estimate. Added jobs are saved on the device and can be removed.
 - **Job time**: estimate any job from planned time × operator level × weather × machine age, shown as a range, with the working shown. On the five dataset jobs the plan is off by 13.2% on average and the estimate by 2.4% (the factors were fitted on those jobs).
 
@@ -42,12 +43,11 @@ Then open http://localhost:4173.
 - While moving, the screen locks to one strip: current job, minutes left, belt status, and hold-to-use **Report** and **SOS**.
 
 ### Safety and reports (SRS 3.4)
-- **Engine start interlock**: the engine will not start with the seatbelt off.
 - **Site warnings**: All clear, Slow down, Stop now, Give way, shown as a colour around the screen edge.
 - **Who is near you**: radar with stop and slow zones; each zone crossing is logged and becomes a report.
 - **Site conditions** tighten the rules: in rain the stop zone grows from 6 to 7.5 m, the slow zone from 10 to 12.5 m, and the engine switches off after 4 minutes of waiting instead of 5.
 - **Emergency SOS**: hold 1.5 seconds; stops the machine, calls the supervisor and medic, shares location, saves the data.
-- **Reports**: every report carries a snapshot of the machine (operator, engine hours, belt, state, fuel, place).
+- **Reports**: hold, then two taps (what happened, how bad). Every report carries a snapshot of the machine (operator, engine hours, belt, state, fuel, place).
 
 ### Learn (SRS 3.5, 3.6)
 - **Controls**: a realistic top-down drawing of the cab with 8 numbered controls. Each shows what it does, how to be careful, and a Cat video.

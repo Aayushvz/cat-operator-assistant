@@ -253,6 +253,7 @@
       const t = await api(`/telemetry?since=${lastEvent ?? 0}`);
       if (lastEvent == null) {
         lastEvent = t.events.length ? t.events[t.events.length - 1].id : 0;   // don't replay old events
+        if (t.machine && typeof t.machine.belt === 'boolean') { S.beltOn = t.machine.belt; }   // start from the machine's real belt state
       } else {
         t.events.forEach((e) => { onEvent(e); lastEvent = e.id; });
       }

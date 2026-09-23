@@ -5,7 +5,7 @@ Hackathon prototype for "Smart Operator Assistant for CAT machinery". A cab tabl
 ## Run and check
 
 - `python serve.py` then http://localhost:4173. Keep serve.py a ThreadingHTTPServer with `Cache-Control: no-store`: a single-threaded server stalls page loads.
-- Demo sign-in: PIN **1001**, or pick "Fleet manager".
+- Demo sign-in: pick an operator, PIN = last 4 digits of their ID (**1001**), belt on, Start engine. Or "Open fleet view".
 - No build step, no npm. Three.js r128 (cdnjs) and Lucide (jsdelivr) load from CDNs.
 - After a change, open the page and check the browser console for errors. `node -e "new Function(require('fs').readFileSync('app.js','utf8'))"` is a quick syntax check.
 - Live site: GitHub Pages from `main` (rebuilds on push). All asset paths must stay relative.
@@ -26,13 +26,13 @@ Hackathon prototype for "Smart Operator Assistant for CAT machinery". A cab tabl
 
 ## Features and where they live
 
-- **Login** (`showLogin`): PIN pad or badge, operator or manager, session in sessionStorage.
+- **Start of shift** (`showLogin(step)`): who is driving (OPERATORS with level, `applyOperator`) -> PIN or badge -> belt gate and Start engine (blocked start logged). sessionStorage `cat-session` = pending/operator/manager, `cat-op`.
 - **Home** (`renderHome`): 3D machine, boom and hydraulics red (fault: boom cylinder leaking), tracks amber (check soon), selected part glows green; six hotspots and an overview card; "Your pace" and "Seatbelt" cab instruments; "Today's shift" replay; "While you wait" video after 3 minutes idle. Do not redesign Home unless asked.
 - **My tasks** (`renderTasks`, `planDay`): Now / Next / Shift left tiles, job list, mark done, dynamic rescheduling (10 min gap, shift ends 18:00, jobs that no longer fit go to tomorrow, shorter jobs move up), Add job saved in localStorage.
 - **Job time** (`renderEstimator`): planned × level × weather × machine age. Plan error 13.2%, model 2.4% on the five dataset jobs (fitted on those same jobs: say so).
 - **Moving lock** (`setMoving`): demo switch standing in for travel and joystick telemetry.
-- **Safety** (`renderSafety`): engine-start seatbelt interlock, site warning flags, proximity radar with logged events, rain tightens the rules, SOS.
-- **Reports** (`renderIncidents`, `addIncident`): each report has a machine snapshot; saved offline first (`S.offline`, `S.pending`, localStorage).
+- **Safety** (`renderSafety`): site warning flags, proximity radar with logged events, rain tightens the rules, SOS.
+- **Reports** (`renderIncidents`, `addIncident`): hold then two taps (REP_TYPES, REP_SEV); each report has a machine snapshot; saved offline first (`S.offline`, `S.pending`, localStorage).
 - **Learn**: `renderControls` (top-down cab, 8 controls, each linked to a Cat video), `renderTraining` (videos), `renderInsights` + `habitsPatterns` (last 5 shifts against the operator's own baseline).
 - **Machine** (`renderMachine`): the 3D model in fit mode, Fix now / Check soon / Fine, next service.
 - **Fleet** (`renderFleet`): manager view, hides the side panels.
