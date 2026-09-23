@@ -2314,3 +2314,5 @@ html[data-theme="dark"] .hc-s.tool { border-color: rgba(255,205,17,.3); }
 #sosBtn::before { display: none; animation: none; }
 /* collapsed menu: the name block takes no room, so the photo sits dead centre */
 .app.left-collapsed .user-meta { flex: 0 0 0; min-width: 0; padding: 0; margin: 0; }
+/* page tabs hug their tabs, even on pages laid out as a column (Learn > Controls) */
+.subtabs { align-self: flex-start; width: max-content; max-width: 100%; }
