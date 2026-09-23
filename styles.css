@@ -2296,3 +2296,17 @@ html[data-theme="dark"] .hc-s.tool { border-color: rgba(255,205,17,.3); }
 .hc-bar.in.neg em { right: calc(50% + 8px); }
 .hc-bar.in.pos em { left: calc(50% + 8px); }
 .hc-bar.in { height: 20px; }
+
+/* ============ Cat branding: practice strip and the level (licence) card ============ */
+.sim { box-shadow: inset 0 2px 0 var(--y); }
+.sim-mark { position: absolute; left: 52%; top: 50%; width: 230px; transform: translate(-50%, -50%); opacity: .06; pointer-events: none; }
+.sim-hatch { position: absolute; top: 0; right: 0; bottom: 0; width: 64px; background: repeating-linear-gradient(-45deg, var(--y) 0 10px, #111 10px 20px);
+  -webkit-mask: linear-gradient(90deg, transparent, #000 70%); mask: linear-gradient(90deg, transparent, #000 70%); opacity: .85; pointer-events: none; }
+.sim .content { padding-right: 56px; }
+/* licence: an operator ID card */
+.licence::after { top: auto; right: 0; left: 0; bottom: 0; width: auto; height: 8px; border: 0; border-radius: 0; background: repeating-linear-gradient(-45deg, var(--y) 0 8px, #111 8px 16px); }
+.licence { padding-bottom: 28px; }
+.licence > * { position: relative; }
+.lic-logo { position: absolute !important; top: 18px; right: 20px; width: 54px; }
+.lic-mark { position: absolute !important; right: -30px; bottom: 10px; width: 200px; opacity: .06; pointer-events: none; }
+@media (max-width: 760px) { .sim-mark { width: 160px; left: 70%; } .sim .content { padding-right: 40px; } .sim-hatch { width: 44px; } }

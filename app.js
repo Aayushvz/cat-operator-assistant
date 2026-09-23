@@ -1072,6 +1072,8 @@
       ${head('videos', 'Picked from how you worked this week.')}
       <div class="grid">
         <div class="licence c4 rise">
+          <img class="lic-logo" src="assets/cat-logo-white.png" alt="Cat" />
+          <img class="lic-mark" src="assets/cat-logo-white.png" alt="" aria-hidden="true" />
           <div class="eyebrow" style="color:rgba(255,255,255,.6)">Your level</div>
           <div style="display:flex;align-items:flex-end;gap:14px;margin-top:10px"><span class="lic-class">F2</span><span style="font-size:13px;color:rgba(255,255,255,.75);padding-bottom:6px">Intermediate<br>Aayush Raj · OP1001</span></div>
           <div style="margin-top:22px;font-size:12px;color:rgba(255,255,255,.7);display:flex;justify-content:space-between"><span>To reach F1</span><span>${Math.min(100, 62 + S.watched.size * 4)}%</span></div>
@@ -1101,6 +1103,8 @@
         <div class="card pcard c12 rise" style="--i:4">
           <h3>Practice on this screen</h3><div class="sub">When the machine is parked, the joysticks control a practice game here. The arm stays locked.</div>
           <div class="sim">
+            <img class="sim-mark" src="assets/cat-logo-white.png" alt="" aria-hidden="true" />
+            <span class="sim-hatch" aria-hidden="true"></span>
             <svg class="grid-bg" aria-hidden="true"><defs><pattern id="g" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="rgba(255,255,255,.07)"/></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>
             <div class="content" style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
               <div style="flex:1;min-width:240px"><div class="eyebrow" style="color:var(--y)">Practice</div><div style="font:700 28px/1.1 var(--f-display);text-transform:uppercase;margin-top:6px">Load a truck in 4 passes</div><div style="font-size:12.5px;color:rgba(255,255,255,.7);margin-top:6px">Goal 3:20 · your best 3:52 · expert 3:05</div></div>
