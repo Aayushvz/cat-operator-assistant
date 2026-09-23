@@ -2596,15 +2596,16 @@ html[data-theme="dark"] .heat .cell.n { color: #B8B8B2; }
 .loader .dl-svg { width: 100%; max-width: 640px; }
 .login-designer {
   position: absolute;
-  font-family: var(--f-ui), sans-serif; font-weight: 600; font-size: 13px;
+  font-family: var(--f-ui), sans-serif; font-weight: 500; font-size: 13.5px;
   letter-spacing: 0.05em;
 }
 .loader-designer {
-  font-family: var(--f-ui), sans-serif; font-weight: 600; font-size: 13px;
+  font-family: var(--f-ui), sans-serif; font-weight: 500; font-size: 13.5px;
   letter-spacing: 0.05em;
   color: #111; opacity: 0.5;
   margin-top: -10px;
 }
+.login-designer b, .loader-designer b { font-weight: 800; opacity: 1; }
 .login-designer {
   bottom: 24px; left: 24px;
   color: var(--t3); opacity: 0.8;
