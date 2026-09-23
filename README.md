@@ -69,7 +69,10 @@ Then open http://localhost:4173.
 ### Everywhere
 - Five-item menu, collapsible side panels, and a right panel with live job, health and alerts.
 - Day and night mode. Night mode is built from layered blacks, each surface one shade up, with raised-grey buttons and selected tabs instead of white ones.
-- Works on phones: the side panels become drawers, the top bar keeps only what a phone needs, Home stacks the cards under the machine, tables scroll inside their card, and notch, tap and zoom behaviour is handled.
+- Works on phones:
+  - **Top bar**: black, edge to edge, with the white Cat logo, EXC001, three plain icons (Parked, Right now, night mode) and a compact SOS. The browser bar turns black to match.
+  - **Home**: the machine on top, then the part card as a 2×2 grid of numbers, Seatbelt and Your pace side by side as two small instruments, then Today's shift.
+  - Side panels become drawers, tables scroll inside their card, and notch, tap and zoom behaviour is handled.
 - English and हिंदी, custom dropdowns, one-line page subtitles, and large controls sized for gloves.
 - Operator profile with licence, certifications, video progress and settings.
 

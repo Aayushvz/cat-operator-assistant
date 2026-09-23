@@ -38,7 +38,9 @@ Hackathon prototype for "Smart Operator Assistant for CAT machinery". A cab tabl
 - **Machine** (`renderMachine`): the 3D model in fit mode, Fix now / Check soon / Fine, next service. Part by part: `PART_HEALTH` (health score and two readings per part over 10 shifts, sample), `healthGauge`, `readingChart`; picking a part calls `Machine3D.setSelected`.
 - **Fleet** (`renderFleet`): manager view, hides the side panels.
 - Night mode, English/Hindi menu, custom dropdowns (`enhanceSelect` upgrades every `<select>` automatically).
-- Phone layout: rules at the end of styles.css under 760px (drawers, trimmed top bar, dvh, safe areas, 16px inputs).
+- Phone layout: rules at the end of styles.css under 760px (drawers, dvh, safe areas, 16px inputs). Top bar on phones: black edge to edge, white logo, one plain 40px icon style, compact SOS, EXC001 hidden only under 340px; a `theme-color` meta with `media="(max-width: 760px)"` makes the browser bar black. Home on phones: `.home-below` grid, part card as 2×2 numbers, seatbelt and pace side by side.
+- Boot order: the saved shift (`cat-session`, `cat-op`) is restored before the first `go()`, so the first frame never shows a stale belt or operator.
+- Backend: leave it alone unless the user asks (front-end work only for now).
 
 ## Colour rules (learned the hard way)
 
