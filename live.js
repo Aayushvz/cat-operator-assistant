@@ -225,7 +225,7 @@
   }
   function onEvent(e) {
     if (e.kind === 'moving') { if (e.value !== S.moving) A.setMoving(e.value); }
-    if (e.kind === 'belt') { S.beltOn = e.value; refresh('safety'); }
+    if (e.kind === 'belt') { S.beltOn = e.value; if (S.moving) A.setMoving(true); refresh('safety'); }
     if (e.kind === 'belt_off_moving') {
       A.addIncident('Belt off while moving', 'Machine', 'crit');
       A.flashEdge();

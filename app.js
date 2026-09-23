@@ -569,6 +569,8 @@
 
   /* ---------- seatbelt: live status, time in state, and compliance so far today ---------- */
   function beltWindows() { return D.segments.filter((x) => x.beltOff).map((x) => x.beltOff); }
+  // at the live moment the belt switch (S.beltOn, set by the Safety demo or the machine) wins over the day's history
+  const beltOffAt = (st) => st.beltOff || (S.t >= D.LIVE - 0.5 && !S.beltOn);
   function updateBelt(st) {
     const card = $('#beltCard');
     if (!card) return;
@@ -576,7 +578,7 @@
     const onMin = D.segments.filter((x) => x.kind !== 'break').reduce((a, x) => a + Math.max(0, Math.min(t, x.to) - x.from), 0);
     const offMin = wins.reduce((a, [f, e]) => a + Math.max(0, Math.min(t, e) - f), 0);
     const pct = onMin > 0 ? Math.round((1 - offMin / onMin) * 100) : 100;
-    const state = st.kind === 'break' ? 'na' : st.beltOff ? 'off' : 'on';
+    const state = st.kind === 'break' ? 'na' : beltOffAt(st) ? 'off' : 'on';
     const prev = card.dataset.state;
     card.classList.remove('on', 'off', 'na');
     card.classList.add(state);
@@ -588,7 +590,7 @@
     const lastOn = wins.filter(([, e]) => e <= t).map(([, e]) => e).pop() ?? 0;
     $('#beltState').textContent = state === 'na' ? 'Engine off' : state === 'off' ? 'Belt off' : 'Belt on';
     $('#beltSub').textContent = state === 'na' ? 'Lunch break'
-      : state === 'off' ? (st.kind === 'work' ? 'Stop. Put your belt on.' : `Off for ${Math.floor(t - offNow[0])} min while waiting`)
+      : state === 'off' ? (st.kind === 'work' || !offNow ? 'Stop. Put your belt on.' : `Off for ${Math.floor(t - offNow[0])} min while waiting`)
       : `Since ${hhmm(lastOn)}`;
     $('#beltPct').textContent = `${pct}%`;
     // strip: belt history from 08:00 to now
@@ -1941,7 +1943,8 @@
     if (on) {
       const st = stateAt(S.t);
       $('#dlLeft').textContent = `About ${Math.max(1, Math.round(expect(taskById('T002')) - (D.LIVE - 380)))} min left`;
-      $('#dlBelt').innerHTML = `<span class="il-lamp ${st.beltOff ? 'off' : ''}">${ICON_BELT}</span><b>${st.beltOff ? 'Belt off' : 'Belt on'}</b>`;
+      const off = beltOffAt(st);
+      $('#dlBelt').innerHTML = `<span class="il-lamp ${off ? 'off' : ''}">${ICON_BELT}</span><b>${off ? 'Belt off' : 'Belt on'}</b>`;
     } else if (lock) { lock.classList.remove('on'); setTimeout(() => lock.remove(), 260); }
     icons();
   }
