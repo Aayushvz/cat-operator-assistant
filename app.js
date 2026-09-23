@@ -735,32 +735,28 @@
     const left = rows.filter((r) => r.state === 'next').length + (rows.some((r) => r.state === 'active') ? 1 : 0);
     const w = (m) => pct(m, 0, 630);
     const bar = rows.map((r) => `<div class="stint ${r.state === 'done' ? 'done' : r.state === 'active' ? 'active' : ''}" style="left:${w(r.start)}%;width:${w(r.len)}%" data-tip="<b>${r.t.type}</b><br>${hhmm(r.start)} to ${hhmm(r.end)}"><b>${r.t.type}</b><small>${hhmm(r.start)}</small></div>`).join('');
-    const tag = (r) => r.state === 'done' ? `<span class="tag done"><i data-lucide="check" style="width:12px;height:12px"></i>Done · ${Math.round(r.len)} min</span>`
-      : r.state === 'active' ? '<span class="tag active">Doing now</span>'
-      : r.state === 'tomorrow' ? '<span class="tag late">Won\'t fit · tomorrow</span>'
+    // one short word or number per job, so a glance is enough
+    const tag = (r) => r.state === 'active' ? '<span class="tag active">Now</span>'
+      : r.state === 'tomorrow' ? '<span class="tag late">Tomorrow</span>'
       : r.jumped ? '<span class="tag moved">Moved up</span>'
-      : r.moved > 1 ? `<span class="tag moved">${r.moved} min later</span>` : r.moved < -1 ? `<span class="tag done">${-r.moved} min earlier</span>` : '<span class="tag">Next</span>';
-    const row = (r, i) => {
-      const e = expect(r.t);
-      const est = r.state === 'done' ? `Took ${Math.round(r.len)} min · plan was ${r.t.est}` : `About ${Math.round(e)} min <span class="muted">(${Math.round(e * 0.92)} to ${Math.round(e * 1.08)})</span>`;
-      return `<div class="job ${r.state}${r.jumped ? ' jumped' : ''} rise" style="--i:${i}">
-        <div class="job-time"><b>${r.state === 'tomorrow' ? '—' : hhmm(r.start)}</b><small>${r.state === 'tomorrow' ? 'Tomorrow' : 'to ' + hhmm(r.end)}</small></div>
+      : r.moved > 1 ? `<span class="tag moved">+${r.moved} min</span>` : r.moved < -1 ? `<span class="tag done">−${-r.moved} min</span>` : '';
+    const row = (r, i) => `<div class="job ${r.state}${r.jumped ? ' jumped' : ''} rise" style="--i:${i}">
+        <div class="job-time"><b>${r.state === 'tomorrow' ? '—' : hhmm(r.start)}</b></div>
         <div class="job-main">
-          <div class="job-title"><b>${r.t.type}</b>${r.t.sample ? '<span class="sample">Sample job</span>' : ''}</div>
-          <div class="meta"><span><i data-lucide="map-pin"></i>${r.zone}</span><span><i data-lucide="${WICON[r.t.weather]}"></i>${r.t.weather}</span><span><i data-lucide="timer"></i>${est}</span></div>
+          <div class="job-title"><b${r.t.sample ? ' data-tip="Sample job, added for the demo"' : ''}>${r.t.type}</b><i data-lucide="${WICON[r.t.weather]}" class="job-wx" data-tip="${r.t.weather}"></i></div>
+          <div class="job-line">${r.zone} · about ${Math.round(r.len)} min</div>
           ${r.state === 'active' ? `<div class="done-box" id="doneBox">
-            <span>How long did it take?</span>
+            <span>Finished?</span>
             <div class="stepper"><button type="button" data-step="-5" aria-label="5 minutes less">−</button><b id="stepVal">${S.stepVal}</b><em>min</em><button type="button" data-step="5" aria-label="5 minutes more">+</button></div>
-            <button class="btn dark" type="button" id="markDone2"><i data-lucide="check"></i>Mark as done</button>
+            <button class="btn dark" type="button" id="markDone2"><i data-lucide="check"></i>Done</button>
           </div>` : ''}
-          ${r.justDone ? '<button class="linkbtn" type="button" id="undoDone">Undo</button>' : ''}
         </div>
         <div class="job-tag">${tag(r)}</div>
       </div>`;
-    };
-    const all = [...rows, ...later];
+    const doneRows = rows.filter((r) => r.state === 'done');
+    const open = [...rows.filter((r) => r.state !== 'done'), ...later];
     main.innerHTML = `<div class="page">
-      ${head('tasks', 'Your jobs today, in order. If a job runs long, the jobs after it move automatically.')}
+      ${head('tasks', 'Your jobs today. If one runs long, the rest move.')}
       <div class="grid">
         <div class="card pcard c12 rise ${later.length ? 'plan-warn' : ''}">
           <div class="plan-head">
@@ -773,9 +769,10 @@
           </div>
         </div>
         <div class="card pcard c12 rise" style="--i:1">
-          <h3>Jobs</h3><div class="sub">Times include rain, your level and the machine's age. Mark a job done when you finish it: the times for the rest of the day update, and the time estimates learn from it.</div>
-          <div class="jobs">${all.map(row).join('')}</div>
-          ${later.length ? `<div class="note warn-note"><span><b>${later.map((r) => r.t.type).join(', ')} won't finish before 18:00.</b> Shorter jobs moved ahead of it. Your supervisor can see the new plan.</span></div>` : ''}
+          <h3>Jobs</h3>
+          <div class="done-line"><i data-lucide="circle-check"></i>Done: ${doneRows.map((r) => `${r.t.type} ${Math.round(r.len)} min`).join(' · ')}${S.actualDone != null ? ' <button class="linkbtn" type="button" id="undoDone">Undo</button>' : ''}</div>
+          <div class="jobs">${open.map(row).join('')}</div>
+          ${later.length ? `<div class="note warn-note"><span><b>${later.map((r) => r.t.type).join(', ')}</b> moves to tomorrow.</span></div>` : ''}
         </div>
       </div></div>`;
     const page = main.querySelector('.page');

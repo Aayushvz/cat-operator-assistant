@@ -1467,3 +1467,15 @@ html[data-theme="dark"] .replay .seg.work em { color: #151514; }
   .tb-drive span, .tb-chip.sync { display: none; }
   .job { grid-template-columns: 60px 1fr; } .job-tag { grid-column: 2; }
 }
+
+/* jobs: one line of detail per job */
+.job { grid-template-columns: 64px 1fr auto; padding: 12px 0; align-items: center; }
+.job-time b { font-size: 22px; }
+.job-title { display: flex; align-items: center; gap: 8px; }
+.job-wx { width: 16px; height: 16px; color: var(--t2); }
+.job-line { font-size: 13px; color: var(--t2); margin-top: 3px; }
+.job.active .done-box { margin-top: 10px; }
+.done-line { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; padding: 10px 12px; border-radius: 10px; background: var(--ok-bg); color: var(--ok-ink); font-size: 13px; font-weight: 500; }
+.done-line svg { width: 16px; height: 16px; }
+.done-line .linkbtn { margin: 0 0 0 auto; color: var(--ok-ink); }
+.job-tag .tag { font-size: 12px; height: 24px; }
