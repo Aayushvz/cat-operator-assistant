@@ -1622,7 +1622,7 @@ button, a, [role="button"], .dd-btn, .dd-opt, summary { touch-action: manipulati
   }
   .main { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
   .panel.left, .panel.right {
-    top: calc(72px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(62px + env(safe-area-inset-top, 0px)) !important;
     bottom: 0 !important;
     border-radius: 0 !important;
     border: none !important;
@@ -1633,7 +1633,7 @@ button, a, [role="button"], .dd-btn, .dd-opt, summary { touch-action: manipulati
   /* removed redundant transforms */
 
   /* top bar: logo, machine, then only what a phone needs */
-  .topbar { padding: env(safe-area-inset-top, 0px) 0 0; gap: 8px; }
+  .topbar { padding: env(safe-area-inset-top, 0px) 0 0; gap: 8px; position: relative; z-index: 35; }
   .tb-left, .tb-right { gap: 6px; }
   .tb-logo { width: 42px; }
   .tb-machine b { font-size: 16px; }
