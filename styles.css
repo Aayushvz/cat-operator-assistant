@@ -1669,7 +1669,20 @@ button, a, [role="button"], .dd-btn, .dd-opt, summary { touch-action: manipulati
   .home-below { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
   .home-below > * { position: static; width: auto; inset: auto; }
   .home-below .overview.closed { display: none; }
-  .home-below .overview { transform: none; }
+  .home-below .overview { transform: none; overflow: hidden; }
+  .home-below .overview::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 140px;
+    height: 90px;
+    background: url("assets/cat-logo-white.png") no-repeat center right / contain;
+    opacity: 0.07;
+    pointer-events: none;
+  }
   .home-below .hud { display: block; }
   .home-below .hud.belt, .home-below .hud.pace { width: auto; }
   .home-below .replay { height: auto; display: flex; flex-direction: column; padding: 20px 16px 24px; }
