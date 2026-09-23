@@ -2584,7 +2584,6 @@ html[data-theme="dark"] .heat .cell.n { color: #B8B8B2; }
   .stage.ps-on .ps-thumb { width: 104px; }
   .stage.ps-on .ps-txt b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 }
-}
 
 /* ============ Loader ============ */
 .loader {
