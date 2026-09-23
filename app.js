@@ -197,7 +197,7 @@
 
   function hsStatus(key) {
     const st = stateAt(S.t);
-    if (key === 'cab') return st.beltOff ? ['crit', 'Belt off'] : ['ok', 'Belt on'];
+    if (key === 'cab') return beltOffAt(st) ? ['crit', 'Belt off'] : ['ok', 'Belt on'];
     if (key === 'undercarriage') return ['warn', 'Tracks worn'];
     if (key === 'hydraulics') return ['crit', 'Fault: oil leak'];
     if (key === 'proximity') return ['caution', '1 person near'];
@@ -213,7 +213,7 @@
     switch (key) {
       case 'cab': return { title: 'Cab', rows: [
         R('user-round', 'Operator', 'OP1001 · Aayush Raj'),
-        R('armchair', 'Seatbelt', st.beltOff ? 'Unfastened' : 'Fastened', st.beltOff ? 'crit' : 'ok'),
+        R('armchair', 'Seatbelt', beltOffAt(st) ? 'Unfastened' : 'Fastened', beltOffAt(st) ? 'crit' : 'ok'),
         R('vibrate', 'Seat buzz', 'On'),
         R('thermometer', 'Cab temperature', '24 °C'),
         R('activity', 'Machine', st.kind === 'work' ? 'Working' : st.kind === 'idle' ? 'Idle' : 'Break', st.kind === 'idle' ? 'mango' : ''),
@@ -650,7 +650,7 @@
     const lead = live ? 'Right now you are' : `At ${hhmm(S.t)} you were`;
     const doing = st.kind === 'work' ? `<b>working</b> on <b>${(st.task || 'a job').split(',')[0]}</b>`
       : st.kind === 'idle' ? '<b class="wait">waiting</b> for a truck' : 'on <b>lunch break</b>';
-    const belt = st.kind === 'break' ? '' : st.beltOff ? ' · belt <b class="off">off</b>' : ' · belt on';
+    const belt = st.kind === 'break' ? '' : beltOffAt(st) ? ' · belt <b class="off">off</b>' : ' · belt on';
     $('#rpStatus').innerHTML = `${lead} ${doing}${belt} · rain, 24°C`;
     $('#rpSummary').textContent = shiftSummary(S.t);
     $$('.hs').forEach((h) => {
@@ -917,7 +917,7 @@
 
   function snapshot() {
     const st = stateAt(S.t);
-    return { engine: `${fmt(engineAt(S.t), 1)} hr`, belt: st.beltOff ? 'Off' : 'On', fuel: `${fmt(fuelAt(S.t), 1)} L today`, state: st.kind === 'work' ? 'Working' : st.kind === 'idle' ? 'Waiting' : 'Engine off', place: 'Zone B, trench line' };
+    return { engine: `${fmt(engineAt(S.t), 1)} hr`, belt: beltOffAt(st) ? 'Off' : 'On', fuel: `${fmt(fuelAt(S.t), 1)} L today`, state: st.kind === 'work' ? 'Working' : st.kind === 'idle' ? 'Waiting' : 'Engine off', place: 'Zone B, trench line' };
   }
 
   function renderSafety() {
@@ -934,8 +934,8 @@
         <circle class="blip" cx="${px}" cy="${py}" r="7" fill="#FFAA02"/>
         <circle cx="${px}" cy="${py}" r="6" fill="#FFAA02" stroke="#fff" stroke-width="2" data-tip="<b>Worker</b> · 11 m away · slow zone"/>
         <rect x="${tx - 7}" y="${ty - 7}" width="14" height="14" rx="3" fill="#3A8DFF" stroke="#fff" stroke-width="2" data-tip="<b>Dump truck</b> · 13 m away · coming closer"/>
-        <text x="140" y="${140 - 74}" text-anchor="middle" style="font:500 10px Roboto Condensed;fill:#B3161B">${rule('stop')} m stop</text>
-        <text x="140" y="${140 - 116}" text-anchor="middle" style="font:500 10px Roboto Condensed;fill:#9A6300">${rule('slow')} m slow</text>
+        <text x="140" y="${140 - 74}" text-anchor="middle" style="font:500 10px Roboto Condensed;fill:var(--crit-ink)">${rule('stop')} m stop</text>
+        <text x="140" y="${140 - 116}" text-anchor="middle" style="font:500 10px Roboto Condensed;fill:var(--mango-ink)">${rule('slow')} m slow</text>
       </svg></div>`;
     main.innerHTML = `<div class="page">
       ${head('safety', 'Warnings show as a colour around the screen, so you see them without reading.')}
@@ -1174,7 +1174,7 @@
           <div class="legend" style="justify-content:center;margin-top:14px"><span><i class="sw" style="background:#FFAA02"></i>Idle</span><span><i class="sw" style="background:#080808"></i>Working or travelling</span></div></div>
 
         <div class="card pcard c7 rise" style="--i:6"><h3>Each load, step by step</h3><div class="sub">Dig, swing, dump and return times for 12 loads this morning.</div>
-          <div class="legend" style="margin-top:12px"><span><i class="sw" style="background:var(--s-pb)"></i>P · Personal best</span><span><i class="sw" style="background:var(--s-best)"></i>B · Best this shift</span><span><i class="sw" style="background:var(--s-slow)"></i>S · Slower than usual</span><span><i class="sw" style="background:#E9E9E6"></i>On pace (seconds)</span></div>
+          <div class="legend" style="margin-top:12px"><span><i class="sw" style="background:var(--s-pb)"></i>P · Personal best</span><span><i class="sw" style="background:var(--s-best)"></i>B · Best this shift</span><span><i class="sw" style="background:var(--s-slow)"></i>S · Slower than usual</span><span><i class="sw" style="background:var(--muted-2)"></i>On pace (seconds)</span></div>
           ${heat}
           <div class="note"><i data-lucide="lightbulb"></i><span><b>Swing is your slowest step.</b> A swing video is lined up for your next break.</span></div></div>
         <div class="card pcard c5 rise" style="--i:7"><h3>Engine hours per load</h3><div class="sub">High means the engine ran but no work got done.</div>${hbars}
