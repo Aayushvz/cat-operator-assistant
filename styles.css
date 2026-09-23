@@ -2011,3 +2011,15 @@ html[data-theme="dark"] .sos-card-inline { border-color: rgba(214,29,29,.3); }
 .login::before { content: ""; position: fixed; inset: 0; background: url("assets/login-bg.jpg") center / cover no-repeat; opacity: .07; pointer-events: none; }
 .login-card { position: relative; z-index: 1; }
 html[data-theme="dark"] .login::before { opacity: .1; }
+/* sign-in: operator cards and the fleet button turn Cat yellow under the pointer */
+@media (hover: hover) and (pointer: fine) {
+  .op-card:hover { background: var(--y); border-color: var(--y); color: #0B0B0B; }
+  .op-card:hover .op-txt small, .op-card:hover > svg { color: #3A2F00; }
+  .op-card:hover .op-lvl { background: rgba(0,0,0,.1); color: #0B0B0B; }
+  .mgr-box .btn:hover { background: var(--y); border-color: var(--y); color: #0B0B0B; }
+  html[data-theme="dark"] .mgr-box .btn:hover { background: var(--y); color: #0B0B0B; }
+}
+.op-card, .mgr-box .btn { transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 120ms var(--ease-out); }
+/* backdrop photo 30% stronger */
+.login::before { opacity: .091; }
+html[data-theme="dark"] .login::before { opacity: .13; }
