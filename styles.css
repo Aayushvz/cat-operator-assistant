@@ -1672,11 +1672,15 @@ button, a, [role="button"], .dd-btn, .dd-opt, summary { touch-action: manipulati
   .home-below .overview { transform: none; }
   .home-below .hud { display: block; }
   .home-below .hud.belt, .home-below .hud.pace { width: auto; }
-  .home-below .replay { height: auto; }
+  .home-below .replay { height: auto; display: flex; flex-direction: column; padding: 20px 16px 24px; }
+  .home-below .rp-top, .home-below .rp-foot { display: contents; }
+  .home-below .rp-title { order: 1; justify-content: center; margin-bottom: 4px; }
+  .home-below .rp-title b { font-size: 20px; }
+  .home-below .track { order: 2; margin: 16px 0 24px; }
+  .home-below .rp-ctrl { order: 3; justify-content: center; gap: 10px; margin-bottom: 24px; width: 100%; }
+  .home-below .rp-status { order: 4; text-align: center; white-space: normal; line-height: 1.5; margin-bottom: 16px; font-size: 13.5px; }
+  .home-below .rp-legend { order: 5; justify-content: center; display: flex; flex-wrap: wrap; gap: 8px 16px; }
   .home-below .replay .seg em { display: none; }
-  .home-below .rp-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; }
-  .home-below .rp-foot { flex-direction: column; align-items: flex-start; gap: 8px; padding-top: 10px; }
-  .home-below .rp-status { white-space: normal; }
 }
 
 /* Pages on a phone */
