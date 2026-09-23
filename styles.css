@@ -2006,3 +2006,8 @@ html[data-theme="dark"] .hs-ring { background: #E2E2DC; }
 /* emergency SOS card follows the theme: faint red wash into the card colour */
 .sos-card-inline { background: linear-gradient(90deg, var(--crit-bg), var(--surface) 60%); border-color: var(--crit-bg); }
 html[data-theme="dark"] .sos-card-inline { border-color: rgba(214,29,29,.3); }
+
+/* sign-in backdrop: a row of Cat excavators in black and white, barely there */
+.login::before { content: ""; position: fixed; inset: 0; background: url("assets/login-bg.jpg") center / cover no-repeat; opacity: .07; pointer-events: none; }
+.login-card { position: relative; z-index: 1; }
+html[data-theme="dark"] .login::before { opacity: .1; }
