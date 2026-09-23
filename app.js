@@ -834,20 +834,26 @@
       <div class="grid">
         <div class="plan-tiles rise">
           <div class="ptile now">
-            <span class="pt-k"><i data-lucide="play"></i>${cur ? 'Now' : 'Now'}</span>
+            <span class="pt-hatch" aria-hidden="true"></span>
+            <img class="pt-mark" src="assets/cat-logo-white.png" alt="" aria-hidden="true" />
+            <span class="pt-k"><i data-lucide="play"></i>Now</span>
             <b>${cur ? cur.t.type : 'Nothing running'}</b>
             <span class="pt-v">${cur ? `About ${Math.max(1, Math.round(cur.end - D.LIVE))} min left` : nxt ? `Next job at ${hhmm(nxt.start)}` : 'All done for today'}</span>
+            ${cur ? `<span class="pt-job" aria-hidden="true"><i style="width:${Math.min(100, Math.max(0, pct(D.LIVE, cur.start, cur.end)))}%"></i></span>` : ''}
           </div>
-          <div class="ptile">
+          <div class="ptile next">
+            ${nxt ? `<i data-lucide="${WICON[nxt.wx || nxt.t.weather]}" class="pt-wx" aria-hidden="true"></i>` : ''}
             <span class="pt-k"><i data-lucide="arrow-right"></i>Next</span>
             <b>${nxt ? nxt.t.type : 'No more jobs'}</b>
             <span class="pt-v">${nxt ? `Starts ${hhmm(nxt.start)}` : ''}</span>
+            ${nxt ? `<span class="pt-chip"><i data-lucide="map-pin"></i>${nxt.zone}</span>` : ''}
           </div>
-          <div class="ptile">
+          <div class="ptile left">
+            <span class="pt-dial" aria-hidden="true"></span>
             <span class="pt-k"><i data-lucide="clock"></i>Shift left</span>
             <b>${Math.floor((SHIFT_END - D.LIVE) / 60)} h ${Math.round((SHIFT_END - D.LIVE) % 60)} min</b>
-            <div class="pt-bar" aria-hidden="true"><i style="width:${pct(D.LIVE, 0, SHIFT_END)}%"></i></div>
-            <span class="pt-scale"><span>08:00</span><span>18:00</span></span>
+            <div class="pt-bar" aria-hidden="true"><i style="width:${pct(D.LIVE, 0, SHIFT_END)}%"></i>${[120, 240, 360, 480].map((m) => `<em style="left:${pct(m, 0, SHIFT_END)}%"></em>`).join('')}<span class="pt-now" style="left:${pct(D.LIVE, 0, SHIFT_END)}%"></span></div>
+            <span class="pt-scale">${[0, 120, 240, 360, 480, 600].map((m) => `<span>${hhmm(m)}</span>`).join('')}</span>
           </div>
         </div>
         ${later.length ? `<div class="plan-alert rise"><i data-lucide="calendar-x"></i><span><b>${later.map((r) => r.t.type).join(', ')}</b> won't fit today${later.some((r) => (AVOID[r.t.type] || []).includes('Windy')) && FORECAST.some((f) => f.w === 'Windy' && f.from < SHIFT_END) ? ` and the wind picks up at ${hhmm(FORECAST.find((f) => f.w === 'Windy').from)}` : ''}. It moves to tomorrow.</span></div>` : ''}

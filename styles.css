@@ -2127,3 +2127,31 @@ html[data-theme="dark"] .login::before { opacity: .13; }
 .flag-big.yellow { --ring: rgba(0,0,0,.12); --dot: rgba(0,0,0,.06); --badge: rgba(0,0,0,.1);
   background: radial-gradient(110% 120% at 0% 0%, rgba(255,255,255,.22), rgba(255,255,255,0) 55%), repeating-linear-gradient(-45deg, var(--canary) 0 18px, #D9B800 18px 36px); color: #0B0B0B; }
 .flag-big.yellow > svg { box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+
+/* ============ My tasks tiles: a bit of Cat character ============ */
+.ptile { position: relative; overflow: hidden; isolation: isolate; }
+.ptile > * { position: relative; }
+/* Now: hazard hatch on the right edge, faint Cat logo, job progress along the bottom */
+.ptile.now { background: radial-gradient(90% 120% at 0% 0%, rgba(255,255,255,.07), rgba(255,255,255,0) 60%), var(--panel); }
+.pt-hatch { position: absolute !important; z-index: -1; top: 0; right: 0; bottom: 0; width: 70px; background: repeating-linear-gradient(-45deg, var(--y) 0 10px, #111 10px 20px); opacity: .9;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 60%); mask: linear-gradient(90deg, transparent, #000 60%); }
+.pt-mark { position: absolute !important; z-index: -1; right: 84px; top: 50%; width: 120px; transform: translateY(-50%); opacity: .07; pointer-events: none; }
+.pt-job { position: absolute !important; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.1); }
+.pt-job i { display: block; height: 100%; background: var(--y); }
+/* Next: the forecast for its slot as a big faint watermark, and where the job is */
+.pt-wx { position: absolute !important; z-index: -1; right: -14px; top: 50%; width: 120px !important; height: 120px !important; transform: translateY(-50%); color: var(--text); opacity: .06; stroke-width: 1.2 !important; }
+.pt-chip { align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border-radius: 12px; background: var(--chip); font-size: 12px; font-weight: 600; color: var(--t2); margin-top: 2px; }
+.pt-chip svg { width: 13px; height: 13px; }
+/* Shift left: a faint clock-face ring, hour marks and a now marker on the bar */
+.pt-dial { position: absolute !important; z-index: -1; right: -40px; top: -40px; width: 150px; height: 150px; border-radius: 50%;
+  background: repeating-conic-gradient(from -1deg, var(--line) 0 2deg, transparent 2deg 30deg); -webkit-mask: radial-gradient(circle, transparent 60%, #000 61%, #000 70%, transparent 71%); mask: radial-gradient(circle, transparent 60%, #000 61%, #000 70%, transparent 71%); opacity: .9; }
+.ptile.left .pt-bar { position: relative; overflow: visible; }
+.ptile.left .pt-bar em { position: absolute; top: 0; bottom: 0; width: 1.5px; margin-left: -.75px; background: var(--surface); opacity: .8; }
+.pt-now { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--text); }
+.ptile.left .pt-scale span { font-variant-numeric: tabular-nums; }
+.pt-dial { background: radial-gradient(circle, transparent 57%, var(--line) 57.5% 58.5%, transparent 59% 69%, var(--line) 69.5% 70.5%, transparent 71%); -webkit-mask: none; mask: none; opacity: 1; }
+/* page tabs: a clearly visible track behind the tabs */
+.subtabs { background: #E3E3DE; box-shadow: inset 0 0 0 1px #D8D8D3; }
+.subtab:not(.active) { color: #55554F; }
+html[data-theme="dark"] .subtabs { background: #1C1C1B; box-shadow: inset 0 0 0 1px var(--line); }
+html[data-theme="dark"] .subtab:not(.active) { color: var(--t2); }
