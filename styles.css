@@ -1200,3 +1200,5 @@ html[data-theme="dark"] .replay .seg.work em { color: #151514; }
 .bp-g.fault .bp { stroke: #FF5A4F; }
 .bp-g.fault { opacity: .75; }
 .bp-g.fault.on { opacity: 1; }
+/* the part being viewed is green in the blueprint too, matching the 3D model */
+.blueprint.single .bp-g.on:not(.fault) .bp { stroke: #3BE089; }
