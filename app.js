@@ -1227,25 +1227,27 @@
   const PLANNED = { 'Earth Excavation': 60, Trenching: 45, 'Material Loading': 30, Grading: 35, Demolition: 90 };
   function renderEstimator() {
     const tasks = D.tasks;
-    const W = 960, H = 290, pl = 190, pr = 30, pt = 20;
-    const x = (v) => pl + ((v - 20) / 100) * (W - pl - pr);
-    const rowY = (i) => pt + 24 + i * 48;
-    const dumbbell = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Planned, actual and predicted minutes per task">
-      ${[20, 40, 60, 80, 100, 120].map((v) => `<line class="grid-l" x1="${x(v)}" x2="${x(v)}" y1="${pt}" y2="${H - 30}"/><text x="${x(v)}" y="${H - 10}" text-anchor="middle">${v} min</text>`).join('')}
+    // How far each guess was from the real time: the centre line is what really happened,
+    // bars go left when the guess was too short and right when it was too long.
+    const MAXD = 16;
+    const side = (d) => `${Math.abs(d) < 0.5 ? 'spot on' : `${Math.abs(d).toFixed(Math.abs(d) < 10 && d % 1 ? 1 : 0)} min ${d < 0 ? 'short' : 'long'}`}`;
+    const bar = (d, cls) => {
+      const w = Math.min(50, (Math.abs(d) / MAXD) * 50);
+      return `<span class="hc-bar ${cls} ${d < 0 ? 'neg' : 'pos'}${w > 26 ? ' in' : ''}" style="--w:${w}%"><i></i><em>${side(d)}</em></span>`;
+    };
+    const howClose = `<div class="hc">
+      <div class="hc-axis" aria-hidden="true"><span>Guess too short</span><b>Real time</b><span>Guess too long</span></div>
       ${tasks.map((t, i) => {
-        const p = D.predict(t.est, t.skill, t.weather, t.age);
-        const lo = Math.min(t.est, t.actual, p), hi = Math.max(t.est, t.actual, p), y = rowY(i);
-        return `<g data-tip="<b>${t.id} ${t.type}</b><br>Planned ${t.est} · actual ${t.actual} · model ${p.toFixed(1)} min">
-          <rect x="0" y="${y - 20}" width="${W}" height="40" fill="transparent"/>
-          <text x="0" y="${y - 2}" style="fill:#0B0B0B;font-weight:600">${t.id} ${t.type}</text>
-          <text x="0" y="${y + 13}">${t.weather} · ${t.skill} · ${t.age} yr</text>
-          <line class="growx" style="--i:${i}" x1="${x(lo)}" x2="${x(hi)}" y1="${y}" y2="${y}" stroke="#D6D6D2" stroke-width="2"/>
-          <circle class="pop" style="--i:${i}" cx="${x(t.est)}" cy="${y}" r="7" fill="#fff" stroke="#6B6B6B" stroke-width="2"/>
-          <circle class="pop" style="--i:${i}" cx="${x(t.actual)}" cy="${y}" r="7" fill="#080808" stroke="#fff" stroke-width="2"/>
-          <path class="pop" style="--i:${i}" d="M${x(p)} ${y - 8} L${x(p) + 8} ${y} L${x(p)} ${y + 8} L${x(p) - 8} ${y} Z" fill="#FFCD11" stroke="#080808" stroke-width="1.5"/>
-        </g>`;
+        const m = D.predict(t.est, t.skill, t.weather, t.age);
+        const dp = t.est - t.actual, dm = m - t.actual;
+        return `<div class="hc-row rise" style="--i:${i}" data-tip="<b>${t.id} ${t.type}</b><br>Planned ${t.est} · real ${t.actual} · this tool ${m.toFixed(1)} min">
+          <div class="hc-job"><b>${t.type}</b><small><i data-lucide="${WICON[t.weather]}"></i>${t.skill} · ${t.age} yr machine</small></div>
+          <div class="hc-real"><b>${t.actual}</b><small>min real</small></div>
+          <div class="hc-track">${bar(dp, 'plan')}${bar(dm, 'tool')}</div>
+        </div>`;
       }).join('')}
-    </svg>`;
+      <div class="hc-scale" aria-hidden="true"><span>${MAXD} min</span><span>8</span><span>0</span><span>8</span><span>${MAXD} min</span></div>
+    </div>`;
 
     main.innerHTML = `<div class="page">
       ${head('estimator', 'Pick a job and today\'s conditions.')}
@@ -1259,16 +1261,15 @@
         </div>
         <div class="card pcard c7 rise" style="--i:1" id="estOut"></div>
         <div class="card pcard c12 rise" style="--i:2">
-          <div style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end">
-            <div><h3>How close were we?</h3><div class="sub">Your 5 finished jobs: the plan, what really happened, and this tool's guess.</div></div>
-            <div style="display:flex;gap:28px">
-              <div class="kpi"><span class="eyebrow">Plan was off by</span><b style="font-size:32px"><span data-count="${(D.plannerError * 100).toFixed(1)}" data-dec="1">0</span>%</b></div>
-              <div class="kpi"><span class="eyebrow">This tool was off by</span><b style="font-size:32px"><span data-count="${(D.modelError * 100).toFixed(1)}" data-dec="1">0</span>%</b></div>
+          <div class="hc-head">
+            <div><h3>How close were the guesses?</h3><div class="sub">Your 5 finished jobs. The middle line is the real time.</div></div>
+            <div class="hc-score">
+              <div class="hc-s plan"><span><i class="hc-key plan"></i>The plan</span><b><span data-count="${(D.plannerError * 100).toFixed(1)}" data-dec="1">0</span>%</b><small>off on average</small></div>
+              <div class="hc-s tool"><span><i class="hc-key tool"></i>This tool</span><b><span data-count="${(D.modelError * 100).toFixed(1)}" data-dec="1">0</span>%</b><small>off on average</small></div>
             </div>
           </div>
-          <div class="legend" style="margin:14px 0 4px"><span><i class="sw" style="background:#fff;border:2px solid #6B6B6B;border-radius:50%"></i>Planned</span><span><i class="sw" style="background:#080808;border-radius:50%"></i>Actual</span><span><i class="sw" style="background:#FFCD11;border:1px solid #080808;transform:rotate(45deg)"></i>Model</span></div>
-          ${dumbbell}
-          <div class="note"><i data-lucide="info"></i><span><b>Average difference from the real time.</b> The tool learns from every job you finish, so it gets closer over time.</span></div>
+          ${howClose}
+          <div class="note"><i data-lucide="info"></i><span>The tool learns from every job you finish, so it gets closer over time. It was fitted on these same 5 jobs, so treat 2.4% as a best case.</span></div>
         </div>
       </div></div>`;
     renderEstOut();

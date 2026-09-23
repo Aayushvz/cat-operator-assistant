@@ -2239,3 +2239,60 @@ html[data-theme="dark"] .sos-stage::after { background: radial-gradient(rgba(255
 /* SOS: no box behind the button, it sits straight on the card */
 .sos-stage { background: none; box-shadow: none; overflow: visible; padding: 8px 0; }
 .sos-stage::before, .sos-stage::after { display: none; }
+
+/* ============ Job time: how close were the guesses ============ */
+.hc-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+.hc-score { display: flex; gap: 10px; }
+.hc-s { min-width: 150px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; gap: 2px; }
+.hc-s span { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: var(--t2); }
+.hc-s b { font: 700 34px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.hc-s small { font-size: 11.5px; color: var(--t3); }
+.hc-s.tool { background: var(--y-bg); border-color: rgba(255,205,17,.55); }
+.hc-key { width: 14px; height: 8px; border-radius: 2px; display: inline-block; }
+.hc-key.plan { background: #A3A39D; }
+.hc-key.tool { background: var(--y); box-shadow: inset 0 0 0 1px rgba(0,0,0,.2); }
+
+.hc { --lab: 230px; --real: 76px; margin-top: 18px; }
+.hc-axis, .hc-scale { display: flex; justify-content: space-between; padding-left: calc(var(--lab) + var(--real) + 32px); font-size: 11.5px; color: var(--t3); }
+.hc-axis { margin-bottom: 6px; }
+.hc-axis b { color: var(--text); font-size: 12px; }
+.hc-scale { margin-top: 6px; font-variant-numeric: tabular-nums; }
+.hc-row { display: grid; grid-template-columns: var(--lab) var(--real) 1fr; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line-2); }
+.hc-row:first-of-type { border-top: 0; }
+.hc-job b { display: block; font-size: 15px; font-weight: 600; }
+.hc-job small { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--t2); margin-top: 2px; }
+.hc-job small svg { width: 14px; height: 14px; }
+.hc-real { text-align: right; }
+.hc-real b { display: block; font: 700 26px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.hc-real small { font-size: 11px; color: var(--t3); }
+/* track: centre line = real time, faint guides at 8 min either side */
+.hc-track { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 4px 0;
+  background: linear-gradient(90deg, transparent calc(25% - .5px), var(--line) calc(25% - .5px) calc(25% + .5px), transparent calc(25% + .5px) calc(75% - .5px), var(--line) calc(75% - .5px) calc(75% + .5px), transparent calc(75% + .5px)); }
+.hc-track::before { content: ""; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--text); z-index: 1; }
+.hc-bar { position: relative; height: 16px; }
+.hc-bar i { position: absolute; top: 0; bottom: 0; width: var(--w); border-radius: 4px; transform-origin: right center; animation: hcGrow 700ms var(--ease-out) both; }
+.hc-bar.pos i { left: 50%; transform-origin: left center; }
+.hc-bar.neg i { right: 50%; }
+.hc-bar.plan i { background: #A3A39D; }
+.hc-bar.tool i { background: var(--y); box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
+.hc-bar em { position: absolute; top: 50%; transform: translateY(-50%); font-style: normal; font-size: 12px; white-space: nowrap; color: var(--t2); }
+.hc-bar.tool em { color: var(--text); font-weight: 600; }
+.hc-bar.neg em { right: calc(50% + var(--w) + 8px); }
+.hc-bar.pos em { left: calc(50% + var(--w) + 8px); }
+@keyframes hcGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+html[data-theme="dark"] .hc-bar.plan i, html[data-theme="dark"] .hc-key.plan { background: #6E6E68; }
+html[data-theme="dark"] .hc-s.tool { border-color: rgba(255,205,17,.3); }
+@media (prefers-reduced-motion: reduce) { .hc-bar i { animation: none; } }
+@media (max-width: 1100px) { .hc { --lab: 170px; } }
+@media (max-width: 760px) {
+  .hc-score { width: 100%; } .hc-s { flex: 1; min-width: 0; }
+  .hc-row { grid-template-columns: 1fr auto; row-gap: 8px; }
+  .hc-track { grid-column: 1 / -1; }
+  .hc-axis, .hc-scale { padding-left: 0; }
+}
+.hc-s b span { font: inherit; color: inherit; display: inline; }
+/* long bars carry their label inside, so it never runs off the card */
+.hc-bar.in em { z-index: 1; color: #1A1A19; font-weight: 600; }
+.hc-bar.in.neg em { right: calc(50% + 8px); }
+.hc-bar.in.pos em { left: calc(50% + 8px); }
+.hc-bar.in { height: 20px; }
