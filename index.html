@@ -9,6 +9,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Roboto+Condensed:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
+<script>
+  /* Night mode: saved choice, or follow the device when set to auto. Runs before paint. */
+  (function () {
+    var pref = 'auto';
+    try { pref = localStorage.getItem('cat-theme') || 'auto'; } catch (e) {}
+    var dark = pref === 'dark' || (pref === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  })();
+</script>
 </head>
 <body>
 <div class="app" id="app">
@@ -25,6 +34,7 @@
       <span class="tb-chip"><i data-lucide="cloud-rain"></i>Rain · 24°C</span>
       <span class="tb-chip num-chip"><i data-lucide="clock"></i><span id="clock">14:51</span></span>
       <button class="icon-btn only-mobile" id="openStatus" type="button" aria-label="Open right now panel"><i data-lucide="activity"></i></button>
+      <button class="tb-theme" id="themeBtn" type="button" aria-label="Turn on night mode"><i data-lucide="moon"></i></button>
       <button class="tb-avatar" id="tbAvatar" type="button" aria-label="My profile and settings"><img src="assets/operator.jpg" alt="" width="36" height="36" /></button>
       <button class="sos" id="sosBtn" type="button" aria-label="Press and hold to send SOS">
         <span class="sos-fill" aria-hidden="true"></span>

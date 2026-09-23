@@ -1267,6 +1267,11 @@
         <div class="opt-row" style="margin-top:14px"><button class="opt${S.lang === 'en' ? ' active' : ''}" data-lang="en" type="button">English</button><button class="opt${S.lang === 'hi' ? ' active' : ''}" data-lang="hi" type="button" lang="hi">हिंदी</button></div>
         <div class="set-row" style="margin-top:14px"><div class="txt"><b>Spoken warnings</b><small>Short words like "Belt on".</small></div>${sw('voice')}</div>
       </div>
+      <div class="card pcard c6 rise">
+        <h3>Screen</h3><div class="sub">Night mode is easier on the eyes in the dark cab.</div>
+        <div class="opt-row" style="margin-top:14px">${[['light', 'sun', 'Day'], ['dark', 'moon', 'Night'], ['auto', 'sun-moon', 'Auto']].map(([k, ic, l]) => `<button class="opt${themePref() === k ? ' active' : ''}" data-theme-pick="${k}" type="button"><i data-lucide="${ic}"></i>${l}</button>`).join('')}</div>
+        <div class="sub" style="margin-top:10px">Auto follows your phone or computer setting.</div>
+      </div>
       <div class="card pcard c6 rise" style="--i:1">
         <h3>Warnings</h3><div class="sub">Fewer warnings, so you notice the ones that matter.</div>
         <div class="set-row"><div class="txt"><b>Seat buzz</b><small>The seat buzzes on the side where the danger is.</small></div>${sw('haptics')}</div>
@@ -1313,6 +1318,8 @@
     page.addEventListener('click', (e) => {
       const l = e.target.closest('[data-lang]');
       if (l) { S.lang = l.dataset.lang; document.documentElement.lang = S.lang; renderNav(); renderProfile('settings'); icons(); return; }
+      const th = e.target.closest('[data-theme-pick]');
+      if (th) { applyTheme(th.dataset.themePick, true); renderProfile('settings'); icons(); return; }
       const s = e.target.closest('[data-sw]');
       if (s) {
         const k = s.dataset.sw; S.settings[k] = !S.settings[k]; s.setAttribute('aria-checked', S.settings[k]);
@@ -1321,6 +1328,34 @@
     });
     const b = $('#budgetIn');
     if (b) b.addEventListener('input', (e) => { S.settings.budget = +e.target.value; $('#budgetV').textContent = S.settings.budget; });
+  }
+
+  /* ---------- NIGHT MODE ---------- */
+  const mqDark = matchMedia('(prefers-color-scheme: dark)');
+  function themePref() { try { return localStorage.getItem('cat-theme') || 'auto'; } catch (e) { return 'auto'; } }
+  function applyTheme(pref, fade) {
+    try { localStorage.setItem('cat-theme', pref); } catch (e) { /* storage blocked */ }
+    const dark = pref === 'dark' || (pref === 'auto' && mqDark.matches);
+    const root = document.documentElement;
+    if (fade && !reduce) { root.classList.add('theme-fade'); setTimeout(() => root.classList.remove('theme-fade'), 300); }
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+    const b = $('#themeBtn');
+    if (b) {
+      b.innerHTML = `<i data-lucide="${dark ? 'sun' : 'moon'}"></i>`;
+      b.setAttribute('aria-label', dark ? 'Turn on day mode' : 'Turn on night mode');
+      b.dataset.tip = dark ? 'Day mode' : 'Night mode';
+      icons();
+    }
+    Machine3D.setTheme && Machine3D.setTheme(dark);
+  }
+  function initTheme() {
+    applyTheme(themePref(), false);
+    $('#themeBtn').addEventListener('click', () => {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      applyTheme(dark ? 'light' : 'dark', true);
+      if (S.route === 'settings') renderProfile('settings');
+    });
+    mqDark.addEventListener('change', () => { if (themePref() === 'auto') applyTheme('auto', true); });
   }
 
   /* =========================================================
@@ -1548,6 +1583,7 @@
   addEventListener('resize', positionNavBar);
   addEventListener('hashchange', () => { const r = location.hash.slice(1); if (r && r !== S.route) go(r); });
 
+  initTheme();
   renderNav();
   renderRight();
   initPanels();

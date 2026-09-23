@@ -2,7 +2,7 @@
 // Realism comes from: extruded tapered profiles (boom, stick, bucket), bevelled panels,
 // a studio environment map for reflections, clear-coat paint, ACES tone mapping, and Cat decals.
 window.Machine3D = (() => {
-  let renderer, scene, camera, group, stage, canvas, raf = 0, running = false;
+  let renderer, scene, camera, group, stage, canvas, raf = 0, running = false, floorMat = null, isDark = false;
   let dragging = false, dragStartX = 0, dragOffset = 0, dragBase = 0;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const onFrameCbs = [];
@@ -388,11 +388,13 @@ window.Machine3D = (() => {
     scene.add(rim);
 
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: 0.26 }));
+    floorMat = floor.material;
     floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true;
     scene.add(floor);
 
     group = build();
     fitPts = null;
+    setTheme(document.documentElement.getAttribute('data-theme') === 'dark');
     const pivot = new THREE.Group();
     pivot.add(group);
     pivot.rotation.y = BASE_ROT;
@@ -453,6 +455,12 @@ window.Machine3D = (() => {
     return mount(stageEl, canvasEl);
   }
 
+  // night mode: deeper floor shadow and slightly lower exposure so the yellow does not glow
+  function setTheme(dark) {
+    isDark = dark;
+    if (floorMat) floorMat.opacity = dark ? 0.55 : 0.26;
+    if (renderer) renderer.toneMappingExposure = dark ? 0.85 : 0.95;
+  }
   function setState() { /* engine vibration removed: it read as a rendering glitch */ }
-  return { mount: remount, start, stop, project, onFrame, setState, keys: Object.keys(anchors) };
+  return { mount: remount, start, stop, project, onFrame, setState, setTheme, keys: Object.keys(anchors) };
 })();
