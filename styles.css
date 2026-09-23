@@ -2361,3 +2361,18 @@ html[data-theme="dark"] .hc-s.tool { border-color: rgba(255,205,17,.3); }
 .rp-alert b { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rp-alert small { font-size: 11.5px; color: var(--t3); white-space: nowrap; font-variant-numeric: tabular-nums; }
 @media (max-width: 760px) { .app .panel.right .rp-body { display: flex; } }
+/* Now card: light, like the other blocks */
+.rp-now { background: var(--surface); border-color: var(--line); color: var(--text); }
+.rp-now::after { display: none; }
+.rp-now-k { color: var(--t2); }
+.rp-now-k svg { color: var(--y); fill: var(--y); }
+.rp-now-left { color: var(--t2); }
+.rp-now-left b { color: var(--mango-ink); }
+.rp-now-bar { background: var(--chip); margin-right: 0; }
+.rp-now-facts { color: var(--t2); }
+.rp-now-facts .behind { color: var(--mango-ink); } .rp-now-facts .ahead { color: var(--ok-ink); }
+.rp-now .rp-link { color: var(--text); }
+/* Safety rows: same row style as Machine, a tag per state */
+.rp-row.ok em { background: var(--ok-bg); color: var(--ok-ink); }
+.rp-row.info em { background: var(--chip); color: var(--text); }
+.rp-card { flex: none; }

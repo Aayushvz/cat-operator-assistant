@@ -2233,6 +2233,28 @@
   /* =========================================================
      RIGHT PANEL: live status (collapses to a glance strip)
      ========================================================= */
+  // Safety at a glance in the Right now panel: belt, site warning, nearest person, today's stop zone
+  function rpSafetyHTML() {
+    const f = FLAGS[S.flag];
+    const near = S.proxEvents[0];
+    const m = near && near.what.match(/(\d+(?:\.\d+)?) m/);
+    const beltOk = S.beltOn;
+    return `<div class="rp-h"><h2>Safety</h2><button class="rp-link" type="button" data-go="safety">Safety <i data-lucide="chevron-right"></i></button></div>
+      <div class="rp-row ${beltOk ? 'ok' : 'crit'}"><i data-lucide="armchair"></i><span>Seatbelt</span><em>${beltOk ? 'On' : 'Off'}</em></div>
+      <div class="rp-row ${S.flag === 'green' ? 'ok' : S.flag === 'red' ? 'crit' : 'warn'}"><i data-lucide="${f.icon}"></i><span>Site warning</span><em>${f.t}</em></div>
+      ${m ? `<div class="rp-row ${near.zone === 'stop' ? 'crit' : near.zone === 'slow' ? 'warn' : 'ok'}"><i data-lucide="user-round"></i><span>Nearest person</span><em>${m[1]} m</em></div>` : ''}
+      <div class="rp-row info"><i data-lucide="cloud-rain"></i><span>Stop zone today</span><em>${rule('stop')} m</em></div>`;
+  }
+  let rpSafetyKey = '';
+  setInterval(() => {
+    const key = `${S.beltOn}|${S.flag}|${S.proxEvents.length}`;
+    const el = $('#rpSafety');
+    if (!el || key === rpSafetyKey) return;
+    rpSafetyKey = key;
+    el.innerHTML = rpSafetyHTML();
+    icons();
+  }, 600);
+
   function renderRight() {
     const rp = $('#rightPanel');
     rp.innerHTML = `
@@ -2257,6 +2279,7 @@
             <button class="rp-link" type="button" data-go="tasks">Today's jobs <i data-lucide="chevron-right"></i></button>
           </section>`;
         })()}
+        <section class="rp-card" id="rpSafety">${rpSafetyHTML()}</section>
         <section class="rp-card">
           <div class="rp-h"><h2>Machine</h2><button class="rp-link" type="button" data-go="machine">Details <i data-lucide="chevron-right"></i></button></div>
           ${D.health.filter((h) => h.st !== 'ok').map((h) => `<div class="rp-row ${h.st}"><i data-lucide="${h.icon}"></i><span>${h.name}</span><em>${h.label}</em></div>`).join('')}
