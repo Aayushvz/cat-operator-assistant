@@ -1,3 +1,5 @@
+/*! Cat Operator Assistant. Copyright (c) 2026 Aayush Raj and the Cat Operator Assistant team.
+    All rights reserved. Viewing only; no copying, reuse or redistribution without written permission. See LICENSE. */
 // All numbers come from the two problem-statement datasets.
 // Anything marked "assumed" is a plausible sensor value the brief lets us assume.
 window.DATA = (() => {

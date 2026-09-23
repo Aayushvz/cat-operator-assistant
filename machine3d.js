@@ -1,3 +1,5 @@
+/*! Cat Operator Assistant. Copyright (c) 2026 Aayush Raj and the Cat Operator Assistant team.
+    All rights reserved. Viewing only; no copying, reuse or redistribution without written permission. See LICENSE. */
 // 320-class hydraulic excavator (EXC001), built procedurally in Three.js r128.
 // Realism comes from: extruded tapered profiles (boom, stick, bucket), bevelled panels,
 // a studio environment map for reflections, clear-coat paint, ACES tone mapping, and Cat decals.

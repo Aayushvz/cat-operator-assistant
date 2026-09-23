@@ -1,3 +1,5 @@
+/*! Cat Operator Assistant. Copyright (c) 2026 Aayush Raj and the Cat Operator Assistant team.
+    All rights reserved. Viewing only; no copying, reuse or redistribution without written permission. See LICENSE. */
 /* Cat Operator Assistant: app shell, home stage, and deliverable pages. */
 (() => {
   const D = window.DATA;

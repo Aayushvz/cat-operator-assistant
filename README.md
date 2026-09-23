@@ -1,5 +1,7 @@
 # Cat Operator Assistant
 
+> **All rights reserved.** © 2026 Aayush Raj and the Cat Operator Assistant team. This repository is public so it can be viewed. Copying, reusing, modifying or redistributing any part of it is not allowed without written permission. See [LICENSE](LICENSE).
+
 A smart operator assistant for Cat® machinery, built for the "Smart Operator Assistant for CAT machinery" hackathon challenge. It supports an excavator operator through the whole shift: tasks, safety, training, unusual machine behaviour and task time estimation, all driven by the telemetry and task data from the problem statement. Written in plain words an operator uses on site.
 
 **Live demo:** https://aayushvz.github.io/cat-operator-assistant/
@@ -102,7 +104,7 @@ Plain HTML, CSS and JavaScript. The excavator is built procedurally in [Three.js
 
 ## Notes
 
-Cat®, Caterpillar® and the Cat logo are trademarks of Caterpillar Inc. This is an independent hackathon prototype, not an official Caterpillar product. Training videos are embedded from the official Cat® Products YouTube channel.
+This project is not open source: see [LICENSE](LICENSE). Cat®, Caterpillar® and the Cat logo are trademarks of Caterpillar Inc. This is an independent hackathon prototype, not an official Caterpillar product. Training videos are embedded from the official Cat® Products YouTube channel.
 
 ## Backend (optional)
 
