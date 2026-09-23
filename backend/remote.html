@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EXC001 machine remote (demo)</title>
+<style>
+  :root { --y: #FFCD11; --ink: #0B0B0B; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.4 system-ui, sans-serif; background: var(--ink); color: #fff; padding: 20px; }
+  h1 { margin: 0 0 4px; font-size: 22px; }
+  p { margin: 0 0 18px; color: #bbb; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 520px; }
+  button { height: 72px; border: 0; border-radius: 14px; font: 600 17px system-ui, sans-serif; background: #2a2a2a; color: #fff; }
+  button.y { background: var(--y); color: var(--ink); }
+  button.r { background: #D61D1D; }
+  button:active { transform: scale(.97); }
+  #state { margin-top: 18px; font-size: 14px; color: #bbb; }
+  #state b { color: #fff; }
+</style>
+</head>
+<body>
+  <h1>EXC001 · machine remote</h1>
+  <p>Demo stand-in for the machine's sensors. The cab screen reacts within 2 seconds.</p>
+  <div class="grid">
+    <button class="y" data-p="/sim/drive?on=true">Start moving</button>
+    <button data-p="/sim/drive?on=false">Park</button>
+    <button data-p="/sim/belt?on=true">Belt on</button>
+    <button class="r" data-p="/sim/belt?on=false">Belt off</button>
+    <button class="r" data-p="/sim/person?distance=5.2">Worker at 5 m</button>
+    <button data-p="/sim/person?distance=9.1">Worker at 9 m</button>
+  </div>
+  <div id="state"></div>
+<script>
+  const show = (m) => { document.getElementById('state').innerHTML =
+    `Machine: <b>${m.moving ? 'Moving' : 'Parked'}</b> · Belt: <b>${m.belt ? 'On' : 'Off'}</b> · Engine: <b>${m.engine_hours.toFixed(1)} hr</b>`; };
+  document.querySelectorAll('[data-p]').forEach((b) => b.addEventListener('click', async () => {
+    const r = await fetch(b.dataset.p, { method: 'POST' }); show(await r.json());
+  }));
+  fetch('/telemetry').then((r) => r.json()).then((d) => show(d.machine));
+</script>
+</body>
+</html>
