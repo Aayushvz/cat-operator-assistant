@@ -2076,11 +2076,51 @@
       lock = document.createElement('div');
       lock.id = 'driveLock'; lock.className = 'drive-lock';
       lock.innerHTML = `<div class="dl-top"><span><i data-lucide="lock"></i>Screen locked while the machine moves</span><button type="button" id="parkBtn">Park (demo)</button></div>
+        <div class="dl-scene" aria-hidden="true">
+          <svg class="dl-svg" viewBox="0 0 640 260">
+            <defs>
+              <linearGradient id="dlY" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD43B"/><stop offset="1" stop-color="#E0A800"/></linearGradient>
+              <linearGradient id="dlGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9FB6C4"/><stop offset="1" stop-color="#4F6570"/></linearGradient>
+            </defs>
+            <!-- distant site: hills and a crane, sliding slowly -->
+            <g class="dl-far"><path d="M0 170 Q80 140 160 160 T320 150 T480 162 T640 148 T800 160 T960 150 T1120 162 T1280 150 V200 H0 Z" fill="rgba(255,255,255,.05)"/></g>
+            <!-- ground and moving marks -->
+            <line x1="0" y1="214" x2="640" y2="214" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+            <g class="dl-ground">${Array.from({ length: 20 }, (_, i) => `<line x1="${i * 64}" y1="224" x2="${i * 64 + 26}" y2="224" stroke="rgba(255,255,255,.14)" stroke-width="3" stroke-linecap="round"/>`).join('')}</g>
+            <!-- dust behind the tracks -->
+            <g class="dl-dust"><circle cx="150" cy="204" r="10"/><circle cx="132" cy="198" r="14"/><circle cx="112" cy="206" r="9"/></g>
+            <!-- excavator, side view, boom tucked for travel -->
+            <g class="dl-exc">
+              <g class="dl-body">
+                <rect x="232" y="120" width="170" height="46" rx="8" fill="url(#dlY)" stroke="#1A1A19" stroke-width="2"/>
+                <path d="M232 128 Q206 130 204 146 Q206 164 232 166 Z" fill="#E0A800" stroke="#1A1A19" stroke-width="2"/>
+                <image href="assets/cat-logo.png" x="244" y="130" width="46" height="28" preserveAspectRatio="xMidYMid meet"/>
+                <path d="M296 134 H330 M296 142 H330 M296 150 H330" stroke="#9A7800" stroke-width="3"/>
+                <rect x="338" y="72" width="58" height="52" rx="6" fill="#1B1F23" stroke="#1A1A19" stroke-width="2"/>
+                <rect x="346" y="80" width="42" height="34" rx="3" fill="url(#dlGlass)" opacity=".85"/>
+                <rect x="372" y="62" width="6" height="12" rx="2" fill="#2A2A28"/>
+                <!-- boom and stick folded, bucket tucked in -->
+                <path d="M392 132 L470 70 L484 82 L410 146 Z" fill="url(#dlY)" stroke="#1A1A19" stroke-width="2"/>
+                <path d="M470 70 L512 150 L498 156 L458 82 Z" fill="url(#dlY)" stroke="#1A1A19" stroke-width="2"/>
+                <line x1="404" y1="126" x2="452" y2="88" stroke="#3A3A37" stroke-width="5" stroke-linecap="round"/>
+                <path d="M492 146 L528 152 L524 186 L500 192 Q482 176 488 156 Z" fill="#3A3A37" stroke="#1A1A19" stroke-width="2"/>
+                <path d="M500 192 l-4 6 M510 190 l-2 7 M519 188 l0 7" stroke="#1A1A19" stroke-width="3" stroke-linecap="round"/>
+              </g>
+              <!-- undercarriage and moving tracks -->
+              <rect x="214" y="170" width="206" height="44" rx="22" fill="#2A2A28" stroke="#111" stroke-width="2"/>
+              <rect class="dl-tread" x="214" y="170" width="206" height="44" rx="22" fill="none" stroke="#4A4A46" stroke-width="5" stroke-dasharray="6 8"/>
+              ${[240, 276, 312, 348, 384].map((cx) => `<circle cx="${cx + 8}" cy="192" r="10" fill="#3A3A37" stroke="#111" stroke-width="2"/>`).join('')}
+              <circle class="dl-sprocket" cx="236" cy="192" r="15" fill="#1F1F1D" stroke="#FFCD11" stroke-width="2" stroke-dasharray="4 4"/>
+              <circle class="dl-sprocket" cx="398" cy="192" r="15" fill="#1F1F1D" stroke="#FFCD11" stroke-width="2" stroke-dasharray="4 4"/>
+            </g>
+          </svg>
+          <div class="dl-msg"><b>Eyes on the site</b><span>The screen unlocks when you stop.</span></div>
+        </div>
         <div class="dl-strip">
           <div class="dl-job"><small>Job</small><b>Trenching</b><span id="dlLeft"></span></div>
           <div class="dl-belt" id="dlBelt"></div>
           <button class="dl-btn report" id="dlReport" type="button" aria-label="Hold to report"><span class="dl-fill"></span><i data-lucide="mic"></i><b>Report</b><small>Hold</small></button>
-          <button class="dl-btn sos" id="dlSos" type="button" aria-label="Hold for SOS"><span class="dl-fill"></span><i data-lucide="siren"></i><b>SOS</b><small>Hold</small></button>
+          <button class="dl-btn dl-sos" id="dlSos" type="button" aria-label="Hold for SOS"><span class="dl-fill"></span><i data-lucide="siren"></i><b>SOS</b><small>Hold</small></button>
         </div>`;
       document.body.appendChild(lock);
       holdable($('#dlReport'), 1200, () => { logIncident(); });

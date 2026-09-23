@@ -2376,3 +2376,33 @@ html[data-theme="dark"] .hc-s.tool { border-color: rgba(255,205,17,.3); }
 .rp-row.ok em { background: var(--ok-bg); color: var(--ok-ink); }
 .rp-row.info em { background: var(--chip); color: var(--text); }
 .rp-card { flex: none; }
+
+/* ============ Locked while moving: a driving machine, and a fixed button strip ============ */
+.drive-lock { background: radial-gradient(90% 70% at 50% 45%, rgba(30,30,28,.55), rgba(8,8,8,.82)); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.dl-scene { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 0; }
+.dl-svg { width: min(640px, 92vw); height: auto; overflow: visible; }
+.dl-ground { animation: dlGround 700ms linear infinite; }
+.dl-far { animation: dlFar 14s linear infinite; }
+.dl-tread { animation: dlTread 500ms linear infinite; }
+.dl-sprocket { transform-box: fill-box; transform-origin: center; animation: dlSpin 900ms linear infinite; }
+.dl-body { animation: dlBob 900ms ease-in-out infinite; }
+.dl-dust circle { fill: rgba(200,180,140,.18); transform-box: fill-box; transform-origin: center; animation: dlDust 1.2s ease-out infinite; }
+.dl-dust circle:nth-child(2) { animation-delay: .4s; } .dl-dust circle:nth-child(3) { animation-delay: .8s; }
+@keyframes dlGround { to { transform: translateX(-64px); } }
+@keyframes dlFar { to { transform: translateX(-320px); } }
+@keyframes dlTread { to { stroke-dashoffset: -28; } }
+@keyframes dlSpin { to { transform: rotate(-360deg); } }
+@keyframes dlBob { 50% { transform: translateY(-2px); } }
+@keyframes dlDust { 0% { transform: translateX(0) scale(.5); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateX(-60px) scale(1.4); opacity: 0; } }
+.dl-msg { text-align: center; color: #fff; }
+.dl-msg b { display: block; font: 700 34px/1 var(--f-display); text-transform: uppercase; letter-spacing: .02em; }
+.dl-msg span { font-size: 14px; color: rgba(255,255,255,.65); }
+@media (prefers-reduced-motion: reduce) { .dl-ground, .dl-far, .dl-tread, .dl-sprocket, .dl-body, .dl-dust circle { animation: none; } }
+/* strip buttons: same height, SOS no longer inherits the top-bar SOS styles */
+.dl-strip { align-items: stretch; }
+.dl-btn { min-height: 84px; }
+.dl-btn.dl-sos { background: radial-gradient(80% 90% at 40% 25%, #E23B34, #A30F0F 80%); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 8px 20px rgba(214,29,29,.35); }
+.dl-btn.report { background: linear-gradient(180deg, #34342F, #232321); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+@media (max-width: 760px) { .dl-msg b { font-size: 26px; } .dl-btn { min-height: 72px; } }
+.dl-svg { overflow: hidden; -webkit-mask: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); }
+.dl-far path { fill: rgba(255,255,255,.035); }
