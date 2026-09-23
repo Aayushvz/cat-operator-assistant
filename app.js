@@ -930,7 +930,25 @@
         <circle cx="140" cy="140" r="110" fill="rgba(255,170,2,.08)" stroke="#FFAA02" stroke-dasharray="4 4"/>
         <circle cx="140" cy="140" r="68" fill="rgba(214,29,29,.07)" stroke="#D61D1D"/>
         <line x1="140" y1="8" x2="140" y2="272" stroke="#EFEFEC"/><line x1="8" y1="140" x2="272" y2="140" stroke="#EFEFEC"/>
-        <g transform="rotate(-20 140 140)"><rect x="126" y="122" width="28" height="36" rx="4" fill="#FFCD11" stroke="#080808"/><rect x="134" y="84" width="8" height="40" rx="2" fill="#FFCD11" stroke="#080808"/></g>
+        <g class="radar-exc" transform="translate(140 140) rotate(-20) scale(.9)">
+          <!-- excavator from above: tracks, turning upper body, cab, boom, stick and bucket -->
+          <g class="rx-tracks">
+            <rect x="-26" y="-27" width="13" height="54" rx="4" fill="#2A2A28"/><rect x="13" y="-27" width="13" height="54" rx="4" fill="#2A2A28"/>
+            ${Array.from({ length: 12 }, (_, i) => `<line x1="-24" x2="-15" y1="${-24 + i * 4.4}" y2="${-24 + i * 4.4}" stroke="#4A4A46" stroke-width="1.4"/><line x1="15" x2="24" y1="${-24 + i * 4.4}" y2="${-24 + i * 4.4}" stroke="#4A4A46" stroke-width="1.4"/>`).join('')}
+          </g>
+          <path d="M-19 -12 Q-19 -17 -14 -17 H14 Q19 -17 19 -12 V9 Q19 21 0 23 Q-19 21 -19 9 Z" fill="#FFCD11" stroke="#1A1A19" stroke-width="1.2"/>
+          <path d="M-17 11 Q-15 19 0 21 Q15 19 17 11 Z" fill="#E0A800"/>
+          <rect x="-17" y="-15" width="13" height="15" rx="2" fill="#1B1F23" stroke="#0B0B0B" stroke-width=".8"/>
+          <rect x="-15" y="-13" width="9" height="6" rx="1" fill="#6F8795" opacity=".75"/>
+          <path d="M5 -3 H15 M5 0 H15 M5 3 H15" stroke="#9A7800" stroke-width="1.2"/>
+          <rect x="2" y="-14" width="5" height="3" rx="1" fill="#2A2A28"/>
+          <image href="assets/cat-logo.png" x="-8" y="6" width="16" height="9.7" preserveAspectRatio="xMidYMid meet"/>
+          <path d="M1 -16 L10 -16 L8.5 -47 L3.5 -47 Z" fill="#FFCD11" stroke="#1A1A19" stroke-width="1"/>
+          <line x1="5.2" y1="-18" x2="5.6" y2="-40" stroke="#3A3A37" stroke-width="1.6" stroke-linecap="round"/>
+          <rect x="3.6" y="-60" width="4.8" height="15" rx="1.2" fill="#F2BE00" stroke="#1A1A19" stroke-width=".9"/>
+          <path d="M-1.5 -60 H13.5 L12 -67 H0 Z" fill="#3A3A37" stroke="#1A1A19" stroke-width=".9"/>
+          <path d="M1 -67 v-2.4 M4.6 -67 v-2.4 M8.2 -67 v-2.4 M11.4 -67 v-2.4" stroke="#1A1A19" stroke-width="1.3" stroke-linecap="round"/>
+        </g>
         <circle class="blip" cx="${px}" cy="${py}" r="7" fill="#FFAA02"/>
         <circle cx="${px}" cy="${py}" r="6" fill="#FFAA02" stroke="#fff" stroke-width="2" data-tip="<b>Worker</b> · 11 m away · slow zone"/>
         <rect x="${tx - 7}" y="${ty - 7}" width="14" height="14" rx="3" fill="#3A8DFF" stroke="#fff" stroke-width="2" data-tip="<b>Dump truck</b> · 13 m away · coming closer"/>
