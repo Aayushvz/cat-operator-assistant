@@ -2020,7 +2020,7 @@
           <small class="gate-note" id="gateNote">${shake ? 'Put your belt on first. This try was logged.' : ''}</small>
         </div>`,
     };
-    const draw = () => { o.innerHTML = `<div class="login-card">${side}${views[step]()}</div>`; icons(); };
+    const draw = () => { o.innerHTML = `<div class="login-card">${side}${views[step]()}</div><div class="login-designer">designed by Aayush Visuals</div>`; icons(); };
     const to = (st) => showLogin(st);
     const finish = (role) => {
       clearInterval(showLogin.beltWatch);

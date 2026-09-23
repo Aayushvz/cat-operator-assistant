@@ -2594,9 +2594,19 @@ html[data-theme="dark"] .heat .cell.n { color: #B8B8B2; }
 }
 .loader.hide { opacity: 0; pointer-events: none; transform: scale(1.05); }
 .loader .dl-svg { width: 100%; max-width: 640px; }
+.loader-designer, .login-designer {
+  position: absolute;
+  font-family: var(--f-ui), sans-serif; font-weight: 600; font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
 .loader-designer {
-  position: absolute; bottom: max(32px, env(safe-area-inset-bottom, 24px));
-  font: 700 14px var(--f-display);
-  color: #111; text-transform: uppercase; letter-spacing: 0.05em;
-  opacity: 0.5;
+  bottom: max(32px, env(safe-area-inset-bottom, 24px)); left: 50%; transform: translateX(-50%);
+  color: #111; opacity: 0.5;
+}
+.login-designer {
+  bottom: 24px; left: 24px;
+  color: var(--t3); opacity: 0.8;
+}
+@media (max-width: 760px) {
+  .login-designer { left: 50%; transform: translateX(-50%); white-space: nowrap; }
 }
