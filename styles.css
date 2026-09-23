@@ -544,7 +544,7 @@ img.avatar { box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--y); }
 .kpi b { font: 600 38px/1 var(--f-display); }
 .kpi .delta { font-size: 12px; color: var(--t2); display: flex; align-items: center; gap: 6px; }
 .btn {
-  height: 44px; padding: 0 18px; border-radius: 12px; background: var(--y); color: var(--ink);
+  height: 44px; padding: 0 18px; border-radius: 12px; background: var(--y); color: #0B0B0B;
   font: 600 13px/1 var(--f-ui); letter-spacing: .04em; text-transform: uppercase;
   display: inline-flex; align-items: center; gap: 8px;
   transition: transform 120ms var(--ease-out), background-color 150ms ease;
@@ -665,7 +665,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); }
 .rec { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid var(--line-2); align-items: center; }
 .rec:first-of-type { border-top: 0; }
 .rec-ico { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--chip); flex: none; }
-.rec-ico.hot { background: var(--y); }
+.rec-ico.hot { background: var(--y); color: #0B0B0B; }
 .rec b { display: block; font-size: 13.5px; font-weight: 600; }
 .rec small { color: var(--t2); font-size: 12px; }
 .lessons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
@@ -674,7 +674,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); }
 .thumb { height: 92px; background: var(--panel); position: relative; display: grid; place-items: center; }
 .thumb svg.art { position: absolute; inset: 0; width: 100%; height: 100%; }
 .thumb .playb { width: 38px; height: 38px; border-radius: 50%; background: var(--y); display: grid; place-items: center; position: relative; }
-.thumb .playb svg { width: 16px; height: 16px; color: var(--ink); }
+.thumb .playb svg { width: 16px; height: 16px; color: #0B0B0B; }
 .thumb .dur { position: absolute; right: 8px; bottom: 8px; font-size: 10.5px; color: #fff; background: rgba(0,0,0,.6); padding: 2px 6px; border-radius: 4px; }
 .lesson div.t { padding: 10px 12px; }
 .lesson b { font-size: 12.5px; font-weight: 600; display: block; }
@@ -934,7 +934,7 @@ a.btn { text-decoration: none; }
 .ps-thumb { position: relative; width: 116px; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: var(--panel); flex: none; display: grid; place-items: center; }
 .ps-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .ps-thumb .playb { position: relative; width: 30px; height: 30px; border-radius: 50%; background: var(--y); display: grid; place-items: center; }
-.ps-thumb .playb svg { width: 13px; height: 13px; color: var(--ink); }
+.ps-thumb .playb svg { width: 13px; height: 13px; color: #0B0B0B; }
 .ps-txt { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .ps-txt small { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--t2); }
 .ps-txt b { font-size: var(--fs-body); font-weight: 600; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -1124,3 +1124,6 @@ html.theme-fade, html.theme-fade * { transition: background-color 240ms ease, co
 .tb-theme:active { transform: scale(.94); }
 @media (hover: hover) and (pointer: fine) { .tb-theme:hover { color: var(--text); } }
 html[data-theme="dark"] .tb-theme { color: var(--y); }
+
+/* text and icons on Cat yellow are always black, in day and night mode */
+.btn:not(.dark):not(.outline):not(.light):not(.ghost-dark) { color: #0B0B0B; }
