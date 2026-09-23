@@ -74,9 +74,9 @@ All numbers come from the two datasets in the problem statement (4 telemetry sna
 
 ## Not built (prototype limits)
 
-- No backend: the SRS's FastAPI and PostgreSQL are not built. Everything runs in the browser, with local storage standing in for the tablet store.
-- The habits rating uses a simple rule against the operator's own baseline, standing in for a classification model.
-- Motion is a demo switch, not real telemetry.
+- The backend runs on SQLite by default. PostgreSQL is supported but not yet hosted online, so the public demo uses the app's built-in sample data.
+- The job time model and the habits classifier are trained on sample data built from the five dataset jobs and labelled sample shifts, so their scores on those jobs are not a fair test yet.
+- Motion comes from the machine remote or the Parked / Moving switch, standing in for real travel and joystick telemetry.
 
 ## Tech
 
