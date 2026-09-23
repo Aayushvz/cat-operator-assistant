@@ -2089,3 +2089,20 @@ html[data-theme="dark"] .login::before { opacity: .13; }
   #sosBtn { padding: 0 10px; margin-left: 4px; }
 }
 @media (max-width: 340px) { .tb-machine { display: none; } }
+
+/* ============ Phone top bar on black (phones only) ============ */
+@media (max-width: 760px) {
+  .topbar {
+    background: #0B0B0A; color: #F2F2EE;
+    margin: 0 calc(-1 * max(10px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(10px, env(safe-area-inset-left, 0px)));
+    padding-left: max(10px, env(safe-area-inset-left, 0px)); padding-right: max(10px, env(safe-area-inset-right, 0px));
+    margin-bottom: 10px;
+  }
+  .tb-logo { content: url("assets/cat-logo-white.png"); }
+  .tb-machine b { color: #F2F2EE; }
+  .topbar .icon-btn, .tb-drive, #openStatus, .tb-theme { color: #F2F2EE; }
+  .tb-drive:active, #openStatus:active, .tb-theme:active, .topbar .icon-btn:active { background: rgba(255,255,255,.12); }
+  .tb-drive.on { background: var(--y); color: #0B0B0B; }
+  html[data-theme="dark"] .tb-theme { color: var(--y); }
+  #sosBtn { box-shadow: none; }
+}
