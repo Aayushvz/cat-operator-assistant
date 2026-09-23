@@ -723,6 +723,21 @@
   const taskById = (id) => D.tasks.find((t) => t.id === id) || D.extraTasks.find((t) => t.id === id);
   const expect = (t) => D.predict(t.est, t.skill, t.weather, t.age);
 
+  // Today's site forecast (sample), minutes after 08:00. Rain until 16:00, then wind from 17:00.
+  const FORECAST = [
+    { from: 0, to: 360, w: 'Cloudy' },
+    { from: 360, to: 480, w: 'Rainy' },
+    { from: 480, to: 540, w: 'Cloudy' },
+    { from: 540, to: 720, w: 'Windy' },
+  ];
+  const WNAME = { Sunny: 'sun', Rainy: 'rain', Cloudy: 'cloud', Windy: 'wind' };
+  const weatherAt = (m) => (FORECAST.find((f) => m >= f.from && m < f.to) || FORECAST[FORECAST.length - 1]).w;
+  // jobs that go badly in some weather: soft ground in rain, high reach and dust in wind
+  const AVOID = { 'Earth Excavation': ['Rainy'], Trenching: ['Rainy'], Grading: ['Rainy'], 'Backfill trench': ['Rainy'], Demolition: ['Rainy', 'Windy'] };
+  const badWeather = (t, a, b) => { const av = AVOID[t.type] || []; return (FORECAST.find((f) => av.includes(f.w) && f.from < b && f.to > a) || {}).w; };
+  // jobs not started yet: the weather in their slot and the signed-in operator's level
+  const expectIn = (t, w) => D.predict(t.est, S.op?.level || t.skill, w, t.age);
+
   // Rescheduling: done jobs keep their real times. The job in progress ends at its estimate,
   // or at the minutes the operator entered. Remaining jobs start one after another; a job that
   // would finish after 18:00 is held back so shorter jobs behind it can move ahead, then it goes to tomorrow.
@@ -764,11 +779,21 @@
     rows.push({ ...act, t: at, start: act.start, end: act.start + actLen, len: actLen, state: S.actualDone != null ? 'done' : 'active', justDone: S.actualDone != null });
     let cursor = act.start + actLen + GAP;
     const later = [];
-    D.schedule.filter((s) => !s.done && !s.active).forEach((s) => {
-      const t = taskById(s.id), len = expect(t);
-      if (cursor + len <= SHIFT_END) { rows.push({ ...s, t, start: cursor, end: cursor + len, len, state: 'next', moved: Math.round(cursor - s.start) }); cursor += len + GAP; }
-      else later.push({ ...s, t, len, state: 'tomorrow' });
-    });
+    // Weather-aware order: at each free slot take the first planned job the forecast suits.
+    // A job that the weather would spoil waits for a better slot; if nothing suits, the first one goes, with a warning.
+    const pending = D.schedule.filter((s) => !s.done && !s.active).map((s, i) => ({ s, t: taskById(s.id), i }));
+    const held = {};
+    while (pending.length) {
+      const w = weatherAt(cursor);
+      const opts = pending.map((p) => { const len = expectIn(p.t, w); return { ...p, len, bad: badWeather(p.t, cursor, cursor + len) }; })
+        .sort((x, y) => (!!x.bad - !!y.bad) || x.i - y.i);
+      const pick = opts.find((o) => cursor + o.len <= SHIFT_END);
+      if (!pick) { opts.sort((x, y) => x.i - y.i).forEach((o) => later.push({ ...o.s, t: o.t, len: o.len, state: 'tomorrow' })); break; }
+      opts.forEach((o) => { if (o.bad && o.i < pick.i) held[o.s.id] = o.bad; });
+      pending.splice(pending.findIndex((p) => p.s === pick.s), 1);
+      rows.push({ ...pick.s, t: pick.t, start: cursor, end: cursor + pick.len, len: pick.len, state: 'next', wx: w, bad: pick.bad, held: held[pick.s.id], moved: Math.round(cursor - pick.s.start) });
+      cursor += pick.len + GAP;
+    }
     const order = D.schedule.filter((s) => !s.done && !s.active).map((s) => s.id);
     rows.filter((r) => r.state === 'next').forEach((r, i) => { r.jumped = order.indexOf(r.id) > i; });
     return { rows, later };
@@ -783,12 +808,14 @@
     const tag = (r) => r.state === 'active' ? '<span class="tag active">Now</span>'
       : r.added && r.state !== 'tomorrow' ? '<span class="tag new">New</span>'
       : r.state === 'tomorrow' ? '<span class="tag late">Tomorrow</span>'
+      : r.bad ? `<span class="tag late">Go slow: ${WNAME[r.bad]}</span>`
+      : r.held ? `<span class="tag moved">After the ${WNAME[r.held]}</span>`
       : r.jumped ? '<span class="tag moved">Moved up</span>'
       : r.moved > 1 ? `<span class="tag moved">+${r.moved} min</span>` : r.moved < -1 ? `<span class="tag done">−${-r.moved} min</span>` : '';
     const row = (r, i) => `<div class="job ${r.state}${r.jumped ? ' jumped' : ''} rise" style="--i:${i}">
         <div class="job-time"><b>${r.state === 'tomorrow' ? '—' : hhmm(r.start)}</b></div>
         <div class="job-main">
-          <div class="job-title"><b${r.t.sample ? ' data-tip="Sample job, added for the demo"' : ''}>${r.t.type}</b><i data-lucide="${WICON[r.t.weather]}" class="job-wx" data-tip="${r.t.weather}"></i></div>
+          <div class="job-title"><b${r.t.sample ? ' data-tip="Sample job, added for the demo"' : ''}>${r.t.type}</b><i data-lucide="${WICON[r.wx || r.t.weather]}" class="job-wx" data-tip="${r.wx ? `Forecast: ${WNAME[r.wx]}` : r.t.weather}"></i></div>
           <div class="job-line">${r.zone} · about ${Math.round(r.len)} min${r.added ? ` · <button class="linkbtn" type="button" data-remove="${r.id}">Remove</button>` : ''}</div>
           ${r.state === 'active' ? `<div class="done-box" id="doneBox">
             <span>Finished?</span>
@@ -823,9 +850,10 @@
             <span class="pt-scale"><span>08:00</span><span>18:00</span></span>
           </div>
         </div>
-        ${later.length ? `<div class="plan-alert rise"><i data-lucide="calendar-x"></i><span><b>${later.map((r) => r.t.type).join(', ')}</b> won't fit today. It moves to tomorrow.</span></div>` : ''}
+        ${later.length ? `<div class="plan-alert rise"><i data-lucide="calendar-x"></i><span><b>${later.map((r) => r.t.type).join(', ')}</b> won't fit today${later.some((r) => (AVOID[r.t.type] || []).includes('Windy')) && FORECAST.some((f) => f.w === 'Windy' && f.from < SHIFT_END) ? ` and the wind picks up at ${hhmm(FORECAST.find((f) => f.w === 'Windy').from)}` : ''}. It moves to tomorrow.</span></div>` : ''}
         <div class="card pcard c12 rise" style="--i:1">
           <div class="plan-head"><h3>Jobs</h3>
+            <div class="fc" aria-label="Forecast for the rest of the shift">${FORECAST.filter((f) => f.to > D.LIVE && f.from < SHIFT_END).map((f) => `<span class="fc-i${D.LIVE >= f.from && D.LIVE < f.to ? ' now' : ''}"><i data-lucide="${WICON[f.w]}"></i>${D.LIVE >= f.from && D.LIVE < f.to ? 'Now' : hhmm(f.from)}</span>`).join('')}</div>
             <button class="btn ${S.addOpen ? 'outline' : ''}" type="button" id="addJob"><i data-lucide="${S.addOpen ? 'x' : 'plus'}"></i>${S.addOpen ? 'Close' : 'Add job'}</button></div>
           ${S.addOpen ? `<div class="add-job">
             <label><span>Job</span><select id="addType">${JOB_TYPES.map((t) => `<option ${t === S.addType ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
@@ -1476,6 +1504,8 @@
     { id: 'start', n: 'Start button and Operator ID', x: 81, y: 71.4, vid: 'KwvguKaFliU', does: 'Starts the engine after you sign in with your ID.', care: 'The engine will not start until your seatbelt is on.' },
     { id: 'throttle', n: 'Engine speed dial', x: 74.3, y: 83.8, vid: 's22FKB2Zrnk', does: 'Sets how fast the engine runs.', care: 'Turn it down while you wait. Waiting at full speed wastes fuel.' },
     { id: 'monitor', n: 'Monitor', x: 80, y: 21, vid: 'uPlt7seVi9o', does: 'Shows machine health, cameras and grade guidance.', care: 'Look at it only when the machine is still.' },
+    { id: 'estop', n: 'Emergency stop', x: 80.7, y: 44.3, vid: 'CJM_qHYXJDA', does: 'Shuts the engine down straight away.', care: 'For emergencies only. Know where it is before you start work.' },
+    { id: 'horn', n: 'Horn', x: 31, y: 44.8, vid: 'CJM_qHYXJDA', does: 'Warns people and trucks nearby.', care: 'Sound it before you travel or swing, every time.' },
   ];
   function renderControls() {
     const c = CONTROLS.find((x) => x.id === S.ctrl) || CONTROLS[1];
@@ -1541,6 +1571,17 @@
                 <ellipse cx="150" cy="236" rx="17" ry="23" fill="url(#cgGrip)"/><ellipse cx="450" cy="236" rx="17" ry="23" fill="url(#cgGrip)"/>
                 <circle cx="143" cy="223" r="3.6" fill="#FFCD11"/><circle cx="156" cy="224" r="3.6" fill="#D61D1D"/>
                 <circle cx="444" cy="224" r="3.6" fill="#D61D1D"/><circle cx="457" cy="223" r="3.6" fill="#FFCD11"/>
+              </g>
+              <!-- emergency stop: red mushroom button on a yellow plate, right console -->
+              <g filter="url(#cgShadow)">
+                <rect x="469" y="171" width="30" height="30" rx="6" fill="url(#cgYellow)"/>
+                <circle cx="484" cy="186" r="11" fill="#9E1010"/><circle cx="484" cy="186" r="9" fill="#D61D1D"/>
+                <ellipse cx="481" cy="182.5" rx="4" ry="2.4" fill="#fff" opacity=".35"/>
+              </g>
+              <!-- horn button, left console -->
+              <g filter="url(#cgShadow)">
+                <circle cx="186" cy="188" r="12" fill="#1A1A19"/><circle cx="186" cy="188" r="9" fill="#3A3A37"/>
+                <path d="M182 185.5 h2.5 l4-3 v11 l-4-3 H182 Z" fill="#E8E8E4"/>
               </g>
               <!-- keypad, start button and engine speed dial on the right console -->
               ${[0, 1, 2].map((c) => [0, 1].map((r) => `<rect x="${408 + c * 20}" y="${316 + r * 18}" width="15" height="12" rx="3" fill="#1E1E1C"/>`).join('')).join('')}

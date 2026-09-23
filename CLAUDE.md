@@ -28,12 +28,12 @@ Hackathon prototype for "Smart Operator Assistant for CAT machinery". A cab tabl
 
 - **Start of shift** (`showLogin(step)`): who is driving (OPERATORS with level, `applyOperator`) -> PIN or badge -> belt gate and Start engine (blocked start logged). sessionStorage `cat-session` = pending/operator/manager, `cat-op`.
 - **Home** (`renderHome`): 3D machine, boom and hydraulics red (fault: boom cylinder leaking), tracks amber (check soon), selected part glows green; six hotspots and an overview card; "Your pace" and "Seatbelt" cab instruments; "Today's shift" replay; "While you wait" video after 3 minutes idle. Do not redesign Home unless asked.
-- **My tasks** (`renderTasks`, `planDay`): Now / Next / Shift left tiles, job list, mark done, dynamic rescheduling (10 min gap, shift ends 18:00, jobs that no longer fit go to tomorrow, shorter jobs move up), Add job saved in localStorage.
+- **My tasks** (`renderTasks`, `planDay`, weather-aware via `FORECAST`, `AVOID`, `expectIn`): Now / Next / Shift left tiles, job list, mark done, dynamic rescheduling (10 min gap, shift ends 18:00, jobs that no longer fit go to tomorrow, shorter jobs move up), Add job saved in localStorage.
 - **Job time** (`renderEstimator`): planned × level × weather × machine age. Plan error 13.2%, model 2.4% on the five dataset jobs (fitted on those same jobs: say so).
 - **Moving lock** (`setMoving`): demo switch standing in for travel and joystick telemetry.
 - **Safety** (`renderSafety`): site warning flags, proximity radar with logged events, rain tightens the rules, SOS.
 - **Reports** (`renderIncidents`, `addIncident`): hold then two taps (REP_TYPES, REP_SEV); each report has a machine snapshot; saved offline first (`S.offline`, `S.pending`, localStorage).
-- **Learn**: `renderControls` (top-down cab, 8 controls, each linked to a Cat video), `renderTraining` (videos), `renderInsights` + `habitsPatterns` (last 5 shifts against the operator's own baseline).
+- **Learn**: `renderControls` (top-down cab, 10 controls incl. emergency stop and horn, each linked to a Cat video), `renderTraining` (videos), `renderInsights` + `habitsPatterns` (last 5 shifts against the operator's own baseline).
 - **Machine** (`renderMachine`): the 3D model in fit mode, Fix now / Check soon / Fine, next service.
 - **Fleet** (`renderFleet`): manager view, hides the side panels.
 - Night mode, English/Hindi menu, custom dropdowns (`enhanceSelect` upgrades every `<select>` automatically).

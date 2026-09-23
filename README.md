@@ -35,6 +35,7 @@ Then open http://localhost:4173.
 ### My tasks (SRS 3.3, 3.7)
 - **Today**: Now / Next / Shift left tiles, then the job list with one line per job.
 - **Dynamic rescheduling**: mark a job done with its real time, or tap **Running late +15**; later jobs move. A job that no longer fits before 18:00 moves to tomorrow and shorter jobs move ahead of it.
+- **Weather-aware order**: a site forecast (sample) sits beside the job list. At each free slot the planner takes the first job the weather suits; jobs spoiled by rain (digging, trenching, grading, backfill) or wind (demolition) wait for a better slot, and a job that must run in bad weather gets a "Go slow" tag.
 - **Add job**: pick the job, place and planned time; it joins the plan with an estimate. Added jobs are saved on the device and can be removed.
 - **Job time**: estimate any job from planned time × operator level × weather × machine age, shown as a range, with the working shown. On the five dataset jobs the plan is off by 13.2% on average and the estimate by 2.4% (the factors were fitted on those jobs).
 
@@ -50,7 +51,7 @@ Then open http://localhost:4173.
 - **Reports**: hold, then two taps (what happened, how bad). Every report carries a snapshot of the machine (operator, engine hours, belt, state, fuel, place).
 
 ### Learn (SRS 3.5, 3.6)
-- **Controls**: a realistic top-down drawing of the cab with 8 numbered controls. Each shows what it does, how to be careful, and a Cat video.
+- **Controls**: a realistic top-down drawing of the cab with 10 numbered controls, including the emergency stop and horn. Each shows what it does, how to be careful, and a Cat video.
 - **Videos**: real videos from the official Cat® Products YouTube channel, played in the app. Marking one watched raises the operator's level.
 - **Your habits**: the last 5 shifts compared with the operator's own usual, rated Normal / Worth a look / Concerning. Kept separate from safety alerts, which fire instantly.
 
