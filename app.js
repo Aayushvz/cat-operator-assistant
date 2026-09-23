@@ -30,7 +30,8 @@
     ],
     settings: { haptics: true, voice: true, contrast: false, budget: 3, presets: true, share: false, offline: false },
     watched: new Set(),
-    stepVal: 52, actualDone: null,                 // SRS 3.3 mark done
+    stepVal: 52, actualDone: null,
+    addOpen: false, addType: 'Trenching', addZone: 'Zone B', addMin: 30,   // add a job                 // SRS 3.3 mark done
     beltOn: false, engine: 'off',                  // SRS 3.4 interlock demo
     proxEvents: [
       { t: '14:38', zone: 'slow', what: 'Worker at 11 m, in the slow zone', did: 'Warning shown' },
@@ -711,7 +712,34 @@
   // Rescheduling: done jobs keep their real times. The job in progress ends at its estimate,
   // or at the minutes the operator entered. Remaining jobs start one after another; a job that
   // would finish after 18:00 is held back so shorter jobs behind it can move ahead, then it goes to tomorrow.
+  const JOB_TYPES = ['Earth Excavation', 'Trenching', 'Material Loading', 'Grading', 'Demolition', 'Backfill trench'];
+  const ZONES = ['Zone A', 'Zone B', 'Stockpile C', 'Block D'];
+  let addedLoaded = false;
+  function loadAddedJobs() {
+    if (addedLoaded) return; addedLoaded = true;
+    let list = [];
+    try { list = JSON.parse(localStorage.getItem('cat-added-jobs')) || []; } catch (e) { /* storage blocked */ }
+    list.forEach((j) => { D.extraTasks.push(j.task); D.schedule.push(j.slot); });
+  }
+  function saveAddedJobs() {
+    const list = D.schedule.filter((x) => x.added).map((slot) => ({ slot, task: taskById(slot.id) }));
+    try { localStorage.setItem('cat-added-jobs', JSON.stringify(list)); } catch (e) { /* storage blocked */ }
+  }
+  function addJob() {
+    const id = `N${Date.now().toString().slice(-5)}`;
+    // today's conditions and the operator's level fill in the rest, so the estimate works like any other job
+    D.extraTasks.push({ id, type: S.addType, weather: 'Rainy', skill: D.tasks[1].skill, age: 4, est: S.addMin });
+    D.schedule.push({ id, zone: S.addZone, start: SHIFT_END, added: true });
+    saveAddedJobs();
+  }
+  function removeJob(id) {
+    D.schedule.splice(D.schedule.findIndex((x) => x.id === id), 1);
+    D.extraTasks.splice(D.extraTasks.findIndex((x) => x.id === id), 1);
+    saveAddedJobs();
+  }
+
   function planDay() {
+    loadAddedJobs();
     const rows = [];
     D.schedule.filter((s) => s.done).forEach((s) => { const t = taskById(s.id); rows.push({ ...s, t, start: s.start, end: s.start + t.actual, len: t.actual, state: 'done' }); });
     const act = D.schedule.find((s) => s.active);
@@ -737,6 +765,7 @@
     const bar = rows.map((r) => `<div class="stint ${r.state === 'done' ? 'done' : r.state === 'active' ? 'active' : ''}" style="left:${w(r.start)}%;width:${w(r.len)}%" data-tip="<b>${r.t.type}</b><br>${hhmm(r.start)} to ${hhmm(r.end)}"><b>${r.t.type}</b><small>${hhmm(r.start)}</small></div>`).join('');
     // one short word or number per job, so a glance is enough
     const tag = (r) => r.state === 'active' ? '<span class="tag active">Now</span>'
+      : r.added && r.state !== 'tomorrow' ? '<span class="tag new">New</span>'
       : r.state === 'tomorrow' ? '<span class="tag late">Tomorrow</span>'
       : r.jumped ? '<span class="tag moved">Moved up</span>'
       : r.moved > 1 ? `<span class="tag moved">+${r.moved} min</span>` : r.moved < -1 ? `<span class="tag done">−${-r.moved} min</span>` : '';
@@ -744,7 +773,7 @@
         <div class="job-time"><b>${r.state === 'tomorrow' ? '—' : hhmm(r.start)}</b></div>
         <div class="job-main">
           <div class="job-title"><b${r.t.sample ? ' data-tip="Sample job, added for the demo"' : ''}>${r.t.type}</b><i data-lucide="${WICON[r.t.weather]}" class="job-wx" data-tip="${r.t.weather}"></i></div>
-          <div class="job-line">${r.zone} · about ${Math.round(r.len)} min</div>
+          <div class="job-line">${r.zone} · about ${Math.round(r.len)} min${r.added ? ` · <button class="linkbtn" type="button" data-remove="${r.id}">Remove</button>` : ''}</div>
           ${r.state === 'active' ? `<div class="done-box" id="doneBox">
             <span>Finished?</span>
             <div class="stepper"><button type="button" data-step="-5" aria-label="5 minutes less">−</button><b id="stepVal">${S.stepVal}</b><em>min</em><button type="button" data-step="5" aria-label="5 minutes more">+</button></div>
@@ -754,28 +783,46 @@
         <div class="job-tag">${tag(r)}</div>
       </div>`;
     const doneRows = rows.filter((r) => r.state === 'done');
+    const cur = rows.find((r) => r.state === 'active'), nxt = rows.find((r) => r.state === 'next');
     const open = [...rows.filter((r) => r.state !== 'done'), ...later];
     main.innerHTML = `<div class="page">
       ${head('tasks', 'Your jobs today. If one runs long, the rest move.')}
       <div class="grid">
-        <div class="card pcard c12 rise ${later.length ? 'plan-warn' : ''}">
-          <div class="plan-head">
-            <div><h3>Today's plan</h3><div class="sub">Shift ends 18:00 · ${left} job${left === 1 ? '' : 's'} left${later.length ? ` · <b class="late-txt">${later.length} won't fit today</b>` : ''}</div></div>
-            <div class="legend"><span><i class="sw" style="background:var(--chip-2);border:1px solid var(--line)"></i>Done</span><span><i class="sw" style="background:var(--ink)"></i>Doing now</span><span><i class="sw" style="background:var(--surface);border:1px solid var(--line)"></i>Next</span></div>
+        <div class="plan-tiles rise">
+          <div class="ptile now">
+            <span class="pt-k"><i data-lucide="play"></i>${cur ? 'Now' : 'Now'}</span>
+            <b>${cur ? cur.t.type : 'Nothing running'}</b>
+            <span class="pt-v">${cur ? `About ${Math.max(1, Math.round(cur.end - D.LIVE))} min left` : nxt ? `Next job at ${hhmm(nxt.start)}` : 'All done for today'}</span>
           </div>
-          <div class="strip" style="margin-top:18px">
-            <div class="strip-row">${bar}<span class="now-line" style="left:${w(D.LIVE)}%" data-tip="<b>Now</b> ${hhmm(D.LIVE)}"></span><span class="end-line" style="left:${w(SHIFT_END)}%" data-tip="<b>Shift ends</b> 18:00"></span></div>
-            <div class="strip-hours">${[0, 120, 240, 360, 480, 600].map((m) => `<span style="left:${w(m)}%">${hhmm(m)}</span>`).join('')}</div>
+          <div class="ptile">
+            <span class="pt-k"><i data-lucide="arrow-right"></i>Next</span>
+            <b>${nxt ? nxt.t.type : 'No more jobs'}</b>
+            <span class="pt-v">${nxt ? `Starts ${hhmm(nxt.start)}` : ''}</span>
+          </div>
+          <div class="ptile">
+            <span class="pt-k"><i data-lucide="clock"></i>Shift left</span>
+            <b>${Math.floor((SHIFT_END - D.LIVE) / 60)} h ${Math.round((SHIFT_END - D.LIVE) % 60)} min</b>
+            <div class="pt-bar" aria-hidden="true"><i style="width:${pct(D.LIVE, 0, SHIFT_END)}%"></i></div>
+            <span class="pt-scale"><span>08:00</span><span>18:00</span></span>
           </div>
         </div>
+        ${later.length ? `<div class="plan-alert rise"><i data-lucide="calendar-x"></i><span><b>${later.map((r) => r.t.type).join(', ')}</b> won't fit today. It moves to tomorrow.</span></div>` : ''}
         <div class="card pcard c12 rise" style="--i:1">
-          <h3>Jobs</h3>
+          <div class="plan-head"><h3>Jobs</h3>
+            <button class="btn ${S.addOpen ? 'outline' : ''}" type="button" id="addJob"><i data-lucide="${S.addOpen ? 'x' : 'plus'}"></i>${S.addOpen ? 'Close' : 'Add job'}</button></div>
+          ${S.addOpen ? `<div class="add-job">
+            <label><span>Job</span><select id="addType">${JOB_TYPES.map((t) => `<option ${t === S.addType ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+            <label><span>Place</span><select id="addZone">${ZONES.map((z) => `<option ${z === S.addZone ? 'selected' : ''}>${z}</option>`).join('')}</select></label>
+            <div class="aj-time"><span>Planned time</span><div class="stepper"><button type="button" data-astep="-5" aria-label="5 minutes less">−</button><b id="addMin">${S.addMin}</b><em>min</em><button type="button" data-astep="5" aria-label="5 minutes more">+</button></div></div>
+            <button class="btn dark" type="button" id="addSave"><i data-lucide="plus"></i>Add</button>
+          </div>` : ''}
           <div class="done-line"><i data-lucide="circle-check"></i>Done: ${doneRows.map((r) => `${r.t.type} ${Math.round(r.len)} min`).join(' · ')}${S.actualDone != null ? ' <button class="linkbtn" type="button" id="undoDone">Undo</button>' : ''}</div>
           <div class="jobs">${open.map(row).join('')}</div>
-          ${later.length ? `<div class="note warn-note"><span><b>${later.map((r) => r.t.type).join(', ')}</b> moves to tomorrow.</span></div>` : ''}
+
         </div>
       </div></div>`;
     const page = main.querySelector('.page');
+    page.addEventListener('change', (e) => { if (e.target.id === 'addType') S.addType = e.target.value; if (e.target.id === 'addZone') S.addZone = e.target.value; });
     page.addEventListener('click', (e) => {
       const st = e.target.closest('[data-step]');
       if (st) { S.stepVal = Math.max(5, Math.min(120, S.stepVal + +st.dataset.step)); $('#stepVal').textContent = S.stepVal; return; }
@@ -786,7 +833,19 @@
         renderTasks(); icons();
         return before;
       }
-      if (e.target.closest('#undoDone')) { S.actualDone = null; renderTasks(); icons(); }
+      if (e.target.closest('#undoDone')) { S.actualDone = null; renderTasks(); icons(); return; }
+      if (e.target.closest('#addJob')) { S.addOpen = !S.addOpen; renderTasks(); icons(); return; }
+      const as = e.target.closest('[data-astep]');
+      if (as) { S.addMin = Math.max(5, Math.min(240, S.addMin + +as.dataset.astep)); $('#addMin').textContent = S.addMin; return; }
+      if (e.target.closest('#addSave')) {
+        S.addType = $('#addType').value; S.addZone = $('#addZone').value;
+        addJob(); S.addOpen = false;
+        const fits = planDay().rows.some((r) => r.added && r.t.type === S.addType);
+        toast(fits ? `${S.addType} added. The plan was updated.` : `${S.addType} added. It won't fit today, so it moves to tomorrow.`, 'plus');
+        renderTasks(); icons(); return;
+      }
+      const rm = e.target.closest('[data-remove]');
+      if (rm) { removeJob(rm.dataset.remove); toast('Job removed.', 'trash-2'); renderTasks(); icons(); }
     });
   }
 
@@ -1252,43 +1311,49 @@
   ];
   function renderMachine() {
     const eng = 1530.2, next = 1600.2, since = 1350.2;
+    const fix = PARTS.filter((p) => p.st === 'crit'), check = PARTS.filter((p) => p.st === 'warn'), fine = PARTS.filter((p) => p.st === 'ok');
+    const item = (p) => `<div class="mh-item"><b>${p.n}</b><p>${p.what}</p><p class="mh-do">${p.todo}</p></div>`;
     main.innerHTML = `<div class="page">
-      ${head('machine', 'EXC001, 20-tonne excavator. The colours match the 3D machine on Home: red is a fault, amber needs a check soon.')}
+      ${head('machine', 'EXC001, 20-tonne excavator.')}
       <div class="grid">
-        <div class="card pcard c8 rise">
-          <div class="plan-head"><div><h3>Parts</h3><div class="sub">1 fault · 1 to check soon · 4 OK</div></div>
-            <div class="legend"><span><i class="sw" style="background:var(--crit)"></i>Fault</span><span><i class="sw" style="background:var(--warn)"></i>Check soon</span><span><i class="sw" style="background:var(--ok)"></i>OK</span></div></div>
-          <div class="parts">${PARTS.map((p, i) => `
-            <div class="part ${p.st} rise" style="--i:${i}">
-              <span class="part-ico"><i data-lucide="${p.ic}"></i></span>
-              <div class="part-main"><div class="part-top"><b>${p.n}</b><span class="st ${p.st}">${p.l}</span></div>
-                <p>${p.what}</p><p class="todo"><i data-lucide="wrench"></i>${p.todo}</p></div>
-              <div class="part-wear" data-tip="${p.wear}% worn"><div><i style="width:${p.wear}%"></i></div><small>${p.wear}% worn</small></div>
-            </div>`).join('')}</div>
+        <div class="card pcard c7 rise mh-map-card">
+          <h3>Machine health</h3>
+          <div class="mh-map">${BLUEPRINT.replace('class="blueprint"', 'class="blueprint health"')}</div>
+          <div class="mh-key"><span class="k crit">Fix now</span><span class="k warn">Check soon</span><span class="k ok">Fine</span></div>
         </div>
-        <div class="card pcard c4 rise" style="--i:1">
-          <h3>Next service</h3><div class="sub">Every 250 engine hours.</div>
-          <div class="kpi" style="margin-top:16px"><b><span data-count="${Math.round(next - eng)}">0</span> hr</b><span class="delta">left until ${fmt(next, 0)} hr · now ${fmt(eng, 1)} hr</span></div>
-          <div style="height:8px;border-radius:4px;background:var(--chip);margin-top:14px;overflow:hidden"><div class="growx" style="height:100%;width:${pct(eng, since, next)}%;background:var(--ink)"></div></div>
-          <div class="cond" style="margin-top:18px">
-            <div><span>Machine ID</span><b>EXC001</b></div><div><span>Operator</span><b>OP1001</b></div>
-            <div><span>Engine hours</span><b>${fmt(eng, 1)}</b></div><div><span>Connected</span><b style="color:${S.offline ? 'var(--warn-ink)' : 'var(--ok-ink)'}">${S.offline ? 'No signal' : 'Yes'}</b></div>
-          </div>
-          <button class="btn outline" type="button" data-go="home" style="margin-top:16px;width:100%;justify-content:center"><i data-lucide="box"></i>See it on the 3D machine</button>
+        <div class="card pcard c5 rise mh-list" style="--i:1">
+          <section class="mh-sec crit">
+            <h4><i data-lucide="octagon-alert"></i>Fix now</h4>
+            ${fix.map(item).join('')}
+            <button class="btn dark mh-call" type="button" data-toast="Calling the site mechanic…"><i data-lucide="phone"></i>Call the mechanic</button>
+          </section>
+          <section class="mh-sec warn">
+            <h4><i data-lucide="triangle-alert"></i>Check soon</h4>
+            ${check.map(item).join('')}
+          </section>
+          <section class="mh-sec ok">
+            <h4><i data-lucide="circle-check"></i>Fine</h4>
+            <p class="mh-fine">${fine.map((p) => p.n).join(' · ')}</p>
+          </section>
+        </div>
+        <div class="card pcard c12 rise mh-service" style="--i:2">
+          <div class="mh-svc-num"><span class="eyebrow">Next service</span><b>In <span data-count="${Math.round(next - eng)}">0</span> hours</b><small>At ${fmt(next, 0)} engine hours · now ${fmt(eng, 1)}</small></div>
+          <div class="mh-svc-bar"><div><i class="growx" style="width:${pct(eng, since, next)}%"></i></div><span><span>Last service</span><span>Next service</span></span></div>
+          <button class="btn outline" type="button" data-go="home"><i data-lucide="box"></i>See it in 3D</button>
         </div>
       </div></div>`;
   }
 
   /* ---------- LEARN: CONTROLS (SRS 3.5: tappable cab layout, each control linked to a video) ---------- */
   const CONTROLS = [
-    { id: 'ljoy', n: 'Left joystick', x: 24, y: 58, vid: 'hRLb8oAKX30', does: 'Swings the upper body left and right, and moves the stick in and out.', care: 'Check your swing area first. Keep your moves smooth, no jerks.' },
-    { id: 'rjoy', n: 'Right joystick', x: 76, y: 58, vid: 'n24LwkpgBSM', does: 'Raises and lowers the boom, and curls the bucket in and out.', care: 'Never swing a loaded bucket over people or over a truck cab.' },
-    { id: 'travel', n: 'Travel levers and pedals', x: 50, y: 17, vid: 'hRLb8oAKX30', does: 'Drive the tracks forward and back, and steer.', care: 'Check which way the tracks face. If they point backwards, the levers work the other way round.' },
-    { id: 'lock', n: 'Hydraulic lock lever', x: 11, y: 40, vid: 'CJM_qHYXJDA', does: 'Locks every control so nothing moves by accident.', care: 'Pull it up every time you stop, get in or get out.' },
-    { id: 'belt', n: 'Seatbelt', x: 50, y: 66, vid: 'CJM_qHYXJDA', does: 'Keeps you in the seat if the machine tips.', care: 'Buckle up before you start, and keep it on while you wait too.' },
-    { id: 'start', n: 'Start button and Operator ID', x: 89, y: 72, vid: 'KwvguKaFliU', does: 'Starts the engine after you sign in with your ID.', care: 'The engine will not start until your seatbelt is on.' },
-    { id: 'throttle', n: 'Engine speed dial', x: 78, y: 86, vid: 's22FKB2Zrnk', does: 'Sets how fast the engine runs.', care: 'Turn it down while you wait. Waiting at full speed wastes fuel.' },
-    { id: 'monitor', n: 'Monitor', x: 80, y: 16, vid: 'uPlt7seVi9o', does: 'Shows machine health, cameras and grade guidance.', care: 'Look at it only when the machine is still.' },
+    { id: 'ljoy', n: 'Left joystick', x: 25, y: 56, vid: 'hRLb8oAKX30', does: 'Swings the upper body left and right, and moves the stick in and out.', care: 'Check your swing area first. Keep your moves smooth, no jerks.' },
+    { id: 'rjoy', n: 'Right joystick', x: 75, y: 56, vid: 'n24LwkpgBSM', does: 'Raises and lowers the boom, and curls the bucket in and out.', care: 'Never swing a loaded bucket over people or over a truck cab.' },
+    { id: 'travel', n: 'Travel levers and pedals', x: 50, y: 22, vid: 'hRLb8oAKX30', does: 'Drive the tracks forward and back, and steer.', care: 'Check which way the tracks face. If they point backwards, the levers work the other way round.' },
+    { id: 'lock', n: 'Hydraulic lock lever', x: 13, y: 42, vid: 'CJM_qHYXJDA', does: 'Locks every control so nothing moves by accident.', care: 'Pull it up every time you stop, get in or get out.' },
+    { id: 'belt', n: 'Seatbelt', x: 50, y: 71, vid: 'CJM_qHYXJDA', does: 'Keeps you in the seat if the machine tips.', care: 'Buckle up before you start, and keep it on while you wait too.' },
+    { id: 'start', n: 'Start button and Operator ID', x: 81, y: 71.4, vid: 'KwvguKaFliU', does: 'Starts the engine after you sign in with your ID.', care: 'The engine will not start until your seatbelt is on.' },
+    { id: 'throttle', n: 'Engine speed dial', x: 74.3, y: 83.8, vid: 's22FKB2Zrnk', does: 'Sets how fast the engine runs.', care: 'Turn it down while you wait. Waiting at full speed wastes fuel.' },
+    { id: 'monitor', n: 'Monitor', x: 80, y: 21, vid: 'uPlt7seVi9o', does: 'Shows machine health, cameras and grade guidance.', care: 'Look at it only when the machine is still.' },
   ];
   function renderControls() {
     const c = CONTROLS.find((x) => x.id === S.ctrl) || CONTROLS[1];
@@ -1300,19 +1365,72 @@
           <h3>Your cab, from above</h3><div class="sub">Tap a numbered control.</div>
           <div class="cab-map">
             <svg viewBox="0 0 600 420" aria-hidden="true" class="cab-svg">
-              <rect x="40" y="20" width="520" height="380" rx="36" class="c-floor"/>
-              <rect x="70" y="40" width="460" height="16" rx="8" class="c-glass"/>
-              <rect x="230" y="200" width="140" height="130" rx="22" class="c-seat"/>
-              <rect x="240" y="320" width="120" height="50" rx="14" class="c-seat"/>
-              <rect x="90" y="170" width="120" height="200" rx="18" class="c-console"/>
-              <rect x="390" y="170" width="120" height="200" rx="18" class="c-console"/>
-              <circle cx="150" cy="240" r="24" class="c-stick"/><circle cx="450" cy="240" r="24" class="c-stick"/>
-              <rect x="250" y="62" width="30" height="70" rx="12" class="c-stick"/><rect x="320" y="62" width="30" height="70" rx="12" class="c-stick"/>
-              <rect x="215" y="120" width="44" height="28" rx="6" class="c-pedal"/><rect x="341" y="120" width="44" height="28" rx="6" class="c-pedal"/>
-              <rect x="420" y="60" width="120" height="70" rx="10" class="c-screen"/>
-              <rect x="56" y="130" width="22" height="90" rx="10" class="c-lever"/>
-              <path d="M250 205 L350 285" class="c-belt"/>
-              <circle cx="505" cy="305" r="16" class="c-btn"/><circle cx="470" cy="355" r="18" class="c-dial"/>
+              <defs>
+                <linearGradient id="cgFrame" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E2E2C"/><stop offset="1" stop-color="#171716"/></linearGradient>
+                <linearGradient id="cgGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D6E6EF"/><stop offset=".5" stop-color="#A9C1CF"/><stop offset="1" stop-color="#C9DCE6"/></linearGradient>
+                <linearGradient id="cgMat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3C3C3A"/><stop offset="1" stop-color="#2A2A28"/></linearGradient>
+                <pattern id="cgRibs" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="none"/><path d="M0 7 H14" stroke="#1E1E1D" stroke-width="3"/></pattern>
+                <radialGradient id="cgSeat" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#55544F"/><stop offset="1" stop-color="#2B2B29"/></radialGradient>
+                <linearGradient id="cgConsole" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4A4A47"/><stop offset=".5" stop-color="#5C5C58"/><stop offset="1" stop-color="#42423F"/></linearGradient>
+                <radialGradient id="cgGrip" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#4E4E4B"/><stop offset="1" stop-color="#121211"/></radialGradient>
+                <linearGradient id="cgYellow" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFD43B"/><stop offset="1" stop-color="#E0A800"/></linearGradient>
+                <filter id="cgShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity=".4"/></filter>
+              </defs>
+              <!-- cab shell, windows and floor mat -->
+              <rect x="30" y="10" width="540" height="400" rx="46" fill="url(#cgFrame)"/>
+              <rect x="44" y="24" width="512" height="372" rx="36" fill="url(#cgGlass)"/>
+              <path d="M60 60 L540 60" stroke="#fff" stroke-opacity=".5" stroke-width="3"/>
+              <rect x="44" y="92" width="10" height="120" fill="#1B1B1A"/><rect x="546" y="92" width="10" height="120" fill="#1B1B1A"/>
+              <rect x="62" y="48" width="476" height="332" rx="24" fill="url(#cgMat)"/>
+              <rect x="62" y="48" width="476" height="332" rx="24" fill="url(#cgRibs)" opacity=".55"/>
+              <!-- travel pedals and levers -->
+              <g filter="url(#cgShadow)">
+                <rect x="222" y="106" width="58" height="40" rx="7" fill="#5A5A56"/><rect x="320" y="106" width="58" height="40" rx="7" fill="#5A5A56"/>
+                <path d="M228 116 H274 M228 126 H274 M228 136 H274 M326 116 H372 M326 126 H372 M326 136 H372" stroke="#3A3A37" stroke-width="3"/>
+                <rect x="252" y="58" width="18" height="58" rx="9" fill="#222220"/><rect x="330" y="58" width="18" height="58" rx="9" fill="#222220"/>
+                <circle cx="261" cy="60" r="12" fill="url(#cgGrip)"/><circle cx="339" cy="60" r="12" fill="url(#cgGrip)"/>
+              </g>
+              <!-- monitor with the assistant on screen -->
+              <g filter="url(#cgShadow)">
+                <rect x="416" y="50" width="120" height="74" rx="9" fill="#0F0F0E"/>
+                <rect x="424" y="57" width="104" height="60" rx="4" fill="#12181C"/>
+                <rect x="430" y="64" width="40" height="6" rx="2" fill="#FFCD11"/><rect x="430" y="76" width="92" height="4" rx="2" fill="#3A4A52"/><rect x="430" y="85" width="70" height="4" rx="2" fill="#3A4A52"/>
+                <rect x="430" y="96" width="30" height="14" rx="3" fill="#2FB36A"/><rect x="466" y="96" width="30" height="14" rx="3" fill="#3A4A52"/>
+              </g>
+              <!-- hydraulic lock lever (yellow) by the door -->
+              <g filter="url(#cgShadow)">
+                <rect x="70" y="130" width="16" height="96" rx="8" fill="url(#cgYellow)"/>
+                <rect x="66" y="126" width="24" height="26" rx="8" fill="#1A1A19"/>
+              </g>
+              <!-- consoles and joysticks -->
+              <g filter="url(#cgShadow)">
+                <rect x="96" y="166" width="112" height="206" rx="22" fill="url(#cgConsole)"/>
+                <rect x="392" y="166" width="112" height="206" rx="22" fill="url(#cgConsole)"/>
+                <rect x="106" y="286" width="92" height="74" rx="14" fill="#34342F" opacity=".7"/>
+                <rect x="402" y="310" width="92" height="50" rx="12" fill="#34342F" opacity=".7"/>
+              </g>
+              <circle cx="150" cy="240" r="34" fill="#1B1B1A"/><circle cx="150" cy="240" r="26" fill="#262624"/>
+              <circle cx="450" cy="240" r="34" fill="#1B1B1A"/><circle cx="450" cy="240" r="26" fill="#262624"/>
+              <g filter="url(#cgShadow)">
+                <ellipse cx="150" cy="236" rx="17" ry="23" fill="url(#cgGrip)"/><ellipse cx="450" cy="236" rx="17" ry="23" fill="url(#cgGrip)"/>
+                <circle cx="143" cy="223" r="3.6" fill="#FFCD11"/><circle cx="156" cy="224" r="3.6" fill="#D61D1D"/>
+                <circle cx="444" cy="224" r="3.6" fill="#D61D1D"/><circle cx="457" cy="223" r="3.6" fill="#FFCD11"/>
+              </g>
+              <!-- keypad, start button and engine speed dial on the right console -->
+              ${[0, 1, 2].map((c) => [0, 1].map((r) => `<rect x="${408 + c * 20}" y="${316 + r * 18}" width="15" height="12" rx="3" fill="#1E1E1C"/>`).join('')).join('')}
+              <circle cx="486" cy="300" r="15" fill="#1A1A19"/><circle cx="486" cy="300" r="11" fill="#D61D1D"/><path d="M486 294 V300 M481 296.5 A7 7 0 1 0 491 296.5" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+              <circle cx="446" cy="352" r="18" fill="#1A1A19"/><circle cx="446" cy="352" r="13" fill="#3A3A37"/>
+              ${Array.from({ length: 12 }, (_, i) => { const a = (i * 30 * Math.PI) / 180; return `<line x1="${446 + 13 * Math.cos(a)}" y1="${352 + 13 * Math.sin(a)}" x2="${446 + 17 * Math.cos(a)}" y2="${352 + 17 * Math.sin(a)}" stroke="#555551" stroke-width="2"/>`; }).join('')}
+              <line x1="446" y1="352" x2="446" y2="341" stroke="#FFCD11" stroke-width="3" stroke-linecap="round"/>
+              <!-- seat with headrest, stitching and lap belt -->
+              <g filter="url(#cgShadow)">
+                <rect x="264" y="370" width="72" height="22" rx="10" fill="#2B2B29"/>
+                <rect x="232" y="306" width="136" height="70" rx="20" fill="url(#cgSeat)"/>
+                <rect x="236" y="196" width="128" height="118" rx="24" fill="url(#cgSeat)"/>
+              </g>
+              <path d="M258 214 V296 M342 214 V296 M254 320 H346" stroke="#1E1E1C" stroke-width="2" stroke-dasharray="5 4" opacity=".8"/>
+              <path d="M238 292 Q300 306 362 292" stroke="#E07B00" stroke-width="10" fill="none" stroke-linecap="round"/>
+              <rect x="288" y="288" width="24" height="18" rx="4" fill="#C9CCCF" stroke="#8C9094" stroke-width="1.5"/>
             </svg>
             ${CONTROLS.map((x, i) => `<button class="cm-pin${x.id === c.id ? ' on' : ''}" type="button" data-ctrl="${x.id}" style="left:${x.x}%;top:${x.y}%" aria-label="${x.n}"><span>${i + 1}</span></button>`).join('')}
           </div>

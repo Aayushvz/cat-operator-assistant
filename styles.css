@@ -1479,3 +1479,72 @@ html[data-theme="dark"] .replay .seg.work em { color: #151514; }
 .done-line svg { width: 16px; height: 16px; }
 .done-line .linkbtn { margin: 0 0 0 auto; color: var(--ok-ink); }
 .job-tag .tag { font-size: 12px; height: 24px; }
+
+/* Today's plan as three plain tiles */
+.plan-tiles { grid-column: span 12; display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 14px; }
+.ptile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ptile.now { background: var(--panel); border-color: var(--panel); color: #fff; }
+.pt-k { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--t2); }
+.pt-k svg { width: 15px; height: 15px; }
+.ptile.now .pt-k { color: var(--y); }
+.ptile b { font: 700 28px/1.05 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-v { font-size: 14px; color: var(--t2); }
+.ptile.now .pt-v { color: #FFB23E; font-weight: 600; }
+.pt-bar { height: 8px; border-radius: 4px; background: var(--chip); overflow: hidden; margin-top: 4px; }
+.pt-bar i { display: block; height: 100%; background: var(--y); border-radius: 4px; }
+.pt-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--t3); }
+.plan-alert { grid-column: span 12; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; background: var(--crit-bg); color: var(--crit-ink); font-size: 14px; }
+.plan-alert svg { width: 18px; height: 18px; flex: none; }
+.plan-alert b { font-weight: 700; }
+@media (max-width: 1100px) { .plan-tiles { grid-template-columns: 1fr; } }
+/* realistic cab drawing: pins sit on top with a clear ring */
+.cab-map { border-radius: 16px; overflow: hidden; }
+.cab-svg { background: var(--canvas); }
+.cm-pin span { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #0B0B0B, 0 3px 10px rgba(0,0,0,.35); }
+
+/* add a job: inline, big controls for gloves */
+.plan-head .btn { height: 42px; }
+.add-job { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; margin-top: 14px; padding: 16px; border-radius: 14px; background: var(--canvas); border: 1px solid var(--line); }
+.add-job label, .aj-time { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 600; color: var(--t2); }
+.add-job select { height: 50px; min-width: 190px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: 600 15px var(--f-ui); }
+.add-job .btn { height: 50px; }
+.tag.new { background: var(--info-bg); color: var(--info-ink); }
+
+/* ============ Machine tab: a drawing of the machine, then what to do ============ */
+.mh-map { margin-top: 12px; padding: 12px 8px 0; }
+.blueprint.health { height: auto; width: 100%; margin: 0; }
+.blueprint.health .bp-grid { display: none; }
+.blueprint.health .bp-g { opacity: 1; }
+.blueprint.health .bp { stroke-width: 2.4; stroke: var(--ok); animation-duration: 1.2s; }
+.blueprint.health .bp-g[data-part="hydraulics"] .bp { stroke: var(--crit); stroke-width: 3.2; }
+.blueprint.health .bp-g[data-part="bucket"] .bp { stroke: var(--ok); }
+.blueprint.health .bp-g[data-part="undercarriage"] .bp { stroke: var(--warn); stroke-width: 2.8; }
+.blueprint.health .bp-g[data-part="hydraulics"] { animation: faultBlink 1.6s ease-in-out infinite; }
+@keyframes faultBlink { 50% { opacity: .45; } }
+.mh-key { display: flex; gap: 18px; margin-top: 10px; font-size: 13px; font-weight: 600; }
+.mh-key .k { display: inline-flex; align-items: center; gap: 7px; }
+.mh-key .k::before { content: ""; width: 22px; height: 4px; border-radius: 2px; }
+.mh-key .crit { color: var(--crit-ink); } .mh-key .crit::before { background: var(--crit); }
+.mh-key .warn { color: var(--warn-ink); } .mh-key .warn::before { background: var(--warn); }
+.mh-key .ok { color: var(--ok-ink); } .mh-key .ok::before { background: var(--ok); }
+.mh-list { padding: 0; overflow: hidden; }
+.mh-sec { padding: 18px 20px; }
+.mh-sec + .mh-sec { border-top: 1px solid var(--line-2); }
+.mh-sec h4 { margin: 0 0 10px; display: flex; align-items: center; gap: 8px; font: 700 15px var(--f-ui); }
+.mh-sec h4 svg { width: 18px; height: 18px; }
+.mh-sec.crit { background: var(--crit-bg); }
+.mh-sec.crit h4 { color: var(--crit-ink); }
+.mh-sec.warn h4 { color: var(--warn-ink); }
+.mh-sec.ok h4 { color: var(--ok-ink); margin-bottom: 6px; }
+.mh-item b { font: 700 20px/1.1 var(--f-display); text-transform: uppercase; }
+.mh-item p { margin: 5px 0 0; font-size: 14px; color: var(--t2); line-height: 1.4; }
+.mh-item p.mh-do { color: var(--text); font-weight: 600; }
+.mh-call { margin-top: 14px; height: 50px; width: 100%; justify-content: center; font-size: 14px; }
+.mh-fine { margin: 0; font-size: 14px; color: var(--t2); }
+.mh-service { display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; }
+.mh-svc-num b { display: block; font: 700 32px/1.1 var(--f-display); text-transform: uppercase; margin-top: 4px; }
+.mh-svc-num small { font-size: 12.5px; color: var(--t2); }
+.mh-svc-bar > div { height: 10px; border-radius: 5px; background: var(--chip); overflow: hidden; }
+.mh-svc-bar i { display: block; height: 100%; background: var(--y); border-radius: 5px; }
+.mh-svc-bar > span { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--t3); margin-top: 6px; }
+@media (max-width: 1100px) { .mh-service { grid-template-columns: 1fr; gap: 14px; } }
