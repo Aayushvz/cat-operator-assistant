@@ -2597,11 +2597,11 @@ html[data-theme="dark"] .heat .cell.n { color: #B8B8B2; }
 .login-designer {
   position: absolute;
   font-family: var(--f-ui), sans-serif; font-weight: 600; font-size: 13px;
-  text-transform: uppercase; letter-spacing: 0.05em;
+  letter-spacing: 0.05em;
 }
 .loader-designer {
   font-family: var(--f-ui), sans-serif; font-weight: 600; font-size: 13px;
-  text-transform: uppercase; letter-spacing: 0.05em;
+  letter-spacing: 0.05em;
   color: #111; opacity: 0.5;
   margin-top: -10px;
 }
