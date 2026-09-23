@@ -752,7 +752,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-to
   }
   .only-mobile { display: grid; }
   .tb-chip:not(.num-chip) { display: none; }
-  .sos-content small, .sos-content svg, .ov-close { display: none !important; }
+  .sos-content small, .sos-content b, .ov-close { display: none !important; }
   /* panels become drawers */
   .panel.left, .panel.right { position: fixed; top: 10px; bottom: 10px; z-index: 40; width: min(300px, 86vw); transition: transform 420ms var(--spring); }
   .panel.left { left: 10px; transform: translateX(calc(-100% - 20px)); }
