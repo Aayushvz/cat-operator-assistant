@@ -2188,3 +2188,54 @@ html[data-theme="dark"] .hold-stage::after { background: radial-gradient(rgba(25
 .sb-ico { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); flex: none; box-shadow: inset 0 0 0 1px var(--ok-line); }
 .sync-box.off .sb-ico { box-shadow: inset 0 0 0 1px rgba(246,121,12,.35); }
 .sb-ico svg { width: 18px; height: 18px; }
+
+/* ============ Emergency SOS card: same build as Report something, in red ============ */
+.sos-card-inline { display: block; overflow: hidden; }
+.sos-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.sos-head .btn { flex: none; }
+.sos-body { display: grid; grid-template-columns: minmax(220px, 260px) 1fr; gap: 16px; margin-top: 14px; align-items: stretch; }
+.sos-stage { position: relative; overflow: hidden; isolation: isolate; padding: 24px 14px 16px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  background: radial-gradient(80% 80% at 50% 40%, rgba(214,29,29,.12), rgba(214,29,29,0) 62%), var(--chip); box-shadow: inset 0 0 0 1px var(--line); }
+.sos-stage::before { content: ""; position: absolute; z-index: -1; left: 50%; top: 45%; width: 320px; height: 320px; transform: translate(-50%, -50%); border-radius: 50%;
+  background: repeating-radial-gradient(circle, rgba(214,29,29,.12) 0 1px, transparent 1px 24px); -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%); mask: radial-gradient(circle, #000 30%, transparent 70%); }
+.sos-stage::after { content: ""; position: absolute; z-index: -1; inset: 0; background: radial-gradient(rgba(0,0,0,.06) 1px, transparent 1.2px) 0 0 / 14px 14px; -webkit-mask: linear-gradient(180deg, #000, transparent 80%); mask: linear-gradient(180deg, #000, transparent 80%); }
+html[data-theme="dark"] .sos-stage::after { background: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.2px) 0 0 / 14px 14px; }
+/* the button: red bezel that fills white while held, dark red domed face */
+.sos-card-inline .sos-big { width: 132px; height: 132px; margin: 0; font-size: 0; background: #D61D1D; box-shadow: 0 10px 26px rgba(214,29,29,.35), inset 0 -3px 0 rgba(0,0,0,.2); }
+.sos-card-inline .sos-big svg.ring { inset: 0; width: 132px; height: 132px; }
+.sos-card-inline .sos-big circle.bg { stroke: rgba(0,0,0,.22); }
+.sos-card-inline .sos-big circle.fg { stroke: #fff; stroke-dasharray: 390; stroke-dashoffset: 390; }
+.sos-card-inline .sos-big.holding circle.fg { stroke-dashoffset: 0; }
+.sos-face { position: absolute; inset: 11px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #fff;
+  background: radial-gradient(70% 60% at 40% 30%, #E23B34, #7E0C0C 75%); box-shadow: inset 0 2px 1px rgba(255,255,255,.2), inset 0 -4px 10px rgba(0,0,0,.45), 0 2px 4px rgba(0,0,0,.3); }
+.sos-face svg { width: 22px; height: 22px; }
+.sos-face b { font: 700 22px/1 var(--f-display); letter-spacing: .1em; }
+.sos-face small { font: 500 10.5px/1 var(--f-ui); color: rgba(255,255,255,.7); letter-spacing: .04em; }
+.sos-big.holding .sos-face { box-shadow: inset 0 3px 8px rgba(0,0,0,.6); }
+/* what SOS does, as tiles */
+.sos-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: center; }
+.sos-acts > div { display: grid; grid-template-columns: 36px 1fr; column-gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
+.sa-ico { grid-row: span 2; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--crit-bg); color: var(--crit-ink); }
+.sa-ico svg { width: 18px; height: 18px; }
+.sos-acts b { font-size: 13.5px; font-weight: 600; line-height: 1.2; }
+.sos-acts small { font-size: 12px; color: var(--t2); }
+@media (max-width: 1100px) { .sos-body { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .sos-head { flex-direction: column; } .sos-head .btn { width: 100%; justify-content: center; } .sos-acts { grid-template-columns: 1fr; } }
+.sa-ico { width: 24px; height: auto; background: none; border-radius: 0; }
+.sos-acts > div { grid-template-columns: 24px 1fr; }
+
+/* ============ Cab instruments (Seatbelt, Your pace): lit display finish ============ */
+.hud { overflow: hidden; isolation: isolate; --glow: rgba(70,192,122,.22); }
+.hud > * { position: relative; }
+.hud::before { content: ""; position: absolute; z-index: -1; inset: 0;
+  background: radial-gradient(120px 90px at 44px 64px, var(--glow), transparent 70%), linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,0) 40%); transition: background 300ms ease; }
+.hud::after { content: ""; position: absolute; z-index: -1; inset: 0; background: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.2px) 0 0 / 12px 12px;
+  -webkit-mask: linear-gradient(90deg, transparent 30%, #000 85%); mask: linear-gradient(90deg, transparent 30%, #000 85%); }
+.hud.belt.off, .hud.belt.danger { --glow: rgba(255,59,48,.28); }
+.hud.belt.na { --glow: rgba(255,255,255,.05); }
+.hud.pace { --glow: rgba(255,178,62,.18); }
+.hud.pace.ahead { --glow: rgba(91,214,148,.2); }
+.hud .telltale { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 0 3px rgba(0,0,0,.25); }
+/* SOS: no box behind the button, it sits straight on the card */
+.sos-stage { background: none; box-shadow: none; overflow: visible; padding: 8px 0; }
+.sos-stage::before, .sos-stage::after { display: none; }

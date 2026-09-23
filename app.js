@@ -994,19 +994,22 @@
           </tbody></table>
         </div>
         <div class="card pcard c7 rise sos-card-inline" style="--i:3">
-          <button class="sos-big" id="sosBig" type="button" aria-label="Press and hold to send SOS">
-            <svg class="ring" viewBox="0 0 124 124" aria-hidden="true"><circle class="fg" cx="62" cy="62" r="59" fill="none" stroke-width="3" stroke-linecap="round"/></svg>SOS</button>
-          <div style="flex:1;min-width:260px">
-            <h3>Emergency SOS</h3>
-            <div class="sub">Hold for 1.5 seconds, here or at the top of the screen. It works even while the machine is moving, and without signal. It does all of this at once:</div>
-            <div class="sos-list" style="margin-top:14px">
-              <div><i data-lucide="octagon-pause"></i>Stops the machine and locks the arm</div>
-              <div><i data-lucide="radio"></i>Calls your supervisor on radio and phone</div>
-              <div><i data-lucide="ambulance"></i>Sends the site medic to you</div>
-              <div><i data-lucide="hard-drive"></i>Saves what the machine was doing</div>
+          <div class="sos-head">
+            <div><h3>Emergency SOS</h3><div class="sub">Hold 1.5 seconds. Works while moving and without signal.</div></div>
+            <button class="btn outline" type="button" data-go="safety/reports"><i data-lucide="clipboard-list"></i>See all reports</button>
+          </div>
+          <div class="sos-body">
+            <div class="sos-stage">
+              <button class="sos-big" id="sosBig" type="button" aria-label="Press and hold to send SOS">
+                <svg class="ring" viewBox="0 0 132 132" aria-hidden="true"><circle class="bg" cx="66" cy="66" r="62" fill="none" stroke-width="5"/><circle class="fg" cx="66" cy="66" r="62" fill="none" stroke-width="5" stroke-linecap="round"/></svg>
+                <span class="sos-face"><i data-lucide="siren"></i><b>SOS</b><small>1.5 sec</small></span>
+              </button>
+              <span class="hold-hint">Or hold SOS at the top of the screen</span>
+            </div>
+            <div class="sos-acts"><span class="ra-k">It does all of this at once</span>
+              ${[['octagon-pause', 'Stops the machine', 'Arm locked, tracks stop'], ['radio', 'Calls your supervisor', 'Radio and phone'], ['ambulance', 'Sends the site medic', 'About 4 minutes away'], ['hard-drive', 'Saves the machine data', 'The last 60 seconds']].map(([ic, t, d]) => `<div><span class="sa-ico"><i data-lucide="${ic}"></i></span><b>${t}</b><small>${d}</small></div>`).join('')}
             </div>
           </div>
-          <button class="btn outline" type="button" data-go="safety/reports"><i data-lucide="clipboard-list"></i>See all reports</button>
         </div>
       </div></div>`;
     bindSafety();
