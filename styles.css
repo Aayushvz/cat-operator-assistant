@@ -2312,3 +2312,5 @@ html[data-theme="dark"] .hc-s.tool { border-color: rgba(255,205,17,.3); }
 @media (max-width: 760px) { .sim-mark { width: 160px; left: 70%; } .sim .content { padding-right: 40px; } .sim-hatch { width: 44px; } }
 /* top bar SOS: no pulsing ring, the red button is enough */
 #sosBtn::before { display: none; animation: none; }
+/* collapsed menu: the name block takes no room, so the photo sits dead centre */
+.app.left-collapsed .user-meta { flex: 0 0 0; min-width: 0; padding: 0; margin: 0; }
