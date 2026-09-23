@@ -1910,7 +1910,7 @@
           <div class="mgr-box">
             <span class="mgr-ico"><i data-lucide="building-2"></i></span>
             <div class="mgr-txt"><b>Fleet manager</b><small>See every machine, operator and report on this site.</small></div>
-            <button class="btn outline" type="button" data-k="manager">Open fleet view<i data-lucide="arrow-right"></i></button>
+            <button class="btn dark" type="button" data-k="manager">Open fleet view<i data-lucide="arrow-right"></i></button>
           </div>
         </div>`,
       pin: () => `<div class="login-main">
