@@ -2028,3 +2028,34 @@ html[data-theme="dark"] .login::before { opacity: .13; }
 .sos-card-inline { overflow: hidden; }
 .sos-card-inline .sos-big { margin: 18px; }
 .sos-card-inline .sos-big::before, .sos-card-inline .sos-big::after { animation-name: beaconIn; }
+
+/* Home on a phone, lighter: part numbers in a 2x2 grid, seatbelt and pace side by side */
+@media (max-width: 760px) {
+  .home-below { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .home-below .overview, .home-below .replay { grid-column: 1 / -1; }
+  /* part card: title row, four numbers, one link */
+  .home-below .overview { padding: 12px 14px; border-radius: 16px; }
+  .home-below .ov-id { display: none; }
+  .home-below .ov-body { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 14px; margin-top: 6px; }
+  .home-below .ov-row { height: auto; min-height: 0; padding: 6px 0; flex-wrap: wrap; gap: 2px 6px; font-size: 12px; }
+  .home-below .ov-row svg { display: none; }
+  .home-below .ov-row span { flex: 1 1 100%; color: rgba(255,255,255,.6); }
+  .home-below .ov-row b { font: 700 18px/1 var(--f-display); }
+  .home-below .ov-bar { display: none; }
+  .home-below .ov-cta { height: 36px; margin-top: 6px; font-size: 12.5px; }
+  /* instruments: just the reading */
+  .home-below .hud { padding: 10px 12px; border-radius: 12px; }
+  .home-below .hud-head { font-size: 11.5px; }
+  .home-below .hud-head em { display: none; }
+  .home-below .belt-main { margin-top: 8px; gap: 8px; }
+  .home-below .telltale { width: 36px; height: 36px; border-radius: 8px; }
+  .home-below .telltale .ico-belt { width: 24px; height: 24px; }
+  .home-below .hud .belt-state { font-size: 20px; }
+  .home-below .hud .belt-txt small { font-size: 11px; margin-top: 2px; }
+  .home-below .belt-strip, .home-below .hud-foot { display: none; }
+  .home-below .hud-read { margin-top: 8px; gap: 6px; }
+  .home-below .hud-read b { font-size: 30px; }
+  .home-below .hud-read span { font-size: 13px; }
+  .home-below .hud-sub { font-size: 11px; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .home-below .lap { display: none; }
+}

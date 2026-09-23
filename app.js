@@ -2446,13 +2446,14 @@
   renderRight();
   initPanels();
   initSOS();
+  // restore the shift before the first screen is drawn, so nothing shows a stale belt or operator
+  const sess = session('cat-session');
+  if (session('cat-op')) applyOperator(session('cat-op'));
+  if (sess === 'operator') { S.engine = 'on'; S.beltOn = true; }
   go(location.hash.slice(1) || 'home');
   $('#driveBtn').addEventListener('click', () => setMoving(!S.moving));
   updateSync();
   // where the shift is: not signed in, signed in but engine off (belt gate), or working
-  const sess = session('cat-session');
-  if (session('cat-op')) applyOperator(session('cat-op'));
-  if (sess === 'operator') { S.engine = 'on'; S.beltOn = true; }
-  else if (sess === 'pending') showLogin('start');
-  else if (sess !== 'manager') showLogin('who');
+  if (sess === 'pending') showLogin('start');
+  else if (sess !== 'manager' && sess !== 'operator') showLogin('who');
 })();
