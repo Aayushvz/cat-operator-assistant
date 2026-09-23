@@ -92,5 +92,52 @@ window.DATA = (() => {
     { id: 'uPlt7seVi9o', title: 'Cat® Next Generation Excavator Operator Training: Grade with 3D', topic: 'Grading' },
   ];
 
-  return { ghosts, operator, videos, telemetry, tasks, factors, predict, plannerError, modelError, LIVE, segments, alertsOnTrack, alerts, health };
+  // SRS 3.3: today's order of jobs. T006 is a sample job (not in the dataset) to show jobs moving ahead.
+  const schedule = [
+    { id: 'T001', zone: 'Zone A', start: 0, done: true },
+    { id: 'T004', zone: 'Zone A pad', start: 70, done: true },
+    { id: 'T002', zone: 'Zone B', start: 380, active: true },
+    { id: 'T003', zone: 'Stockpile C', start: 440 },
+    { id: 'T005', zone: 'Block D', start: 480 },
+    { id: 'T006', zone: 'Zone B', start: 575 },
+  ];
+  const extraTasks = [{ id: 'T006', type: 'Backfill trench', weather: 'Rainy', skill: 'Intermediate', age: 4, est: 25, sample: true }];
+
+  // SRS 3.6: the operator's last 5 shifts (sample history; the last shift uses the real telemetry)
+  const sessions = {
+    dates: ['25 Apr', '28 Apr', '29 Apr', '30 Apr', '01 May'],
+    metrics: [
+      { name: 'Time spent waiting', values: [24, 26, 27, 31, 39], fmt: (v) => `${Math.round(v)}%` },
+      { name: 'Fuel per load', values: [0.52, 0.55, 0.54, 0.61, 0.72], fmt: (v) => `${v.toFixed(2)} L` },
+      { name: 'Belt off after a wait', values: [0, 1, 0, 1, 2], fmt: (v) => `${Number.isInteger(v) ? v : v.toFixed(1)} times` },
+      { name: 'Time per load', values: [22, 21, 21, 22, 21], fmt: (v) => `${Math.round(v)} sec` },
+    ],
+  };
+
+  // SRS 3.8: fleet view. Other operators and machines are sample data.
+  const fleet = {
+    days: ['25 Apr', '28 Apr', '29 Apr', '30 Apr', '01 May'],
+    operators: [
+      { id: 'OP1001', name: 'Aayush Raj', machine: 'EXC001', type: '320 excavator', idle: [24, 26, 27, 31, 39], fuel: 0.72 },
+      { id: 'OP1002', name: 'Meera Nair', machine: 'EXC007', type: '336 excavator', idle: [18, 17, 19, 18, 17], fuel: 0.58 },
+      { id: 'OP1003', name: 'Sunil Yadav', machine: 'WL014', type: '950 wheel loader', idle: [29, 27, 30, 28, 26], fuel: 0.44 },
+    ],
+    incidents: [1, 0, 2, 1, 4],
+    queue: [
+      { id: 'q1', op: 'OP1001', cls: 'bad', level: 'Concerning', what: 'Waiting time went from about 26% to 39% over 5 shifts.' },
+      { id: 'q2', op: 'OP1001', cls: 'bad', level: 'Concerning', what: 'Belt came off after long waits, 2 times on the last shift.' },
+      { id: 'q3', op: 'OP1003', cls: 'mid', level: 'Worth a look', what: 'Travel between jobs is 20% longer this week.' },
+    ],
+    logs: [
+      { when: '02 May 09:00', op: 'OP1001', mc: 'EXC001', what: 'Waited 60 min, only 1 load', src: 'Machine' },
+      { when: '01 May 14:30', op: 'OP1001', mc: 'EXC001', what: 'Boom cylinder leaking oil', src: 'Machine sensor' },
+      { when: '01 May 11:20', op: 'OP1002', mc: 'EXC007', what: 'Finished loading 12 min faster than plan', src: 'Cab screen' },
+      { when: '01 May 10:00', op: 'OP1001', mc: 'EXC001', what: 'Belt off during a 55 min wait', src: 'Cab screen' },
+      { when: '01 May 09:47', op: 'OP1001', mc: 'EXC001', what: 'Near miss: worker walked into swing area', src: 'Operator, voice note' },
+      { when: '30 Apr 16:05', op: 'OP1003', mc: 'WL014', what: 'Truck crossed the slow zone', src: 'Radar' },
+      { when: '30 Apr 08:10', op: 'OP1002', mc: 'EXC007', what: 'Pre-start checks done, engine started', src: 'Cab screen' },
+    ],
+  };
+
+  return { schedule, extraTasks, sessions, fleet, ghosts, operator, videos, telemetry, tasks, factors, predict, plannerError, modelError, LIVE, segments, alertsOnTrack, alerts, health };
 })();
