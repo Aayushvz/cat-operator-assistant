@@ -2594,14 +2594,16 @@ html[data-theme="dark"] .heat .cell.n { color: #B8B8B2; }
 }
 .loader.hide { opacity: 0; pointer-events: none; transform: scale(1.05); }
 .loader .dl-svg { width: 100%; max-width: 640px; }
-.loader-designer, .login-designer {
+.login-designer {
   position: absolute;
   font-family: var(--f-ui), sans-serif; font-weight: 600; font-size: 13px;
   text-transform: uppercase; letter-spacing: 0.05em;
 }
 .loader-designer {
-  bottom: max(32px, env(safe-area-inset-bottom, 24px)); left: 50%; transform: translateX(-50%);
+  font-family: var(--f-ui), sans-serif; font-weight: 600; font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.05em;
   color: #111; opacity: 0.5;
+  margin-top: -10px;
 }
 .login-designer {
   bottom: 24px; left: 24px;
