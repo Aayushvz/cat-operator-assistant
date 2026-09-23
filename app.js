@@ -366,24 +366,23 @@
         <button class="xbtn${S.overviewOpen ? '' : ' closed'}" id="xbtn" type="button" aria-label="Close overview"><i data-lucide="x"></i></button>
 
         <div class="card replay rise" style="--i:3">
-          <div class="replay-top">
-            <button class="play" id="playBtn" type="button" aria-label="Pause replay"><i data-lucide="${S.paused ? 'play' : 'pause'}"></i></button>
-            <span class="label">Replay speed</span>
-            <div class="pills">${[1, 2, 4].map((s) => `<button class="pill${S.speed === s ? ' active' : ''}" data-speed="${s}" type="button">${s}x</button>`).join('')}</div>
-            <button class="live" id="liveBtn" type="button">Back to now</button>
+          <div class="rp-top">
+            <div class="rp-title"><b>Today's shift</b><span id="rpSummary"></span></div>
+            <div class="rp-ctrl">
+              <button class="ctl-play" id="playBtn" type="button" aria-label="Pause replay"><i data-lucide="${S.paused ? 'play' : 'pause'}"></i></button>
+              <div class="ctl-speed" role="group" aria-label="Replay speed">${[1, 2, 4].map((v) => `<button class="${S.speed === v ? 'active' : ''}" data-speed="${v}" type="button" aria-pressed="${S.speed === v}">${v}×</button>`).join('')}</div>
+              <button class="ctl-now" id="liveBtn" type="button">Now</button>
+            </div>
           </div>
-          <div class="track" id="track" aria-label="Shift replay timeline, 08:00 to 18:00">
-            <div class="ticks">${ticks}</div>
-            <div class="segs">${segmentsHTML()}</div>
-            ${D.alertsOnTrack.map((a) => `<span class="alert-dot" style="left:${pct(a.t, 0, 600)}%" data-tip="<b>${hhmm(a.t)}</b> ${a.text}"></span>`).join('')}
-            <div class="hours">${[0, 120, 240, 360, 480, 600].map((m) => `<span data-m="${m}" style="left:${pct(m, 0, 600)}%">${hhmm(m)}</span>`).join('')}</div>
+          <div class="track" id="track" aria-label="Today's shift from 08:00 to 18:00. Drag to replay.">
+            <div class="lane">${segmentsHTML()}</div>
+            ${D.alertsOnTrack.map((x) => `<span class="alert-pin" style="left:${pct(x.t, 0, 600)}%" data-tip="<b>${hhmm(x.t)}</b> ${x.text}" aria-label="${hhmm(x.t)} ${x.text}">!</span>`).join('')}
+            <div class="hours">${Array.from({ length: 11 }, (_, i) => i * 60).map((m) => `<span class="${m % 120 === 0 ? 'major' : ''}" style="left:${pct(m, 0, 600)}%">${m % 120 === 0 ? hhmm(m) : ''}</span>`).join('')}</div>
             <div class="playhead" id="playhead"><span class="playhead-time" id="phTime"></span></div>
           </div>
-          <div class="chips">
-            <span class="k">Now:</span><span class="chip ink" id="chipStatus"></span>
-            <span class="chip"><i data-lucide="user-round"></i>Operator: OP1001</span>
-            <span class="chip" id="chipTask"><i data-lucide="shovel"></i>Job: Trenching</span>
-            <span class="chip"><i data-lucide="cloud-rain"></i>Rain, 24°C</span>
+          <div class="rp-foot">
+            <p class="rp-status" id="rpStatus"></p>
+            <div class="rp-legend" aria-hidden="true"><span><i class="k-work"></i>Working</span><span><i class="k-wait"></i>Waiting</span><span><i class="k-lunch"></i>Lunch</span><span><i class="k-alert">!</i>Alert</span></div>
           </div>
         </div>
       </section>
@@ -408,13 +407,23 @@
 
   function segmentsHTML() {
     const out = [];
-    D.segments.forEach((s) => {
-      if (s.kind === 'break') return;
-      const a = s.from, b = Math.min(s.to, D.LIVE);
-      if (b > a) out.push(`<span class="seg ${s.kind}" style="left:${pct(a, 0, 600)}%;width:${pct(b, 0, 600) - pct(a, 0, 600)}%" data-tip="<b>${hhmm(a)} to ${hhmm(b)}</b> ${s.kind === 'work' ? 'Working' : 'Waiting'}${s.task ? ' · ' + s.task : ''}${s.beltOff ? ' · belt off' : ''}"></span>`);
+    D.segments.forEach((x) => {
+      const a = x.from, b = Math.min(x.to, D.LIVE);
+      if (b <= a) return;
+      const w = pct(b, 0, 600) - pct(a, 0, 600);
+      const name = x.kind === 'break' ? 'Lunch' : x.kind === 'idle' ? 'Waiting' : (x.task || 'Working').split(',')[0];
+      out.push(`<span class="seg ${x.kind}" style="left:${pct(a, 0, 600)}%;width:${w}%" data-tip="<b>${hhmm(a)} to ${hhmm(b)}</b> ${name}${x.beltOff ? ' · belt off' : ''}">${w > 4.5 ? `<em>${name}</em>` : ''}</span>`);
     });
-    out.push(`<span class="seg future" style="left:${pct(D.LIVE, 0, 600)}%;width:${100 - pct(D.LIVE, 0, 600)}%"></span>`);
+    const f = pct(D.LIVE, 0, 600);
+    out.push(`<span class="seg future" style="left:${f}%;width:${100 - f}%">${100 - f > 12 ? '<em>Rest of shift</em>' : ''}</span>`);
     return out.join('');
+  }
+
+  // "Worked 5 h 5 m · waited 1 h 22 m" up to the replay time
+  const hm = (min) => { const h = Math.floor(min / 60), m = Math.round(min % 60); return h ? `${h} h ${m} m` : `${m} min`; };
+  function shiftSummary(t) {
+    const sum = (k) => D.segments.filter((x) => x.kind === k).reduce((acc, x) => acc + Math.max(0, Math.min(t, x.to) - x.from), 0);
+    return `Worked ${hm(sum('work'))} · waited ${hm(sum('idle'))}`;
   }
 
   function setOverview(key, animate) {
@@ -467,7 +476,7 @@
         return;
       }
       const sp = e.target.closest('[data-speed]');
-      if (sp) { S.speed = +sp.dataset.speed; $$('.pill').forEach((p) => p.classList.toggle('active', p === sp)); return; }
+      if (sp) { S.speed = +sp.dataset.speed; $$('[data-speed]').forEach((p) => { p.classList.toggle('active', p === sp); p.setAttribute('aria-pressed', String(p === sp)); }); return; }
       if (e.target.closest('#liveBtn')) { S.t = D.LIVE; updateReplay(true); return; }
       if (e.target.closest('#playBtn')) {
         S.paused = !S.paused;
@@ -598,17 +607,20 @@
     ph.style.left = pct(S.t, 0, 600) + '%';
     $('#phTime').textContent = hhmm(S.t);
     $('#liveBtn').classList.toggle('on', S.t >= D.LIVE - 0.01);
+    $('#liveBtn').setAttribute('aria-pressed', String(S.t >= D.LIVE - 0.01));
     const st = stateAt(S.t);
     Machine3D.setState && Machine3D.setState(st.kind);
     updateGlances(st);
     updateGhost();
     updateBelt(st);
     updatePitstop(st);
-    const chip = $('#chipStatus');
-    chip.textContent = st.kind === 'work' ? (st.beltOff ? 'Working, belt off' : 'Working') : st.kind === 'idle' ? (st.beltOff ? 'Waiting, belt off' : 'Waiting') : 'Lunch';
-    chip.className = `chip ink${st.kind === 'idle' ? ' idle' : st.kind === 'break' ? ' break' : ''}`;
-    const task = $('#chipTask');
-    if (task) task.lastChild.textContent = `Job: ${st.task || (st.kind === 'break' ? 'Lunch break' : 'Waiting for a truck')}`;
+    const live = S.t >= D.LIVE - 0.01;
+    const lead = live ? 'Right now you are' : `At ${hhmm(S.t)} you were`;
+    const doing = st.kind === 'work' ? `<b>working</b> on <b>${(st.task || 'a job').split(',')[0]}</b>`
+      : st.kind === 'idle' ? '<b class="wait">waiting</b> for a truck' : 'on <b>lunch break</b>';
+    const belt = st.kind === 'break' ? '' : st.beltOff ? ' · belt <b class="off">off</b>' : ' · belt on';
+    $('#rpStatus').innerHTML = `${lead} ${doing}${belt} · rain, 24°C`;
+    $('#rpSummary').textContent = shiftSummary(S.t);
     $$('.hs').forEach((h) => {
       const [tone, text] = hsStatus(h.dataset.hs);
       h.classList.toggle('alert', tone === 'crit');

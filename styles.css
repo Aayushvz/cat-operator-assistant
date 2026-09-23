@@ -1137,3 +1137,61 @@ html[data-theme="dark"] .tb-theme { color: var(--y); }
 /* with five items the menu needs no group headings; give the rows more room */
 .nav { gap: 6px; padding-top: 16px; }
 .nav-item { height: 46px; font-size: 14px; }
+
+/* ============ Shift replay, redesigned ============ */
+.replay { padding: 14px 20px 12px; gap: 0; }
+.rp-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rp-title { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+.rp-title b { font: 700 18px/1 var(--f-display); text-transform: uppercase; letter-spacing: .02em; white-space: nowrap; }
+.rp-title span { font-size: 12.5px; color: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-ctrl { display: flex; align-items: center; gap: 6px; flex: none; }
+.ctl-play { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: var(--chip); color: var(--text); transition: background-color 150ms ease, transform 120ms var(--ease-out); }
+.ctl-play svg { width: 15px; height: 15px; }
+.ctl-play:active, .ctl-now:active { transform: scale(.95); }
+.ctl-speed { display: flex; height: 34px; border-radius: 9px; background: var(--chip); padding: 3px; }
+.ctl-speed button { min-width: 36px; padding: 0 8px; border-radius: 7px; font: 600 12.5px/1 var(--f-ui); color: var(--t2); font-variant-numeric: tabular-nums; transition: background-color 150ms ease, color 150ms ease; }
+.ctl-speed button.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+.ctl-now { height: 34px; padding: 0 12px 0 10px; border-radius: 9px; display: inline-flex; align-items: center; gap: 7px; font: 600 12.5px/1 var(--f-ui); color: var(--t2); background: var(--chip); transition: background-color 150ms ease, color 150ms ease, transform 120ms var(--ease-out); }
+.ctl-now::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--t3); }
+.ctl-now.on { background: var(--crit-bg); color: var(--crit-ink); }
+.ctl-now.on::before { background: var(--crit); animation: blink 1.6s ease infinite; }
+@media (hover: hover) and (pointer: fine) { .ctl-play:hover, .ctl-now:not(.on):hover { color: var(--text); background: var(--muted-2); } .ctl-speed button:not(.active):hover { color: var(--text); } }
+
+.replay .track { position: relative; height: 64px; margin-top: 12px; cursor: pointer; touch-action: none; }
+.lane { position: absolute; left: 0; right: 0; top: 16px; height: 24px; border-radius: 6px; background: var(--chip); overflow: hidden; }
+.replay .seg { position: absolute; top: 0; height: 24px; border-radius: 0; display: flex; align-items: center; overflow: hidden; }
+.replay .seg + .seg { box-shadow: -2px 0 0 var(--surface); }
+.replay .seg em { font: 600 11px/1 var(--f-ui); font-style: normal; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.replay .seg.work { background: #2B2B29; }
+.replay .seg.work em { color: #F2F2EE; }
+.replay .seg.idle { background: repeating-linear-gradient(-45deg, #F5A300 0 5px, #FFC654 5px 10px); }
+.replay .seg.idle em { color: #3B2600; }
+.replay .seg.break { background: var(--muted); }
+.replay .seg.break em { color: var(--t2); }
+.replay .seg.future { top: 0; height: 24px; background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 12px); }
+.replay .seg.future em { color: var(--t3); font-weight: 500; }
+.alert-pin { position: absolute; top: 0; width: 15px; height: 15px; margin-left: -7.5px; border-radius: 50%; background: var(--crit); color: #fff; display: grid; place-items: center; font: 800 10px/1 var(--f-ui); box-shadow: 0 0 0 2px var(--surface); z-index: 2; cursor: help; }
+.replay .hours { position: absolute; left: 0; right: 0; top: 42px; height: 22px; }
+.replay .hours span { position: absolute; top: 0; transform: translateX(-50%); padding-top: 8px; font-size: 11px; color: var(--t2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.replay .hours span::before { content: ""; position: absolute; top: 0; left: 50%; width: 1px; height: 4px; background: var(--tick); }
+.replay .hours span.major::before { height: 6px; background: var(--t3); }
+.replay .playhead { top: 8px; height: 40px; width: 20px; margin-left: -10px; }
+.replay .playhead::before { left: 9px; width: 2px; background: var(--text); top: 6px; bottom: 0; }
+.replay .playhead::after { left: 2px; top: 14px; width: 16px; height: 16px; background: var(--y); box-shadow: 0 0 0 3px var(--surface), 0 2px 6px rgba(0,0,0,.35); }
+.replay .playhead-time { top: -14px; font: 700 11.5px/1 var(--f-ui); padding: 4px 7px; border-radius: 6px; background: var(--text); color: var(--surface); font-variant-numeric: tabular-nums; }
+.rp-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: auto; padding-top: 6px; border-top: 1px solid var(--line-2); }
+.rp-status { margin: 0; font-size: 13.5px; color: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.rp-status b { color: var(--text); font-weight: 600; }
+.rp-status b.wait { color: var(--mango-ink); }
+.rp-status b.off { color: var(--crit-ink); }
+.rp-legend { display: flex; gap: 14px; flex: none; font-size: 11.5px; color: var(--t2); }
+.rp-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.rp-legend i { width: 14px; height: 9px; border-radius: 2px; display: inline-block; }
+.rp-legend .k-work { background: #2B2B29; }
+.rp-legend .k-wait { background: repeating-linear-gradient(-45deg, #F5A300 0 3px, #FFC654 3px 6px); }
+.rp-legend .k-lunch { background: var(--muted); }
+.rp-legend .k-alert { width: 13px; height: 13px; border-radius: 50%; background: var(--crit); color: #fff; font: 800 9px/13px var(--f-ui); font-style: normal; text-align: center; }
+html[data-theme="dark"] .replay .seg.work, html[data-theme="dark"] .rp-legend .k-work { background: #D9D9D3; }
+html[data-theme="dark"] .replay .seg.work em { color: #151514; }
+@media (max-width: 1100px) { .rp-legend { display: none; } }
+@media (max-width: 760px) { .rp-top { flex-wrap: wrap; } .rp-title span { display: none; } .rp-status { white-space: normal; } }
