@@ -1474,6 +1474,7 @@
   function renderControls() {
     const c = CONTROLS.find((x) => x.id === S.ctrl) || CONTROLS[1];
     const v = D.videos.find((x) => x.id === c.vid);
+    const vids = [v, ...D.videos.filter((x) => x.id !== v.id)];
     main.innerHTML = `<div class="page fit">
       ${head('training', 'Tap a control to see what it does. Each one has a short Cat video.')}
       <div class="grid">
@@ -1556,16 +1557,33 @@
           <h2 class="ctrl-name">${c.n}</h2>
           <div class="ctrl-row"><span class="ctrl-k"><i data-lucide="hand"></i>What it does</span><p>${c.does}</p></div>
           <div class="ctrl-row care"><span class="ctrl-k"><i data-lucide="triangle-alert"></i>Be careful</span><p>${c.care}</p></div>
-          <button class="ctrl-vid" type="button" data-go="video/${v.id}">
-            <span class="ps-thumb"><img src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg" alt="" loading="lazy" /><span class="playb"><i data-lucide="play"></i></span></span>
-            <span><small>Cat video</small><b>${v.title}</b></span>
-          </button>
+          <div class="cv-head"><h3>Cat videos</h3><span>${S.watched.size} of ${D.videos.length} watched</span></div>
+          <div class="cv-list" id="cvList">${vids.map((x) => {
+            const nums = CONTROLS.map((k, i) => (k.vid === x.id ? i + 1 : 0)).filter(Boolean);
+            const mine = x.id === v.id, seen = S.watched.has(x.id);
+            return `<div class="cv${mine ? ' mine' : ''}" data-nums="${nums.join(',')}">
+              <button class="cv-main" type="button" data-go="video/${x.id}">
+                <span class="cv-thumb"><img src="https://i.ytimg.com/vi/${x.id}/mqdefault.jpg" alt="" loading="lazy" /><span class="playb"><i data-lucide="play"></i></span>${seen ? '<span class="cv-seen"><i data-lucide="check"></i></span>' : ''}</span>
+                <span class="cv-txt"><small>${mine ? 'For this control' : x.topic}</small><b>${x.title.replace(/^Cat® /, '')}</b></span>
+              </button>
+              <span class="cv-nums">${nums.length ? nums.map((n) => `<button class="cv-n${n === CONTROLS.indexOf(c) + 1 ? ' on' : ''}" type="button" data-ctrl="${CONTROLS[n - 1].id}" aria-label="Show ${CONTROLS[n - 1].n}">${n}</button>`).join('') : '<em>Whole machine</em>'}</span>
+            </div>`;
+          }).join('')}</div>
         </div>
       </div></div>`;
     fitCab();
+    const keepScroll = $('#cvList');
+    if (keepScroll && S.cvScroll) keepScroll.scrollTop = S.cvScroll;
     main.querySelector('.page').addEventListener('click', (e) => {
       const b = e.target.closest('[data-ctrl]');
-      if (b) { S.ctrl = b.dataset.ctrl; renderControls(); icons(); }
+      if (b) { S.cvScroll = b.closest('#cvList') ? $('#cvList').scrollTop : 0; S.ctrl = b.dataset.ctrl; renderControls(); icons(); }
+    });
+    // point at a video: the controls it covers light up on the cab
+    const pins = $$('.cm-pin');
+    $$('.cv').forEach((row) => {
+      const nums = row.dataset.nums ? row.dataset.nums.split(',').map(Number) : [];
+      row.addEventListener('pointerenter', () => pins.forEach((p, i) => p.classList.toggle('hint', nums.includes(i + 1))));
+      row.addEventListener('pointerleave', () => pins.forEach((p) => p.classList.remove('hint')));
     });
   }
 
