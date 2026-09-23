@@ -731,8 +731,10 @@
     D.extraTasks.push({ id, type: S.addType, weather: 'Rainy', skill: D.tasks[1].skill, age: 4, est: S.addMin });
     D.schedule.push({ id, zone: S.addZone, start: SHIFT_END, added: true });
     saveAddedJobs();
+    window.LIVE?.jobAdded?.(id); // LIVE: save to the backend
   }
   function removeJob(id) {
+    window.LIVE?.jobRemoved?.(id); // LIVE
     D.schedule.splice(D.schedule.findIndex((x) => x.id === id), 1);
     D.extraTasks.splice(D.extraTasks.findIndex((x) => x.id === id), 1);
     saveAddedJobs();
@@ -828,12 +830,13 @@
       if (st) { S.stepVal = Math.max(5, Math.min(120, S.stepVal + +st.dataset.step)); $('#stepVal').textContent = S.stepVal; return; }
       if (e.target.closest('#markDone2')) {
         S.actualDone = S.stepVal;
+        window.LIVE?.jobDone?.(S.stepVal); // LIVE: the model learns from the real time
         const before = planDay();
         toast(`Saved: ${S.stepVal} min. The rest of today was updated.`, 'check');
         renderTasks(); icons();
         return before;
       }
-      if (e.target.closest('#undoDone')) { S.actualDone = null; renderTasks(); icons(); return; }
+      if (e.target.closest('#undoDone')) { S.actualDone = null; window.LIVE?.jobUndo?.(); renderTasks(); icons(); return; } // LIVE
       if (e.target.closest('#addJob')) { S.addOpen = !S.addOpen; renderTasks(); icons(); return; }
       const as = e.target.closest('[data-astep]');
       if (as) { S.addMin = Math.max(5, Math.min(240, S.addMin + +as.dataset.astep)); $('#addMin').textContent = S.addMin; return; }
@@ -972,6 +975,7 @@
     S.incidents.unshift({ time: `Today ${$('#clock').textContent}`, type, src, sev, status: 'New', fresh: true, who: `${D.operator.name} · ${D.operator.id}`, machine: 'EXC001', snap: snapshot(), synced: !S.offline });
     if (S.offline) S.pending++;
     saveIncidents(); updateSync();
+    window.LIVE?.report?.(S.incidents[0]); // LIVE: send to the backend
   }
   function logIncident() {
     addIncident('Your report, with voice note', 'You', 'info');
@@ -1228,6 +1232,7 @@
     $('#ageIn').addEventListener('input', (e) => { S.est.age = +e.target.value; $('#ageV').textContent = `${S.est.age} yr`; renderEstOut(); });
   }
   function renderEstOut() {
+    if (window.LIVE?.estOut?.(PLANNED[S.est.type])) return; // LIVE: trained model instead of the formula
     const { type, weather, skill, age } = S.est;
     const plan = PLANNED[type];
     const fs = D.factors.skill[skill], fw = D.factors.weather[weather], fa = D.factors.age(age);
@@ -1483,7 +1488,7 @@
     const rank = { good: 0, mid: 1, bad: 2 };
     const rows = D.sessions.metrics.map((m) => {
       const base = m.values.slice(0, 3).reduce((a, b) => a + b, 0) / 3, now = m.values[m.values.length - 1];
-      const [cls, lvl] = levelOf(base, now, m.worse !== 'lower');
+      const [cls, lvl] = window.LIVE?.habitLevel?.(m) || levelOf(base, now, m.worse !== 'lower'); // LIVE: classifier
       worst = Math.max(worst, rank[cls]);
       return `<div class="hab ${cls}"><div class="hab-name"><b>${m.name}</b><small>Your usual: ${m.fmt(base)}</small></div>${spark(m.values)}<div class="hab-now"><b>${m.fmt(now)}</b><small>last shift</small></div><span class="hab-lvl ${cls}">${lvl}</span></div>`;
     }).join('');
@@ -1828,6 +1833,7 @@
     icons();
   }
   function setOffline(off) {
+    if (window.LIVE?.setOffline?.(off)) return; // LIVE: really send the waiting reports
     S.offline = off;
     if (!off && S.pending) {
       const n = S.pending;
@@ -2166,6 +2172,9 @@
   });
   addEventListener('resize', positionNavBar);
   addEventListener('hashchange', () => { const r = location.hash.slice(1); if (r && r !== S.route) go(r); });
+
+  // LIVE: helpers shared with live.js (the optional backend connection)
+  window.APP = { S, D, $, go, toast, icons, applyFlag, flashEdge, setMoving, addIncident, saveIncidents, updateSync, setOffline, rule };
 
   loadIncidents();
   initTheme();

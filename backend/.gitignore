@@ -1,0 +1,5 @@
+models.joblib
+*.db
+feedback.csv
+.venv/
+__pycache__/

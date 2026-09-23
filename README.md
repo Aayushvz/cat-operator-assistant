@@ -94,3 +94,44 @@ Plain HTML, CSS and JavaScript. The excavator is built procedurally in [Three.js
 ## Notes
 
 Cat®, Caterpillar® and the Cat logo are trademarks of Caterpillar Inc. This is an independent hackathon prototype, not an official Caterpillar product. Training videos are embedded from the official Cat® Products YouTube channel.
+
+## Backend (optional)
+
+The app works on its own. With the backend running, these parts become real:
+
+| Part | With the backend |
+| --- | --- |
+| Job time | A trained model gives the time and a range (8 in 10 jobs finish inside it). It learns from every job marked Done. |
+| Your habits | A trained classifier rates each habit Normal, Worth a look or Concerning. |
+| Reports | Saved in a database. With no signal they wait on the tablet and send when the connection is back. |
+| Added jobs | Saved in the database. |
+| Machine | The machine remote moves the machine (the screen locks), takes the belt off, or walks a worker into a zone. |
+| Fleet view | The log shows the cab's reports and finished jobs. |
+
+Run it:
+
+```bash
+cd backend
+pip install -r requirements.txt
+python train_models.py
+uvicorn main:app --port 8000
+```
+
+Then run `python serve.py` from the main folder and open http://localhost:4173.
+
+- API docs: http://localhost:8000/docs
+- Machine remote for demos: http://localhost:8000/remote
+- Database: a SQLite file by default. For PostgreSQL, install `psycopg[binary]` and set `DATABASE_URL`, for example `postgresql+psycopg://user:password@localhost:5432/cat`.
+- `POST /model/retrain` retrains the job time model with every job finished in the app.
+
+| File | What is in it |
+| --- | --- |
+| `live.js` | Connects the app to the backend. The hooks in `app.js` are marked `// LIVE`. |
+| `backend/main.py` | FastAPI server: estimates, jobs, reports, habits, machine data |
+| `backend/train_models.py` | Trains the job time model and the habits classifier |
+| `backend/db.py` | Database tables |
+| `backend/remote.html` | Machine remote page |
+
+The models are trained on sample data built from the five jobs in the problem statement, so their scores on those five jobs are not a fair test. The habits classifier is trained on labelled sample shifts.
+
+On a hosted copy (GitHub Pages) the backend is off unless the page is opened once with `?api=https://your-backend`.
