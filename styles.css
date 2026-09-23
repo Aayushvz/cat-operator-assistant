@@ -1926,7 +1926,7 @@ button.login-who { text-align: left; border: 0; }
 .gate-start { align-self: stretch; height: 60px; justify-content: center; font-size: 17px; margin-top: 4px; }
 .gate-start.locked { background: var(--chip); color: var(--t2); }
 .gate-note { min-height: 16px; color: var(--crit-ink); font-weight: 600; font-size: 12.5px; }
-@media (max-width: 760px) { .gate-checks > div { grid-template-columns: 1fr 1fr; } .gate-lamp { width: 88px; height: 88px; } .gate-lamp .ico-belt { width: 54px; height: 54px; } .login-card { min-height: 0; } .login-steps { flex-direction: row; gap: 14px; margin-top: 12px; } .login-steps li { font-size: 0; gap: 0; } .login-steps li.on { font-size: 13px; gap: 8px; } }
+@media (max-width: 760px) { .gate-checks > div { grid-template-columns: 1fr 1fr; } .gate-lamp { width: 88px; height: 88px; } .gate-lamp .ico-belt { width: 54px; height: 54px; } .login-card { min-height: 0; } .login-steps { display: none; } }
 
 /* running late: one tap adds 15 min to the job in progress */
 #runLate { height: 44px; }
