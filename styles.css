@@ -1618,11 +1618,19 @@ button, a, [role="button"], .dd-btn, .dd-opt, summary { touch-action: manipulati
   body { overflow: hidden; }
   .app, .app.left-collapsed, .app.right-collapsed, .app.left-collapsed.right-collapsed {
     height: 100%; min-height: 0; overflow: hidden;
-    grid-template-rows: calc(56px + env(safe-area-inset-top, 0px)) minmax(0, 1fr);
+    grid-template-rows: calc(72px + env(safe-area-inset-top, 0px)) minmax(0, 1fr);
     padding: 0 max(10px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
   }
   .main { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-  .panel.left, .panel.right { top: max(10px, env(safe-area-inset-top, 0px)); bottom: max(10px, env(safe-area-inset-bottom, 0px)); overscroll-behavior: contain; }
+  .panel.left, .panel.right {
+    top: calc(72px + env(safe-area-inset-top, 0px));
+    bottom: 0;
+    border-radius: 0;
+    border-top: 1px solid var(--line);
+    border-bottom: none;
+    overscroll-behavior: contain;
+  }
+  /* removed redundant transforms */
 
   /* top bar: logo, machine, then only what a phone needs */
   .topbar { padding: env(safe-area-inset-top, 0px) 0 0; gap: 8px; }
