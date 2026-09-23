@@ -2277,7 +2277,7 @@
   /* =========================================================
      RIGHT PANEL: live status (collapses to a glance strip)
      ========================================================= */
-  // Safety at a glance in the Right now panel: belt, site warning, nearest person, today's stop zone
+  // Safety at a glance in the Telemetry panel: belt, site warning, nearest person, today's stop zone
   function rpSafetyHTML() {
     const f = FLAGS[S.flag];
     const near = S.proxEvents[0];
@@ -2303,8 +2303,8 @@
     const rp = $('#rightPanel');
     rp.innerHTML = `
       <div class="panel-head">
-        <button class="icon-btn" id="toggleRight" type="button" aria-label="Hide right now panel" aria-expanded="true"><i data-lucide="panel-right-close"></i></button>
-        <span class="panel-title">Right now</span>
+        <button class="icon-btn" id="toggleRight" type="button" aria-label="Hide telemetry panel" aria-expanded="true"><i data-lucide="panel-right-close"></i></button>
+        <span class="panel-title">Telemetry</span>
         <span class="rp-head-extra">Live</span>
       </div>
       <div class="rp-body">
@@ -2379,7 +2379,7 @@
     }
     if (tr) {
       tr.innerHTML = `<i data-lucide="${rightC ? 'panel-right-open' : 'panel-right-close'}"></i>`;
-      tr.setAttribute('aria-label', rightC ? 'Show right now panel' : 'Hide right now panel');
+      tr.setAttribute('aria-label', rightC ? 'Show telemetry panel' : 'Hide telemetry panel');
       tr.setAttribute('aria-expanded', String(!rightC));
     }
     icons();

@@ -2429,3 +2429,93 @@ html[data-theme="dark"] .mh-service { border-color: var(--line); }
 @media (hover: hover) and (pointer: fine) { .dl-top .dl-demo button:hover { background: #FFD83D; } }
 .dl-demo small { font-size: 12px; color: rgba(255,255,255,.7); }
 @media (max-width: 760px) { .dl-demo small { display: none; } .dl-top .dl-demo button { height: 42px; padding: 0 14px; font-size: 14px; } }
+
+/* ================= UX audit fixes (23 Sep 2026) ================= */
+
+/* 1. Contrast: small grey text reaches 4.5:1 on cards in both themes */
+:root { --t3: #71716C; }
+html[data-theme="dark"] { --t3: #8A8A84; }
+.replay .seg.break em { color: #4A4A46; }
+html[data-theme="dark"] .replay .seg.break em { color: #B8B8B2; }
+
+/* 2. Tap targets: glove-sized hit areas without changing the look */
+.ps-x { width: 40px; height: 40px; }
+.ov-close { position: relative; min-height: 32px; padding: 0 4px; }
+.ctl-speed button { position: relative; }
+.ctl-speed button::before, .ov-close::before, .cv-n::before { content: ""; position: absolute; inset: -6px; }
+.cv-n { position: relative; width: 34px; height: 34px; }
+.switch { width: 50px; height: 30px; border-radius: 15px; }
+.switch::after { width: 24px; height: 24px; }
+.switch[aria-checked="true"]::after { transform: translateX(20px); }
+
+/* 3. Home at 761 to 900px wide: the part card's close button no longer lands on the seatbelt card */
+@media (min-width: 761px) and (max-width: 900px) {
+  .xbtn, .connector { display: none !important; }
+  .hud.belt { width: 200px; }
+}
+
+/* 4. One quiet motion language: 150ms colour, 120ms press, lifts only with a mouse */
+.btn, .tb-drive, .seg-icon, .ov-close, .ps-body, .opt, .check, .slot, .rec, .rep > summary, .cv, .hc-row, .rp-alert, .pp-row, .lesson, .dd-btn, .dd-opt, .subtab, .ctl-now, .ctl-play, .cm-pin span, .cv-main, .rp-link, .linkbtn {
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 200ms ease, transform 160ms var(--ease-out), opacity 150ms ease;
+}
+.btn:active, .tb-drive:active, .seg-icon:active, .opt:active, .check:active, .slot:active, .cv-main:active, .rp-link:active { transform: scale(.97); }
+.cm-pin:active span { transform: scale(.92); }
+@media (hover: hover) and (pointer: fine) {
+  .btn:not(.dark):not(.outline):not(.light):not(.ghost-dark):not(:disabled):hover { background: #FFD83D; box-shadow: 0 6px 16px rgba(255,205,17,.28); }
+  .btn.dark:hover { background: #242422; }
+  .btn.outline:hover { background: var(--hover); border-color: var(--t3); }
+  .tb-drive:not(.on):hover { border-color: var(--t3); color: var(--text); }
+  .seg-icon:hover { background: var(--chip); }
+  .ov-close:hover { color: #fff; }
+  .ps-body:hover { background: rgba(255,255,255,.05); }
+  .opt:not(.active):hover { border-color: var(--t3); }
+  .check:not(.done):hover { border-color: var(--t3); background: var(--hover); }
+  .slot:not(.active):hover { border-color: var(--t3); }
+  .rec:hover { background: var(--hover); }
+  .rep > summary:hover { background: var(--hover); }
+  .hc-row:hover { background: var(--hover); }
+  .rp-alert:hover { background: var(--hover); }
+  .lesson:hover { transform: translateY(-2px); }
+  .ptile:not(.now):hover, .kpi:hover { box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 14px 32px rgba(0,0,0,.08); }
+  .rp-link:hover { color: var(--text); }
+  .cv-n:hover { background: var(--chip); }
+}
+.rec, .rep > summary, .hc-row, .rp-alert { border-radius: 10px; }
+.rec, .rp-alert { margin-left: -8px; margin-right: -8px; padding-left: 8px; padding-right: 8px; }
+html[data-theme="dark"] .btn.dark:hover { background: #363632; }
+
+/* 5. Changing page: the content settles in (cards keep their own staggered rise) */
+@keyframes pageIn { from { opacity: 0; transform: translateY(6px); } }
+#main > .page, #main > .home { animation: pageIn 240ms var(--ease-out) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  #main > .page, #main > .home { animation: none; }
+  .lesson:hover { transform: none; }
+}
+
+
+/* ================= Site warning: a machine at work instead of generic rings ================= */
+.flag-big::before { right: 18px; top: auto; bottom: 14px; width: 260px; height: 124px; transform: none; border-radius: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 200'%3E %3Cg fill='white'%3E %3Crect x='150' y='148' width='190' height='34' rx='17'/%3E %3Crect x='120' y='96' width='170' height='46' rx='8'/%3E %3Cpath d='M120 104 Q98 108 98 122 Q98 138 120 142 Z'/%3E %3Crect x='238' y='52' width='52' height='48' rx='5'/%3E %3Cpath d='M282 112 L330 36 L346 44 L302 124 Z'/%3E %3Cpath d='M330 36 L392 120 L380 130 L324 52 Z'/%3E %3Cpath d='M376 120 L410 128 L404 166 L380 170 Q364 150 370 128 Z'/%3E %3C/g%3E %3Cg fill='black' fill-opacity='.35'%3E %3Crect x='246' y='60' width='36' height='28' rx='3'/%3E %3Ccircle cx='170' cy='165' r='10'/%3E%3Ccircle cx='205' cy='165' r='8'/%3E%3Ccircle cx='240' cy='165' r='8'/%3E%3Ccircle cx='275' cy='165' r='8'/%3E%3Ccircle cx='318' cy='165' r='10'/%3E %3C/g%3E %3C/svg%3E") right bottom / contain no-repeat; -webkit-mask: none; mask: none; opacity: .16; }
+.flag-big.yellow::before { filter: invert(1); opacity: .14; }
+/* ground line with site marks under the machine */
+.flag-big::after { inset: auto 0 0 0; height: 14px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.22) 0 18px, transparent 18px 30px) 0 0 / auto 2px no-repeat, linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.14)); -webkit-mask: none; mask: none; }
+.flag-big.yellow::after { background: repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 18px, transparent 18px 30px) 0 0 / auto 2px no-repeat; }
+/* the icon stands on its own, no frosted square */
+.flag-big > svg { width: 52px; height: 52px; padding: 0; background: none; box-shadow: none; border-radius: 0; stroke-width: 1.75; }
+.flag-big.yellow > svg { box-shadow: none; }
+.flag-big b { font-size: 44px; letter-spacing: .01em; }
+
+/* ================= Home: darker grey service bay for contrast ================= */
+.stage {
+  background:
+    radial-gradient(55% 45% at 58% 22%, rgba(255,255,255,.55), rgba(255,255,255,0) 70%),
+    linear-gradient(180deg, #CFCFCA 0%, #D6D6D1 46%, #C6C6C1 47%, #D0D0CB 100%);
+}
+.stage-vignette { box-shadow: inset 0 0 120px 10px rgba(40,40,36,.18); }
+.bay-wall::after { opacity: .7; }
+
+/* ================= Contrast leftovers ================= */
+.heat .cell.n { color: #5A5A56; }
+html[data-theme="dark"] .heat .cell.n { color: #B8B8B2; }
+:root { --t2: #5F5F5B; }

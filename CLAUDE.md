@@ -14,7 +14,7 @@ Hackathon prototype for "Smart Operator Assistant for CAT machinery". A cab tabl
 
 | File | What is in it |
 | --- | --- |
-| `index.html` | Shell: top bar (logo, Parked/Moving switch, sync chip, night mode, avatar, SOS), left menu panel, right "Right now" panel. Theme is set in an inline script before paint. |
+| `index.html` | Shell: top bar (logo, Parked/Moving switch, sync chip, night mode, avatar, SOS), left menu panel, right "Telemetry" panel. Theme is set in an inline script before paint. |
 | `app.js` | One IIFE. State object `S`, router `go('route/arg')` with hash URLs, one `renderX()` per screen, helpers (`$`, `$$`, `icons()`, `toast()`, `head()`). |
 | `machine3d.js` | Procedural 3D excavator. Meshes are tagged with `PART`, `FAULT`, `WARN`. API: `mount(stage, canvas, {fit})`, `start`, `stop`, `project`, `setSelected`, `setTheme`. |
 | `data.js` | The two datasets from the brief, the estimation model, schedule, sessions, fleet sample data, videos. |
