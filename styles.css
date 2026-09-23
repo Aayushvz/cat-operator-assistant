@@ -1918,3 +1918,10 @@ button.login-who { text-align: left; border: 0; }
 .mgr-box .btn { height: 48px; flex: none; gap: 8px; }
 .mgr-box .btn svg { width: 16px; height: 16px; }
 @media (max-width: 760px) { .mgr-box { flex-wrap: wrap; } .mgr-box .btn { width: 100%; justify-content: center; } }
+/* fleet manager: secondary to the operator list */
+.mgr-box { gap: 12px; padding-top: 14px; }
+.mgr-box .mgr-ico { width: 38px; height: 38px; border-radius: 10px; color: var(--t2); }
+.mgr-box .mgr-ico svg { width: 18px; height: 18px; }
+.mgr-txt b { font-size: 14px; font-weight: 600; }
+.mgr-txt small { font-size: 12.5px; }
+.mgr-box .btn { height: 40px; padding: 0 14px; font-size: 13px; text-transform: none; letter-spacing: 0; color: var(--t2); }
