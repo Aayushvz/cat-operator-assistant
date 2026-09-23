@@ -22,6 +22,46 @@
 </script>
 </head>
 <body>
+<div id="loader" class="loader">
+  <svg class="dl-svg" viewBox="0 0 640 260">
+    <defs>
+      <linearGradient id="dlY" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD43B"/><stop offset="1" stop-color="#E0A800"/></linearGradient>
+      <linearGradient id="dlGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9FB6C4"/><stop offset="1" stop-color="#4F6570"/></linearGradient>
+    </defs>
+    <g class="dl-far"><path d="M0 170 Q80 140 160 160 T320 150 T480 162 T640 148 T800 160 T960 150 T1120 162 T1280 150 V200 H0 Z" fill="rgba(0,0,0,.04)"/></g>
+    <line x1="0" y1="214" x2="640" y2="214" stroke="rgba(0,0,0,.12)" stroke-width="2"/>
+    <g class="dl-ground">
+      <line x1="0" y1="224" x2="1280" y2="224" stroke="rgba(0,0,0,.1)" stroke-width="3" stroke-linecap="round" stroke-dasharray="26 38"/>
+    </g>
+    <g class="dl-dust"><circle cx="150" cy="204" r="10" fill="rgba(0,0,0,.08)"/><circle cx="132" cy="198" r="14" fill="rgba(0,0,0,.08)"/><circle cx="112" cy="206" r="9" fill="rgba(0,0,0,.08)"/></g>
+    <g class="dl-exc">
+      <g class="dl-body">
+        <rect x="232" y="120" width="170" height="46" rx="8" fill="url(#dlY)" stroke="#1A1A19" stroke-width="2"/>
+        <path d="M232 128 Q206 130 204 146 Q206 164 232 166 Z" fill="#E0A800" stroke="#1A1A19" stroke-width="2"/>
+        <image href="assets/cat-logo.png" x="244" y="130" width="46" height="28" preserveAspectRatio="xMidYMid meet"/>
+        <path d="M296 134 H330 M296 142 H330 M296 150 H330" stroke="#9A7800" stroke-width="3"/>
+        <rect x="338" y="72" width="58" height="52" rx="6" fill="#1B1F23" stroke="#1A1A19" stroke-width="2"/>
+        <rect x="346" y="80" width="42" height="34" rx="3" fill="url(#dlGlass)" opacity=".85"/>
+        <rect x="372" y="62" width="6" height="12" rx="2" fill="#2A2A28"/>
+        <path d="M392 132 L470 70 L484 82 L410 146 Z" fill="url(#dlY)" stroke="#1A1A19" stroke-width="2"/>
+        <path d="M470 70 L512 150 L498 156 L458 82 Z" fill="url(#dlY)" stroke="#1A1A19" stroke-width="2"/>
+        <line x1="404" y1="126" x2="452" y2="88" stroke="#3A3A37" stroke-width="5" stroke-linecap="round"/>
+        <path d="M492 146 L528 152 L524 186 L500 192 Q482 176 488 156 Z" fill="#3A3A37" stroke="#1A1A19" stroke-width="2"/>
+        <path d="M500 192 l-4 6 M510 190 l-2 7 M519 188 l0 7" stroke="#1A1A19" stroke-width="3" stroke-linecap="round"/>
+      </g>
+      <rect x="214" y="170" width="206" height="44" rx="22" fill="#2A2A28" stroke="#111" stroke-width="2"/>
+      <rect class="dl-tread" x="214" y="170" width="206" height="44" rx="22" fill="none" stroke="#4A4A46" stroke-width="5" stroke-dasharray="6 8"/>
+      <circle cx="248" cy="192" r="10" fill="#3A3A37" stroke="#111" stroke-width="2"/>
+      <circle cx="284" cy="192" r="10" fill="#3A3A37" stroke="#111" stroke-width="2"/>
+      <circle cx="320" cy="192" r="10" fill="#3A3A37" stroke="#111" stroke-width="2"/>
+      <circle cx="356" cy="192" r="10" fill="#3A3A37" stroke="#111" stroke-width="2"/>
+      <circle cx="392" cy="192" r="10" fill="#3A3A37" stroke="#111" stroke-width="2"/>
+      <circle class="dl-sprocket" cx="236" cy="192" r="15" fill="#1F1F1D" stroke="#FFCD11" stroke-width="2" stroke-dasharray="4 4"/>
+      <circle class="dl-sprocket" cx="398" cy="192" r="15" fill="#1F1F1D" stroke="#FFCD11" stroke-width="2" stroke-dasharray="4 4"/>
+    </g>
+  </svg>
+  <div class="loader-designer">designed by Aayush Visuals</div>
+</div>
 <div class="app" id="app">
   <header class="topbar">
     <div class="tb-left">

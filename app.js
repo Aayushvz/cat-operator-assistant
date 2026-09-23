@@ -2537,4 +2537,10 @@
   // where the shift is: not signed in, signed in but engine off (belt gate), or working
   if (sess === 'pending') showLogin('start');
   else if (sess !== 'manager' && sess !== 'operator') showLogin('who');
+
+  // Hide loader after a short delay for a nice effect
+  setTimeout(() => {
+    const loader = document.getElementById('loader');
+    if (loader) loader.classList.add('hide');
+  }, 1200);
 })();
