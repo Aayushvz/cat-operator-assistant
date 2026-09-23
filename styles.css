@@ -2059,3 +2059,33 @@ html[data-theme="dark"] .login::before { opacity: .13; }
   .home-below .hud-sub { font-size: 11px; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
   .home-below .lap { display: none; }
 }
+
+/* ============ Phone top bar: one button style, even spacing ============ */
+@media (max-width: 760px) {
+  .topbar { gap: 4px; }
+  .tb-left { gap: 8px; min-width: 0; }
+  .tb-right { gap: 2px; }
+  #openNav { margin-left: -6px; }
+  .tb-logo { width: 40px; }
+  .tb-machine { align-items: center; gap: 6px; }
+  .tb-machine b { font-size: 15px; letter-spacing: .02em; }
+  /* the three tools read as one set: plain icons, same size, pressed state on tap */
+  .tb-drive, #openStatus, .tb-theme { width: 40px; height: 40px; padding: 0; border: 0; border-radius: 12px; background: transparent; color: var(--text); display: grid; place-items: center; }
+  .tb-drive svg, #openStatus svg, .tb-theme svg { width: 20px; height: 20px; }
+  .tb-drive:active, #openStatus:active, .tb-theme:active { background: var(--chip); }
+  .tb-drive.on { background: var(--y); color: #0B0B0B; }
+  html[data-theme="dark"] .tb-theme { color: var(--y); }
+  /* SOS: compact pill, no ring pulsing outside the bar */
+  #sosBtn { height: 38px; padding: 0 12px; margin-left: 6px; border-radius: 19px; box-shadow: 0 4px 12px rgba(214,29,29,.3); }
+  #sosBtn::before { display: none; }
+  #sosBtn .sos-content { gap: 6px; }
+  #sosBtn .sos-content b { font-size: 15px; }
+}
+@media (max-width: 380px) {
+  .tb-machine { display: flex; }
+  .tb-logo { width: 36px; }
+  .tb-left { gap: 6px; }
+  .tb-drive, #openStatus, .tb-theme { width: 36px; }
+  #sosBtn { padding: 0 10px; margin-left: 4px; }
+}
+@media (max-width: 340px) { .tb-machine { display: none; } }
