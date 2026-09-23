@@ -3,10 +3,11 @@
 // a studio environment map for reflections, clear-coat paint, ACES tone mapping, and Cat decals.
 window.Machine3D = (() => {
   let renderer, scene, camera, group, stage, canvas, raf = 0, running = false, floorMat = null, isDark = false;
-  let glowMats = [], selected = null;
+  let glowMats = [], selected = null, fitMode = false;
   const GLOW_SEL = new THREE.Color(0x22E07A).convertSRGBToLinear();   // the part you are looking at: green
   const GLOW_FAULT = new THREE.Color(0xff2a1a).convertSRGBToLinear(); // the broken part: red, always on
   const FAULT_TINT = new THREE.Color(0xd21a12).convertSRGBToLinear();
+  const GLOW_WARN = new THREE.Color(0xff9a1a).convertSRGBToLinear();  // check soon: amber
   let dragging = false, dragStartX = 0, dragOffset = 0, dragBase = 0;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const onFrameCbs = [];
@@ -61,10 +62,10 @@ window.Machine3D = (() => {
     return geo;
   }
   // component tags, set while building: which part a mesh belongs to, and whether it is the faulty part
-  let PART = null, FAULT = false;
+  let PART = null, FAULT = false, WARN = false;
   function mesh(geo, mat, x = 0, y = 0, z = 0) {
     const m = new THREE.Mesh(geo, mat);
-    m.userData.part = PART; m.userData.fault = FAULT;
+    m.userData.part = PART; m.userData.fault = FAULT; m.userData.warn = WARN;
     m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true;
     return m;
   }
@@ -133,8 +134,8 @@ window.Machine3D = (() => {
     const M = mats();
     const g = new THREE.Group();
 
-    /* undercarriage */
-    PART = 'undercarriage';
+    /* undercarriage: worn tracks, 'check soon' */
+    PART = 'undercarriage'; WARN = true;
     [-1.05, 1.05].forEach((z) => {
       const side = z > 0 ? 1 : -1;
       g.add(rbox(4.0, 0.68, 0.74, 0.34, M.track, 0, 0.4, z, 0.03));
@@ -155,7 +156,7 @@ window.Machine3D = (() => {
     g.add(mesh(new THREE.CylinderGeometry(0.92, 0.92, 0.2, 40), M.black, 0, 0.84, 0));
 
     /* upper structure */
-    PART = 'engine';
+    PART = 'engine'; WARN = false;
     g.add(rbox(3.8, 0.16, 2.5, 0.05, M.paint, -0.45, 1.02, 0));
     g.add(rbox(2.3, 0.98, 2.44, 0.12, M.paint, -1.0, 1.56, 0));
     // counterweight with a rounded rear
@@ -324,9 +325,9 @@ window.Machine3D = (() => {
     if (!fitPts) fitPts = samplePoints();
     const c = new THREE.Box3().setFromPoints(fitPts).getCenter(new THREE.Vector3());
     const mobile = w <= 760;
-    const topPad = 70, botPad = mobile ? 240 : 196;
+    const topPad = fitMode ? 18 : 70, botPad = fitMode ? 18 : mobile ? 240 : 196;
     const freeH = Math.max(160, h - topPad - botPad);
-    const tx = mobile ? 0.94 : 0.82;   // share of half-width, leaves room for the idle sway
+    const tx = fitMode ? 0.86 : mobile ? 0.94 : 0.82;   // share of half-width, leaves room for the idle sway
     const ty = (freeH / h) * 0.94;     // share of half-height, the free band
     camera.clearViewOffset();
     const extents = () => {
@@ -367,7 +368,7 @@ window.Machine3D = (() => {
     const w = stage.clientWidth, h = stage.clientHeight;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    if (w > 760) heroCamera(w, h); else fitCamera(w, h);
+    if (w > 760 && !fitMode) heroCamera(w, h); else fitCamera(w, h);
     camera.updateProjectionMatrix();
     // setSize clears the canvas; draw straight away so a panel collapse never flashes empty
     if (scene) renderer.render(scene, camera);
@@ -417,7 +418,7 @@ window.Machine3D = (() => {
       if (o.material.emissiveIntensity > 0 && o.material.emissive.getHex() !== 0) return; // lamps and the cab screen keep their own glow
       o.material = o.material.clone();
       if (o.userData.fault) o.material.color.lerp(FAULT_TINT, 0.88);
-      glowMats.push({ mat: o.material, part: o.userData.part, fault: o.userData.fault });
+      glowMats.push({ mat: o.material, part: o.userData.part, fault: o.userData.fault, warn: o.userData.warn });
     });
     setTheme(document.documentElement.getAttribute('data-theme') === 'dark');
     const pivot = new THREE.Group();
@@ -467,10 +468,12 @@ window.Machine3D = (() => {
     group.userData.pivot.rotation.y = BASE_ROT + sway + dragOffset;
     // glow: faulty part pulses red all the time, the selected part breathes yellow
     const redPulse = reduce ? 0.4 : 0.22 + 0.33 * (0.5 + 0.5 * Math.sin(t * 3.2));
+    const warnPulse = reduce ? 0.25 : 0.14 + 0.16 * (0.5 + 0.5 * Math.sin(t * 2));
     const selPulse = reduce ? 0.45 : 0.3 + 0.28 * (0.5 + 0.5 * Math.sin(t * 2.6));
     for (const g of glowMats) {
       if (g.fault) { g.mat.emissive.copy(GLOW_FAULT); g.mat.emissiveIntensity = redPulse * (g.part === selected ? 1.25 : 1); }
       else if (g.part === selected) { g.mat.emissive.copy(GLOW_SEL); g.mat.emissiveIntensity = selPulse; }
+      else if (g.warn) { g.mat.emissive.copy(GLOW_WARN); g.mat.emissiveIntensity = warnPulse; }
       else if (g.mat.emissiveIntensity !== 0) { g.mat.emissiveIntensity = 0; }
     }
     renderer.render(scene, camera);
@@ -480,7 +483,8 @@ window.Machine3D = (() => {
   function start() { if (!renderer || running) return; running = true; raf = requestAnimationFrame(loop); }
   function stop() { running = false; cancelAnimationFrame(raf); }
   function onFrame(cb) { onFrameCbs.length = 0; onFrameCbs.push(cb); }
-  function remount(stageEl, canvasEl) {
+  function remount(stageEl, canvasEl, opts) {
+    fitMode = !!(opts && opts.fit);
     // Home view is re-rendered on navigation; rebuild the renderer on the new canvas.
     stop();
     if (renderer) renderer.dispose();

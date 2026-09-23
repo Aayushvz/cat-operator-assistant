@@ -1560,3 +1560,41 @@ html[data-theme="dark"] .replay .seg.work em { color: #151514; }
 .cab-stage .cab-map { margin: 0; flex: none; }
 .cab-stage .cab-svg { width: 100%; height: auto; }
 @media (max-width: 1100px), (max-height: 620px) { .page.fit { overflow-y: auto; display: block; } .cab-stage { display: block; } .cab-stage .cab-map { width: 100% !important; } }
+
+/* ============ Custom dropdowns ============ */
+.dd { position: relative; }
+.dd > select { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.dd-btn { width: 100%; min-width: 190px; height: 50px; padding: 0 12px 0 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: 600 15px var(--f-ui); text-align: left;
+  transition: border-color 150ms ease, box-shadow 150ms ease; }
+.dd-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-btn svg { width: 18px; height: 18px; color: var(--t2); flex: none; transition: transform 220ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .dd-btn:hover { border-color: var(--t3); } }
+.dd.open .dd-btn { border-color: var(--ink); box-shadow: 0 0 0 3px var(--y-bg); }
+.dd.open .dd-btn svg { transform: rotate(180deg); }
+.dd-list { position: absolute; left: 0; top: calc(100% + 6px); z-index: 40; min-width: 100%; max-height: 300px; overflow-y: auto; padding: 6px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 18px 40px rgba(0,0,0,.16), 0 2px 6px rgba(0,0,0,.06);
+  opacity: 0; transform: translateY(-4px) scale(.98); transform-origin: top center; pointer-events: none; visibility: hidden;
+  transition: opacity 140ms ease, transform 180ms var(--ease-out), visibility 0s linear 180ms; }
+.dd.up .dd-list { top: auto; bottom: calc(100% + 6px); transform-origin: bottom center; transform: translateY(4px) scale(.98); }
+.dd.open .dd-list { opacity: 1; transform: none; pointer-events: auto; visibility: visible; transition: opacity 140ms ease, transform 180ms var(--ease-out); }
+.dd-opt { height: 44px; padding: 0 10px; border-radius: 9px; display: flex; align-items: center; gap: 10px; font: 500 14.5px var(--f-ui); color: var(--text); cursor: pointer; white-space: nowrap; }
+.dd-opt span { flex: 1; }
+.dd-opt::before { content: ""; width: 4px; height: 20px; border-radius: 2px; background: transparent; flex: none; }
+.dd-opt svg { width: 17px; height: 17px; opacity: 0; color: var(--ink); flex: none; }
+.dd-opt.act { background: var(--chip); }
+.dd-opt.sel { font-weight: 700; }
+.dd-opt.sel::before { background: var(--y); }
+.dd-opt.sel svg { opacity: 1; }
+.filters .dd-btn { height: 42px; font-size: 13.5px; }
+@media (prefers-reduced-motion: reduce) { .dd-list { transition: none; } }
+
+/* Machine tab: the real 3D machine, coloured by condition */
+.mh-3d { position: relative; height: 360px; margin-top: 12px; border-radius: 14px; overflow: hidden;
+  background: radial-gradient(60% 55% at 50% 40%, rgba(255,255,255,.9), rgba(255,255,255,0) 70%), linear-gradient(180deg, #E6E6E2 0%, #EEEEEB 55%, #E2E2DE 56%, #F2F2EF 100%); }
+html[data-theme="dark"] .mh-3d { background: radial-gradient(60% 55% at 50% 40%, rgba(255,236,190,.08), rgba(255,236,190,0) 70%), linear-gradient(180deg, #1C1C1B 0%, #171716 55%, #121211 56%, #1A1A18 100%); }
+.mh-3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+.mh-hint { position: absolute; right: 12px; bottom: 10px; display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--t2); background: var(--surface); padding: 5px 9px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.mh-hint svg { width: 14px; height: 14px; }
+/* shift panel sits on the same bottom line as the side panels */
+.stage .replay { bottom: 0; }

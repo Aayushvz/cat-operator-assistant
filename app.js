@@ -1318,7 +1318,7 @@
       <div class="grid">
         <div class="card pcard c7 rise mh-map-card">
           <h3>Machine health</h3>
-          <div class="mh-map">${BLUEPRINT.replace('class="blueprint"', 'class="blueprint health"')}</div>
+          <div class="mh-3d" id="mh3d"><canvas id="mhCanvas" aria-label="3D excavator coloured by part condition"></canvas><span class="mh-hint"><i data-lucide="move-horizontal"></i>Drag to turn</span></div>
           <div class="mh-key"><span class="k crit">Fix now</span><span class="k warn">Check soon</span><span class="k ok">Fine</span></div>
         </div>
         <div class="card pcard c5 rise mh-list" style="--i:1">
@@ -1339,9 +1339,15 @@
         <div class="card pcard c12 rise mh-service" style="--i:2">
           <div class="mh-svc-num"><span class="eyebrow">Next service</span><b>In <span data-count="${Math.round(next - eng)}">0</span> hours</b><small>At ${fmt(next, 0)} engine hours · now ${fmt(eng, 1)}</small></div>
           <div class="mh-svc-bar"><div><i class="growx" style="width:${pct(eng, since, next)}%"></i></div><span><span>Last service</span><span>Next service</span></span></div>
-          <button class="btn outline" type="button" data-go="home"><i data-lucide="box"></i>See it in 3D</button>
+          <button class="btn outline" type="button" data-go="home"><i data-lucide="house"></i>Back to Home</button>
         </div>
       </div></div>`;
+    // the same 3D excavator as Home, framed to fit this card, faults in red and checks in amber
+    if (Machine3D.mount($('#mh3d'), $('#mhCanvas'), { fit: true })) {
+      Machine3D.onFrame(() => {});
+      Machine3D.setSelected(null);
+      Machine3D.start();
+    }
   }
 
   /* ---------- LEARN: CONTROLS (SRS 3.5: tappable cab layout, each control linked to a video) ---------- */
@@ -1829,6 +1835,83 @@
       setTimeout(() => { S.incidents.forEach((x) => (x.synced = true)); S.pending = 0; saveIncidents(); updateSync(); toast(`${n} report${n === 1 ? '' : 's'} sent.`, 'cloud-check'); if (S.route === 'safety') go(S.routeArg ? 'safety/' + S.routeArg : 'safety'); }, 1400);
     } else updateSync();
   }
+
+  /* =========================================================
+     DROPDOWNS: every <select> gets a custom list that matches the UI.
+     The native select stays underneath and still fires "change", so page code is untouched.
+     ========================================================= */
+  let openDD = null;
+  function closeDD(focus) {
+    if (!openDD) return;
+    const { wrap, btn } = openDD;
+    wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false');
+    if (focus) btn.focus();
+    openDD = null;
+  }
+  function enhanceSelect(sel) {
+    if (sel.dataset.dd) return;
+    sel.dataset.dd = '1';
+    const wrap = document.createElement('div');
+    wrap.className = 'dd';
+    sel.parentNode.insertBefore(wrap, sel);
+    wrap.appendChild(sel);
+    sel.tabIndex = -1; sel.setAttribute('aria-hidden', 'true');
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'dd-btn';
+    btn.setAttribute('aria-haspopup', 'listbox'); btn.setAttribute('aria-expanded', 'false');
+    const label = sel.closest('label');
+    if (label && label.firstElementChild) btn.setAttribute('aria-label', label.firstElementChild.textContent);
+    const list = document.createElement('div');
+    list.className = 'dd-list'; list.setAttribute('role', 'listbox');
+    wrap.append(btn, list);
+    let active = sel.selectedIndex;
+    const mark = () => list.querySelectorAll('.dd-opt').forEach((x, k) => x.classList.toggle('act', k === active));
+    const draw = () => {
+      btn.innerHTML = `<span>${sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : ''}</span><i data-lucide="chevron-down"></i>`;
+      list.innerHTML = [...sel.options].map((o, i) => `<div class="dd-opt${i === sel.selectedIndex ? ' sel' : ''}${i === active ? ' act' : ''}" role="option" aria-selected="${i === sel.selectedIndex}" data-i="${i}"><span>${o.text}</span><i data-lucide="check"></i></div>`).join('');
+      icons();
+    };
+    const pick = (i) => {
+      const changed = i !== sel.selectedIndex;
+      closeDD(true);
+      if (changed) { sel.selectedIndex = i; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+      if (sel.isConnected) draw();
+    };
+    const open = () => {
+      if (openDD && openDD.wrap !== wrap) closeDD();
+      active = sel.selectedIndex; draw();
+      const r = btn.getBoundingClientRect();
+      wrap.classList.toggle('up', innerHeight - r.bottom < Math.min(300, sel.options.length * 46 + 16));
+      wrap.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+      openDD = { wrap, btn };
+      const a = list.querySelector('.act'); if (a) a.scrollIntoView({ block: 'nearest' });
+    };
+    btn.addEventListener('click', () => (wrap.classList.contains('open') ? closeDD() : open()));
+    list.addEventListener('click', (e) => { const o = e.target.closest('[data-i]'); if (o) pick(+o.dataset.i); });
+    list.addEventListener('pointermove', (e) => {
+      const o = e.target.closest('[data-i]');
+      if (o && +o.dataset.i !== active) { active = +o.dataset.i; mark(); }
+    });
+    btn.addEventListener('keydown', (e) => {
+      const isOpen = wrap.classList.contains('open');
+      const n = sel.options.length;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (!isOpen) { open(); return; }
+        active = (active + (e.key === 'ArrowDown' ? 1 : -1) + n) % n;
+        mark(); list.children[active].scrollIntoView({ block: 'nearest' });
+      } else if ((e.key === 'Enter' || e.key === ' ') && isOpen) { e.preventDefault(); pick(active); }
+      else if (e.key === 'Escape' && isOpen) { e.preventDefault(); closeDD(true); }
+      else if (e.key.length === 1 && e.key.trim()) {
+        const k = [...sel.options].findIndex((o, i) => i !== active && o.text.toLowerCase().startsWith(e.key.toLowerCase()));
+        if (k >= 0) { if (isOpen) { active = k; mark(); } else pick(k); }
+      }
+    });
+    draw();
+  }
+  function enhanceSelects(root) { root.querySelectorAll('select:not([data-dd])').forEach(enhanceSelect); }
+  new MutationObserver(() => enhanceSelects(main)).observe(main, { childList: true, subtree: true });
+  document.addEventListener('pointerdown', (e) => { if (openDD && !openDD.wrap.contains(e.target)) closeDD(); });
 
   /* ---------- NIGHT MODE ---------- */
   const mqDark = matchMedia('(prefers-color-scheme: dark)');
