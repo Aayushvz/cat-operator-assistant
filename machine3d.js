@@ -325,9 +325,9 @@ window.Machine3D = (() => {
     if (!fitPts) fitPts = samplePoints();
     const c = new THREE.Box3().setFromPoints(fitPts).getCenter(new THREE.Vector3());
     const mobile = w <= 760;
-    const topPad = fitMode ? 18 : 70, botPad = fitMode ? 18 : mobile ? 240 : 196;
+    const topPad = fitMode ? 18 : 70, botPad = fitMode ? 18 : mobile ? 16 : 196;   // phone: cards sit below the stage
     const freeH = Math.max(160, h - topPad - botPad);
-    const tx = fitMode ? 0.86 : mobile ? 0.94 : 0.82;   // share of half-width, leaves room for the idle sway
+    const tx = fitMode ? 0.86 : mobile ? 0.8 : 0.82;   // share of half-width, leaves room for the idle sway
     const ty = (freeH / h) * 0.94;     // share of half-height, the free band
     camera.clearViewOffset();
     const extents = () => {

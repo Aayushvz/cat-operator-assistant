@@ -1598,3 +1598,135 @@ html[data-theme="dark"] .mh-3d { background: radial-gradient(60% 55% at 50% 40%,
 .mh-hint svg { width: 14px; height: 14px; }
 /* shift panel sits on the same bottom line as the side panels */
 .stage .replay { bottom: 0; }
+
+/* ============ Phone ============
+   Platform layer first: no tap flash, no input zoom, no tap delay, notch-safe. */
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+button, a, [role="button"], .dd-btn, .dd-opt, summary { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+@media (pointer: coarse) { input, textarea, select { font-size: 16px; } }
+
+@media (max-width: 760px) {
+  html, body { overscroll-behavior: none; }
+  /* drawers park off-screen: clip them so they never widen the page */
+  body { overflow: hidden; }
+  .app, .app.left-collapsed, .app.right-collapsed, .app.left-collapsed.right-collapsed {
+    height: 100dvh; min-height: 0; overflow: hidden;
+    grid-template-rows: calc(56px + env(safe-area-inset-top, 0px)) minmax(0, 1fr);
+    padding: 0 max(10px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+  }
+  .main { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  .panel.left, .panel.right { top: max(10px, env(safe-area-inset-top, 0px)); bottom: max(10px, env(safe-area-inset-bottom, 0px)); overscroll-behavior: contain; }
+
+  /* top bar: logo, machine, then only what a phone needs */
+  .topbar { padding: env(safe-area-inset-top, 0px) 0 0; gap: 8px; }
+  .tb-left, .tb-right { gap: 6px; }
+  .tb-logo { width: 42px; }
+  .tb-machine b { font-size: 16px; }
+  .tb-online { font-size: 0; gap: 0; }
+  .tb-online::before { width: 8px; height: 8px; }
+  .icon-btn, .tb-theme, .tb-drive { width: 40px; height: 40px; }
+  .tb-drive { padding: 0; justify-content: center; border-radius: 20px; }
+  .tb-drive svg, .icon-btn svg { width: 19px; height: 19px; }
+  .num-chip, .tb-avatar { display: none; }
+  #sosBtn { height: 40px; padding: 0 14px; }
+  #parkBtn { white-space: nowrap; flex: none; }
+  .dl-top { gap: 10px; }
+}
+@media (max-width: 380px) {
+  .tb-logo { width: 36px; }
+  .tb-machine { display: none; }
+}
+
+/* Home on a phone: machine on top, cards stacked underneath, page scrolls */
+@media (max-width: 760px) {
+  .home { display: block; min-height: 0; height: auto; }
+  .home .stage { height: min(52svh, 430px); min-height: 330px; border-radius: 20px; }
+  .home .segmented { top: 10px; transform: translateX(-50%) scale(.92); }
+  .home .pitstop { left: 10px; right: 10px; bottom: 10px; width: auto; }
+  .home-below { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .home-below > * { position: static; width: auto; inset: auto; }
+  .home-below .overview.closed { display: none; }
+  .home-below .overview { transform: none; }
+  .home-below .hud { display: block; }
+  .home-below .hud.belt, .home-below .hud.pace { width: auto; }
+  .home-below .replay { height: auto; }
+  .home-below .replay .seg em { display: none; }
+  .home-below .rp-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+  .home-below .rp-foot { flex-direction: column; align-items: flex-start; gap: 8px; padding-top: 10px; }
+  .home-below .rp-status { white-space: normal; }
+}
+
+/* Pages on a phone */
+@media (max-width: 760px) {
+  .page { overscroll-behavior: contain; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
+  .plan-tiles { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ptile { padding: 14px 16px; }
+  .ptile.now { grid-column: 1 / -1; }
+  .ptile b { font-size: 22px; white-space: normal; }
+  .ptile.now b { font-size: 28px; }
+}
+@media (max-width: 760px) {
+  .add-job { gap: 12px; }
+  .add-job label { flex: 1 1 100%; }
+  .add-job .dd, .add-job select { width: 100%; min-width: 0; }
+  .add-job .btn { flex: 1; }
+  .job { align-items: start; }
+  .job-time { padding-top: 2px; }
+}
+@media (max-width: 760px) {
+  .pcard { padding: 16px; }
+  .opt-row:has(> .opt:nth-child(4)) { display: grid; grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 760px) {
+  /* habit row: name + value on top, trend line under it, rating last */
+  .hab { grid-template-columns: 1fr auto; grid-template-areas: "name now" "spark spark" "lvl lvl"; row-gap: 8px; }
+  .hab .hab-name { grid-area: name; }
+  .hab .hab-now { grid-area: now; text-align: right; }
+  .hab .spark { grid-area: spark; width: 100%; height: 40px; }
+  .hab .hab-lvl:not(.big) { grid-area: lvl; grid-column: auto; justify-self: start; }
+}
+@media (max-width: 760px) {
+  .ph-body { padding: 0 16px 18px; gap: 12px; }
+  .ph-avatar { width: 88px; height: 88px; }
+  .ph-id { padding-top: 0; min-width: 0; flex-basis: 100%; }
+  .grid > .kpi.c3 { grid-column: span 6; }
+}
+.tbl-wrap { overflow-x: auto; overscroll-behavior-x: contain; }
+@media (max-width: 760px) {
+  .tbl-wrap { margin: 0 -16px; padding: 0 16px; }
+  .tbl-wrap .tbl { min-width: 560px; }
+  .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .filters label { min-width: 0; }
+  .filters .dd, .filters select { width: 100%; min-width: 0; }
+  .filters .sample { grid-column: 1 / -1; margin: 0; justify-self: start; }
+  .fleet .page-head .btn { width: 100%; justify-content: center; }
+  .q-act { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi .delta { display: block; }
+}
+@media (max-width: 760px) {
+  .dd-btn { min-width: 0; }
+  .dd-list { width: 100%; }
+  .dd-opt { white-space: normal; min-height: 44px; height: auto; padding-block: 8px; }
+}
+@media (max-width: 760px) {
+  /* sign-in: scrolls on short phones, compact header */
+  .login { place-items: start center; overflow-y: auto; overscroll-behavior: contain; padding: max(12px, env(safe-area-inset-top, 0px)) 12px max(12px, env(safe-area-inset-bottom, 0px)); }
+  .login-card { margin: auto 0; }
+  .login-side { padding: 20px 20px 18px; gap: 4px; }
+  .login-logo { width: 72px; margin-bottom: 10px; }
+  .login-side h1 { font-size: 26px; }
+  .login-role { margin-top: 12px; }
+  .login-main { padding: 18px 16px 20px; gap: 12px; }
+}
+@media (max-width: 760px) {
+  .sos-overlay { padding: 12px; overflow-y: auto; }
+  .sos-top { padding: 20px; gap: 14px; }
+  .sos-top h2 { font-size: 34px; }
+  .sos-steps { padding: 12px 20px 4px; }
+  .sos-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px 20px max(18px, env(safe-area-inset-bottom, 0px)); }
+  .sos-foot > :not(button) { grid-column: 1 / -1; }
+  .sos-foot .btn { width: 100%; justify-content: center; }
+}
+/* "I'm safe" shares the .light class with the site-warning lamps; keep it a normal button */
+.sos-foot .btn.light { flex: none; aspect-ratio: auto; max-width: none; border-radius: 12px; background: #FFFFFF; box-shadow: none; }
+@media (max-width: 760px) { .sos-foot .btn.light { flex: 1; } }

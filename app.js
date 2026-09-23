@@ -306,6 +306,9 @@
   const ICON_BELT = `<svg viewBox="0 0 48 48" class="ico-belt"><circle cx="22" cy="8" r="4.6" fill="currentColor"/><path fill="currentColor" d="M15.5 16.2c0-1.8 1.4-3.2 3.2-3.2h4.5c1.7 0 3.1 1.3 3.2 3l.7 11h7.4c1.6 0 3 1.2 3.2 2.8l1.4 10.4c.2 1.5-1 2.8-2.5 2.8-1.2 0-2.3-.9-2.5-2.1l-1.1-7.8H22.7c-4 0-7.2-3.2-7.2-7.2z"/><path d="M13.5 13.5 31 32.5" stroke="var(--lamp-bg)" stroke-width="7" stroke-linecap="round"/><path d="M13.5 13.5 31 32.5" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><rect x="28.2" y="30" width="7.6" height="5.4" rx="1.2" fill="currentColor" stroke="var(--lamp-bg)" stroke-width="1.6"/></svg>`;
   const ICON_WATCH = `<svg viewBox="0 0 24 24" class="ico-watch" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="7.6"/><path d="M12 13.5V9.4M9.6 2.6h4.8M12 2.6v3.3M18.6 6.4l1.6-1.6"/></svg>`;
 
+  const PHONE = matchMedia('(max-width: 760px)');
+  PHONE.addEventListener('change', () => { if (S.route === 'home') renderHome(); });
+
   function renderHome() {
     const st = stateAt(S.t);
     const ticks = Array.from({ length: 61 }, (_, i) => `<i class="${i % 6 === 0 ? 'h' : ''}"></i>`).join('');
@@ -403,6 +406,14 @@
       </section>
 
     </div>`;
+
+    // Phone: the cards would cover the machine, so they stack below it instead
+    if (PHONE.matches) {
+      const below = document.createElement('div');
+      below.className = 'home-below';
+      ['#overview', '#beltCard', '#ghost', '.replay'].forEach((sel) => below.appendChild($(sel)));
+      $('.home').appendChild(below);
+    }
 
     icons();
     setOverview(S.hotspot, false);
@@ -672,12 +683,12 @@
     });
     // connector from the X button to the active hotspot
     const line = $('#conLine'), dot = $('#conDot');
-    if (S.overviewOpen && S.hotspot !== 'machine') {
+    if (S.overviewOpen && S.hotspot !== 'machine' && !PHONE.matches) {
       const sr = stage.getBoundingClientRect(), xr = $('#xbtn').getBoundingClientRect();
       const a = { x: xr.right - sr.left, y: xr.top - sr.top + xr.height / 2 };
       const b = Machine3D.project(S.hotspot);
       const p = reduce ? 1 : Math.min(1, (now - conStart) / 400);
-      const e = 1 - Math.pow(1 - p, 3);
+      const e = Number.isFinite(p) ? 1 - Math.pow(1 - p, 3) : 1;
       const bx = a.x + (b.x - a.x) * e, by = a.y + (b.y - a.y) * e;
       line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
       line.setAttribute('x2', bx); line.setAttribute('y2', by);
@@ -1706,8 +1717,8 @@
           <div class="acc"><div><span>Plan</span><div class="acc-bar"><i class="growx" style="width:${D.plannerError * 100 * 5}%"></i></div><b>${(D.plannerError * 100).toFixed(1)}%</b></div>
           <div><span>Estimate tool</span><div class="acc-bar"><i class="growx good" style="width:${D.modelError * 100 * 5}%"></i></div><b>${(D.modelError * 100).toFixed(1)}%</b></div></div></div>
         <div class="card pcard c12 rise" style="--i:9"><h3>Log</h3><div class="sub">${logs.length} entries</div>
-          <table class="tbl"><thead><tr><th>When</th><th>Operator</th><th>Machine</th><th>What happened</th><th>From</th></tr></thead>
-          <tbody>${logs.map((l) => `<tr><td>${l.when}</td><td>${opName(l.op)}</td><td>${l.mc}</td><td>${l.what}</td><td style="color:var(--t2)">${l.src}</td></tr>`).join('') || '<tr><td colspan="5">No entries for this filter.</td></tr>'}</tbody></table></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>When</th><th>Operator</th><th>Machine</th><th>What happened</th><th>From</th></tr></thead>
+          <tbody>${logs.map((l) => `<tr><td>${l.when}</td><td>${opName(l.op)}</td><td>${l.mc}</td><td>${l.what}</td><td style="color:var(--t2)">${l.src}</td></tr>`).join('') || '<tr><td colspan="5">No entries for this filter.</td></tr>'}</tbody></table></div></div>
       </div></div>`;
     const page = main.querySelector('.page');
     page.addEventListener('change', (e) => {
@@ -1929,6 +1940,8 @@
     const root = document.documentElement;
     if (fade && !reduce) { root.classList.add('theme-fade'); setTimeout(() => root.classList.remove('theme-fade'), 300); }
     root.setAttribute('data-theme', dark ? 'dark' : 'light');
+    const tc = $('#themeColor');
+    if (tc) tc.setAttribute('content', dark ? '#121211' : '#F4F4F2');
     const b = $('#themeBtn');
     if (b) {
       b.innerHTML = `<i data-lucide="${dark ? 'sun' : 'moon'}"></i>`;
@@ -2061,6 +2074,8 @@
     $('#scrim').classList.remove('on');
   }
   function openDrawer(side) {
+    // a drawer on a phone always shows the full menu, never the icon strip
+    if (isMobile() && (S.leftCollapsed || S.rightCollapsed)) setPanels(false, false, false);
     app.classList.add(side === 'left' ? 'left-open' : 'right-open');
     $('#scrim').classList.add('on');
   }
