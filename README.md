@@ -1,10 +1,9 @@
 # Cat Operator Assistant
 
-A smart operator assistant for Cat® machinery, built for the "Smart Operator Assistant for CAT machinery" hackathon challenge. It supports an excavator operator through the whole shift: tasks, safety, training, unusual machine behaviour and task time estimation, all driven by the telemetry and task data from the problem statement.
-
-The interface is organised like an F1 race engineer: the shift is a race, each task is a stint, idle time is a pit stop, safety alerts are flags, and the seatbelt check is the start lights.
+A smart operator assistant for Cat® machinery, built for the "Smart Operator Assistant for CAT machinery" hackathon challenge. It supports an excavator operator through the whole shift: tasks, safety, training, unusual machine behaviour and task time estimation, all driven by the telemetry and task data from the problem statement. Written in plain words an operator uses on site.
 
 **Live demo:** https://aayushvz.github.io/cat-operator-assistant/
+Sign in with the demo PIN **1001**, or choose **Fleet manager** for the manager view.
 
 ## Run it locally
 
@@ -16,25 +15,68 @@ python serve.py
 
 Then open http://localhost:4173.
 
-## What is in it
+## Features
 
-| Screen | What it does |
-| --- | --- |
-| **Home** | Interactive 3D model of excavator EXC001 with 6 clickable components, shift replay from 08:00 to 18:00, ghost delta (you vs your personal best), live seatbelt card, and a pit stop lesson that appears after 3 minutes of idling |
-| **Tasks** | Today's shift as a strategy strip with predicted overruns and a rain window |
-| **Estimator** | Predicts task time from planned time, operator skill, weather and machine age, shown as a range |
-| **Safety** | Flag system with screen-edge glow, seatbelt start lights, seatbelt vs idle chart, proximity radar, working conditions, hold-to-log incidents, SOS |
-| **Incidents** | Full incident log, including SOS events |
-| **Training** | Licence progress (F3 / F2 / F1), lessons recommended from the operator's own data, real videos from the Cat® Products YouTube channel with an in-app player |
-| **Insights** | Idle share, fuel per load cycle, sector timing, engine hours per load cycle, and anomaly cards with a suggested action |
-| **Machine** | Component health and next service |
-| **Profile and settings** | Operator profile, certifications, lesson progress, language (English / हिंदी), alerts, sign-in and privacy settings |
+### Sign in (SRS 3.1)
+- PIN pad with large keys for gloved hands, or "Scan ID badge".
+- Two roles: **Operator** (cab screen) and **Fleet manager** (fleet view).
+- Every report made after sign-in is tied to the operator and machine. Sign out from the profile.
+
+### Home: the machine (SRS 3.2)
+- Realistic 3D model of excavator EXC001 with Cat branding. Opens in a fixed pose and turns slowly; drag to rotate.
+- Parts coloured by condition: **boom and hydraulics red** (fault: boom cylinder leaking), **tracks amber** (check soon).
+- Six clickable component points. The open part glows **green** on the model and its details show in a card.
+- **Your pace**: time ahead of or behind your personal best on the same kind of job.
+- **Seatbelt**: live status with a real dashboard warning light; flashes red and says "Stop. Put your belt on." if the machine moves unbuckled.
+- **Today's shift**: replay of the day with labelled blocks (working, waiting, lunch), alert markers, and a plain sentence of what you were doing.
+- **While you wait**: after 3 minutes of idling, a short Cat video is offered, picked from your data.
+
+### My tasks (SRS 3.3, 3.7)
+- **Today**: Now / Next / Shift left tiles, then the job list with one line per job.
+- **Dynamic rescheduling**: mark a job done with its real time; later jobs move. A job that no longer fits before 18:00 moves to tomorrow and shorter jobs move ahead of it.
+- **Add job**: pick the job, place and planned time; it joins the plan with an estimate. Added jobs are saved on the device and can be removed.
+- **Job time**: estimate any job from planned time × operator level × weather × machine age, shown as a range, with the working shown. On the five dataset jobs the plan is off by 13.2% on average and the estimate by 2.4% (the factors were fitted on those jobs).
+
+### Locked screen while moving (SRS 3.3, 5)
+- A **Parked / Moving** switch in the top bar (a demo stand-in for travel and joystick telemetry).
+- While moving, the screen locks to one strip: current job, minutes left, belt status, and hold-to-use **Report** and **SOS**.
+
+### Safety and reports (SRS 3.4)
+- **Engine start interlock**: the engine will not start with the seatbelt off.
+- **Site warnings**: All clear, Slow down, Stop now, Give way, shown as a colour around the screen edge.
+- **Who is near you**: radar with stop and slow zones; each zone crossing is logged and becomes a report.
+- **Site conditions** tighten the rules: in rain the stop zone grows from 6 to 7.5 m, the slow zone from 10 to 12.5 m, and the engine switches off after 4 minutes of waiting instead of 5.
+- **Emergency SOS**: hold 1.5 seconds; stops the machine, calls the supervisor and medic, shares location, saves the data.
+- **Reports**: every report carries a snapshot of the machine (operator, engine hours, belt, state, fuel, place).
+
+### Learn (SRS 3.5, 3.6)
+- **Controls**: a realistic top-down drawing of the cab with 8 numbered controls. Each shows what it does, how to be careful, and a Cat video.
+- **Videos**: real videos from the official Cat® Products YouTube channel, played in the app. Marking one watched raises the operator's level.
+- **Your habits**: the last 5 shifts compared with the operator's own usual, rated Normal / Worth a look / Concerning. Kept separate from safety alerts, which fire instantly.
+
+### Machine (SRS 3.2)
+- The 3D machine coloured by condition, then **Fix now**, **Check soon** and **Fine**, and the next service in hours.
+
+### Fleet view for managers (SRS 3.8)
+- Filters by operator and machine, a review list of habit flags (Talk to operator / Dismiss), waiting-time trends, reports per day, fuel per load, plan accuracy and a full log.
+
+### Works without signal (SRS 5)
+- Reports are saved on the device first. With no signal the top bar shows how many are waiting; they send when signal returns. Try it with **Settings → No signal (demo)**.
+
+### Everywhere
+- Five-item menu, collapsible side panels, and a right panel with live job, health and alerts.
+- Day and night mode, English and हिंदी, custom dropdowns, and large controls sized for gloves.
+- Operator profile with licence, certifications, video progress and settings.
 
 ## Data
 
-All numbers come from the two datasets in the problem statement (4 telemetry snapshots for EXC001 and 5 completed tasks), in `data.js`. Values the brief lets us assume, such as hydraulic temperature, track wear, proximity readings and personal-best times, are marked as sample data in the code.
+All numbers come from the two datasets in the problem statement (4 telemetry snapshots for EXC001 and 5 completed tasks), in `data.js`. Values the brief lets us assume are marked as sample data in the code: sensor readings such as hydraulic temperature and track wear, personal-best times, the boom fault, earlier shift history, proximity events, one extra job (Backfill trench), and the other operators and machines in the fleet view.
 
-The time estimation model is `planned x skill x weather x machine age`. On the five tasks in the dataset, the planner's estimates are off by 13.2% on average and the model's by 2.4%. The factors were tuned on those same five tasks, so they should recalibrate as new jobs finish.
+## Not built (prototype limits)
+
+- No backend: the SRS's FastAPI and PostgreSQL are not built. Everything runs in the browser, with local storage standing in for the tablet store.
+- The habits rating uses a simple rule against the operator's own baseline, standing in for a classification model.
+- Motion is a demo switch, not real telemetry.
 
 ## Tech
 
@@ -43,10 +85,10 @@ Plain HTML, CSS and JavaScript. The excavator is built procedurally in [Three.js
 | File | Purpose |
 | --- | --- |
 | `index.html` | Page shell: top bar, side panels, SOS |
-| `styles.css` | Cat design tokens, type scale, all component styles |
+| `styles.css` | Cat design tokens, day and night themes, all component styles |
 | `app.js` | Every screen and interaction |
-| `machine3d.js` | 3D excavator, camera and rotation |
-| `data.js` | Datasets, estimation model, videos, operator profile |
+| `machine3d.js` | 3D excavator, camera, part highlighting |
+| `data.js` | Datasets, estimation model, schedule, videos, fleet sample data |
 | `serve.py` | Local dev server |
 
 ## Notes
