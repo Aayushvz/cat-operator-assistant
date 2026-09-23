@@ -1345,10 +1345,16 @@
         </div>
         <div class="card pcard c4 rise" style="--i:1">
           <h3>Report something</h3>
-          ${!S.rep ? `<div class="sub">Hold for 1 second, then two taps: what happened, and how bad. The machine's readings are added for you.</div>
-          <div class="hold-wrap" style="flex-direction:column;align-items:flex-start">
+          ${!S.rep ? `<div class="sub">Hold, then two taps. The machine's readings go with it.</div>
+          <div class="hold-stage">
             <button class="hold" id="holdBtn" type="button" aria-label="Hold to report">
-              <svg viewBox="0 0 108 108" aria-hidden="true"><circle class="bg" cx="54" cy="54" r="52" fill="none" stroke-width="3"/><circle class="fg" cx="54" cy="54" r="52" fill="none" stroke-width="3" stroke-linecap="round"/></svg>HOLD</button>
+              <svg viewBox="0 0 108 108" aria-hidden="true"><circle class="bg" cx="54" cy="54" r="52" fill="none" stroke-width="5"/><circle class="fg" cx="54" cy="54" r="52" fill="none" stroke-width="5" stroke-linecap="round"/></svg>
+              <span class="hold-face"><i data-lucide="mic"></i><b>HOLD</b><small>1 sec</small></span>
+            </button>
+            <span class="hold-hint">Or double-tap the joystick thumb button</span>
+          </div>
+          <div class="rep-attach"><span class="ra-k">Sent with your report</span>
+            ${(() => { const sn = snapshot(); return [['user-round', 'Who', D.operator.name], ['truck', 'Machine', 'EXC001'], ['armchair', 'Belt', sn.belt], ['gauge', 'Engine', sn.engine], ['map-pin', 'Where', sn.place.split(',')[0]], ['activity', 'Doing', sn.state]].map(([ic, k, v]) => `<div><i data-lucide="${ic}"></i><span>${k}</span><b>${v}</b></div>`).join(''); })()}
           </div>` : `<div class="rep-pick">
             <div class="rp-step"><span class="${S.rep === 'what' ? 'on' : 'done'}">1</span>What happened?${S.rep !== 'what' ? ` <b>${S.rep}</b>` : ''}</div>
             ${S.rep === 'what' ? `<div class="rp-grid">${REP_TYPES.map(([t, ic]) => `<button type="button" data-rtype="${t}"><i data-lucide="${ic}"></i>${t}</button>`).join('')}</div>`
@@ -1356,7 +1362,7 @@
               <div class="rp-grid sev">${REP_SEV.map(([t, c]) => `<button type="button" class="${c}" data-rsev="${t}">${t}</button>`).join('')}</div>`}
             <button class="linkbtn" type="button" id="repCancel">Cancel</button>
           </div>`}
-          <div class="sync-box ${S.offline ? 'off' : ''}"><i data-lucide="${S.offline ? 'cloud-off' : 'cloud-check'}"></i><div><b>${S.offline ? 'No signal' : 'Connected'}</b><small>${S.offline ? `${S.pending} report${S.pending === 1 ? '' : 's'} saved on the tablet. They send when signal is back.` : 'Reports send straight away.'}</small></div></div>
+          <div class="sync-box ${S.offline ? 'off' : ''}"><span class="sb-ico"><i data-lucide="${S.offline ? 'wifi-off' : 'wifi'}"></i></span><div><b>${S.offline ? 'No signal' : 'Connected'}</b><small>${S.offline ? `${S.pending} report${S.pending === 1 ? '' : 's'} saved on the tablet. They send when signal is back.` : 'Reports send straight away.'}</small></div></div>
         </div>
       </div></div>`;
     bindHold(() => { S.rep = 'what'; renderIncidents(); icons(); });
@@ -2094,7 +2100,7 @@
     // only shown when something needs attention: no signal, or reports being sent
     c.hidden = !S.offline && !syncing;
     c.className = `tb-chip sync ${S.offline ? 'off' : syncing ? 'busy' : ''}`;
-    c.innerHTML = S.offline ? `<i data-lucide="cloud-off"></i>No signal · ${S.pending} waiting` : syncing ? `<i data-lucide="refresh-cw"></i>Sending ${syncing}…` : '<i data-lucide="cloud-check"></i>Saved';
+    c.innerHTML = S.offline ? `<i data-lucide="cloud-off"></i>No signal · ${S.pending} waiting` : syncing ? `<i data-lucide="refresh-cw"></i>Sending ${syncing}…` : '<i data-lucide="circle-check"></i>Saved';
     c.dataset.tip = S.offline ? 'Reports are saved on this tablet and send when signal is back.' : 'Everything is saved and sent.';
     icons();
   }
@@ -2104,7 +2110,7 @@
     if (!off && S.pending) {
       const n = S.pending;
       updateSync(n);
-      setTimeout(() => { S.incidents.forEach((x) => (x.synced = true)); S.pending = 0; saveIncidents(); updateSync(); toast(`${n} report${n === 1 ? '' : 's'} sent.`, 'cloud-check'); if (S.route === 'safety') go(S.routeArg ? 'safety/' + S.routeArg : 'safety'); }, 1400);
+      setTimeout(() => { S.incidents.forEach((x) => (x.synced = true)); S.pending = 0; saveIncidents(); updateSync(); toast(`${n} report${n === 1 ? '' : 's'} sent.`, 'circle-check'); if (S.route === 'safety') go(S.routeArg ? 'safety/' + S.routeArg : 'safety'); }, 1400);
     } else updateSync();
   }
 
