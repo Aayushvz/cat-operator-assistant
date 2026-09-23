@@ -2406,3 +2406,13 @@ html[data-theme="dark"] .hc-s.tool { border-color: rgba(255,205,17,.3); }
 @media (max-width: 760px) { .dl-msg b { font-size: 26px; } .dl-btn { min-height: 72px; } }
 .dl-svg { overflow: hidden; -webkit-mask: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); }
 .dl-far path { fill: rgba(255,255,255,.035); }
+
+/* Machine: next service on black */
+.mh-service { background: var(--panel); border-color: var(--panel); color: #F2F2EE; }
+.mh-service .eyebrow { color: rgba(255,255,255,.6); }
+.mh-svc-num small { color: rgba(255,255,255,.6); }
+.mh-svc-bar > div { background: rgba(255,255,255,.12); }
+.mh-svc-bar > span { color: rgba(255,255,255,.5); }
+.mh-service .btn.outline { background: transparent; color: #F2F2EE; border-color: rgba(255,255,255,.22); }
+@media (hover: hover) and (pointer: fine) { .mh-service .btn.outline:hover { background: rgba(255,255,255,.08); } }
+html[data-theme="dark"] .mh-service { border-color: var(--line); }
