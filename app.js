@@ -2341,6 +2341,7 @@
         <button class="glance" type="button" data-expand data-tip="<b>Seatbelt</b>" id="glBelt"><i data-lucide="armchair"></i><span class="dot" style="background:var(--ok)"></span></button>
         <button class="glance" type="button" data-expand data-tip="<b>Fault</b> · boom cylinder leaking"><i data-lucide="heart-pulse"></i><span class="dot" style="background:var(--crit)"></span></button>
         <button class="glance" type="button" data-expand data-tip="<b>${D.alerts.length} alerts</b> open"><i data-lucide="bell"></i><b>${D.alerts.length}</b><span class="dot" style="background:var(--crit)"></span></button>
+        <button class="panel-vlabel" type="button" data-expand aria-label="Show telemetry panel">Telemetry</button>
       </div>`;
     icons();
     countUp(rp);
@@ -2413,6 +2414,7 @@
     $('#tbAvatar').addEventListener('click', () => go('profile'));
     $('#toggleLeft').addEventListener('click', () => (isMobile() ? closeDrawers() : setPanels(!S.leftCollapsed, S.rightCollapsed, true)));
     $('#openNav').addEventListener('click', () => openDrawer('left'));
+    $('#expandLeft').addEventListener('click', () => setPanels(false, S.rightCollapsed, true));
     $('#openStatus').addEventListener('click', () => openDrawer('right'));
     $('#scrim').addEventListener('click', closeDrawers);
     $('#nav').addEventListener('click', () => { if (isMobile()) closeDrawers(); });

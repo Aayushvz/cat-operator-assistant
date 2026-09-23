@@ -2519,3 +2519,12 @@ html[data-theme="dark"] .btn.dark:hover { background: #363632; }
 .heat .cell.n { color: #5A5A56; }
 html[data-theme="dark"] .heat .cell.n { color: #B8B8B2; }
 :root { --t2: #5F5F5B; }
+
+/* collapsed panels: the panel name runs up the bottom of the strip; tap it to open the panel */
+.panel-vlabel { display: none; writing-mode: vertical-rl; transform: rotate(180deg); margin: auto auto 14px; padding: 10px 6px; border-radius: 8px;
+  font: 600 11px/1 var(--f-ui); letter-spacing: .22em; text-transform: uppercase; color: var(--t3); white-space: nowrap; flex: none;
+  transition: color 150ms ease, background-color 150ms ease; }
+@media (hover: hover) and (pointer: fine) { .panel-vlabel:hover { color: var(--text); background: var(--hover); } }
+.app.right-collapsed .panel.right .rp-strip { flex: 1; min-height: 0; }
+.app.right-collapsed .panel.right .panel-vlabel, .app.left-collapsed .panel.left .panel-vlabel { display: block; }
+@media (max-width: 760px) { .panel-vlabel { display: none !important; } }
