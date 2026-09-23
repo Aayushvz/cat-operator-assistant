@@ -2234,9 +2234,6 @@
      RIGHT PANEL: live status (collapses to a glance strip)
      ========================================================= */
   function renderRight() {
-    const est = D.tasks[1];
-    const skillAdd = est.est * (D.factors.skill[est.skill] - 1);
-    const rainAdd = est.est * D.factors.skill[est.skill] * (D.factors.weather[est.weather] - 1);
     const rp = $('#rightPanel');
     rp.innerHTML = `
       <div class="panel-head">
@@ -2245,42 +2242,30 @@
         <span class="rp-head-extra">Live</span>
       </div>
       <div class="rp-body">
-        <section class="rp-sec">
-          <div class="sec-head"><i data-lucide="timer"></i><h2>Current job</h2><span class="status-chip">Working</span></div>
-          <div class="eyebrow">Job 3 of 5 · Trenching</div>
-          <div class="eta" style="margin-top:10px"><b class="num">0</b><small>HR</small><b class="num" data-count="52">52</b><small>MIN</small></div>
-          <div class="eta-cap">Should take 48 to 56 min</div>
-          <div class="mini">
-            <div><span>Planned</span><b>45 min</b></div>
-            <div><span>Weather</span><b>Rainy</b></div>
-            <div><span>Your level</span><b>Intermediate</b></div>
-          </div>
-          <div class="range" data-tip="<b>31 min</b> elapsed · predicted 52 · planned 45">
-            <div class="range-track"></div>
-            <div class="range-band" style="left:${pct(48, 0, 60)}%;width:${pct(56, 0, 60) - pct(48, 0, 60)}%"></div>
-            <div class="range-fill" id="rangeFill" style="width:100%;transform:scaleX(0)"></div>
-            <span class="range-tick plan" style="left:${pct(45, 0, 60)}%"></span>
-            <span class="range-tick pred" style="left:${pct(52, 0, 60)}%"></span>
-          </div>
-          <div class="range-scale"><span>0</span><span>15</span><span>30</span><span>45</span><span>60 min</span></div>
-          <div class="factors"><span class="factor">+${Math.round(skillAdd)} min for experience</span><span class="factor">+${Math.round(rainAdd)} min for rain</span></div>
-          ${(() => { const r = ghostAt(D.LIVE); return r ? `<div class="rp-ghost"><i data-lucide="ghost"></i><span>vs your best time</span><b class="${r.delta > 0 ? 'behind' : 'ahead'}">${r.delta > 0 ? '+' : '-'}${mmss(r.delta)}</b></div>` : ''; })()}
-          <div class="stops">
-            <div class="stop"><i></i>Trench line, Zone B</div>
-            <div class="stop"><i class="hollow"></i>Dump point D2</div>
-          </div>
-          <button class="btn-ghost" type="button" data-go="tasks">See today's jobs <i data-lucide="chevron-right"></i></button>
+        ${(() => {
+          const { rows } = planDay();
+          const cur = rows.find((r) => r.state === 'active');
+          const left = cur ? Math.max(1, Math.round(cur.end - D.LIVE)) : 0;
+          const done = cur ? Math.min(100, Math.max(0, pct(D.LIVE, cur.start, cur.end))) : 0;
+          const g = ghostAt(D.LIVE);
+          return `<section class="rp-card rp-now">
+            <span class="rp-now-k"><i data-lucide="play"></i>Now</span>
+            <b class="rp-now-job">${cur ? cur.t.type : 'No job running'}</b>
+            ${cur ? `<span class="rp-now-left"><b class="num">${left}</b> min left</span>
+            <span class="rp-now-bar" aria-hidden="true"><i style="width:${done}%"></i></span>
+            <div class="rp-now-facts"><span><i data-lucide="map-pin"></i>${cur.zone}</span><span><i data-lucide="${WICON[cur.t.weather]}"></i>${cur.t.weather === 'Rainy' ? 'Rain' : cur.t.weather}</span>${g ? `<span class="${g.delta > 0 ? 'behind' : 'ahead'}"><i data-lucide="timer"></i>${g.delta > 0 ? '+' : '-'}${mmss(g.delta)}</span>` : ''}</div>` : ''}
+            <button class="rp-link" type="button" data-go="tasks">Today's jobs <i data-lucide="chevron-right"></i></button>
+          </section>`;
+        })()}
+        <section class="rp-card">
+          <div class="rp-h"><h2>Machine</h2><button class="rp-link" type="button" data-go="machine">Details <i data-lucide="chevron-right"></i></button></div>
+          ${D.health.filter((h) => h.st !== 'ok').map((h) => `<div class="rp-row ${h.st}"><i data-lucide="${h.icon}"></i><span>${h.name}</span><em>${h.label}</em></div>`).join('')}
+          <div class="rp-ok"><i data-lucide="circle-check"></i>${D.health.filter((h) => h.st === 'ok').map((h) => h.name).join(', ')} OK</div>
         </section>
-        <section class="rp-sec">
-          <div class="sec-head"><i data-lucide="heart-pulse"></i><h2>Machine health</h2><button class="link" type="button" data-go="machine">View all <i data-lucide="chevron-right"></i></button></div>
-          ${D.health.map((h) => `<div class="health-row"><i data-lucide="${h.icon}"></i><span>${h.name}</span><span class="st ${h.st}">${h.label}</span></div>`).join('')}
-        </section>
-        <section class="rp-sec">
-          <div class="sec-head"><i data-lucide="bell"></i><h2>Alerts</h2><span class="count">${D.alerts.length}</span><button class="link" type="button" data-go="safety/reports">View all <i data-lucide="chevron-right"></i></button></div>
+        <section class="rp-card">
+          <div class="rp-h"><h2>Alerts</h2><span class="rp-count">${D.alerts.length}</span><button class="rp-link" type="button" data-go="safety/reports">See all <i data-lucide="chevron-right"></i></button></div>
           <div class="alert-list" id="alertList">
-            ${D.alerts.map((a) => `
-              <div class="alert-row"><span class="a-ico ${a.tone}"><i data-lucide="${a.icon}"></i></span>
-                <div class="a-txt"><b>${a.title}</b><small>${a.time}</small></div></div>`).join('')}
+            ${D.alerts.slice(0, 3).map((a) => `<div class="rp-alert ${a.tone}"><i class="rp-dot"></i><b>${a.title.replace(/\. .*/, '')}</b><small>${a.time.startsWith('Today') ? a.time.slice(6) : a.time.split(' ').slice(0, 2).join(' ')}</small></div>`).join('')}
           </div>
         </section>
       </div>
@@ -2292,7 +2277,6 @@
       </div>`;
     icons();
     countUp(rp);
-    setTimeout(() => { const f = $('#rangeFill'); if (f) f.style.transform = `scaleX(${31 / 60})`; }, 120);
     rp.addEventListener('click', (e) => {
       const g = e.target.closest('[data-go]');
       if (g) { go(g.dataset.go); if (isMobile()) closeDrawers(); return; }
