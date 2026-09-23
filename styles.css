@@ -85,7 +85,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ============ Shell ============ */
 .app {
-  height: calc(100% - 24px);
+  height: 100%;
   min-height: 720px;
   background: var(--canvas);
   border-radius: 24px;
