@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="assets/cat-logo.png" />
+<title>Cat Operator Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Roboto+Condensed:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="tb-left">
+      <button class="icon-btn only-mobile" id="openNav" type="button" aria-label="Open navigation"><i data-lucide="menu"></i></button>
+      <img class="tb-logo" src="assets/cat-logo.png" alt="Cat" width="54" height="33" />
+      <span class="tb-product">Operator Assistant</span>
+      <span class="tb-sep" aria-hidden="true"></span>
+      <span class="tb-machine"><b>EXC001</b><span>320 Hydraulic Excavator</span></span>
+      <span class="tb-online">Online</span>
+    </div>
+    <div class="tb-right">
+      <span class="tb-chip"><i data-lucide="cloud-rain"></i>Rain · 24°C</span>
+      <span class="tb-chip num-chip"><i data-lucide="clock"></i><span id="clock">14:51</span></span>
+      <button class="icon-btn only-mobile" id="openStatus" type="button" aria-label="Open live status"><i data-lucide="activity"></i></button>
+      <button class="tb-avatar" id="tbAvatar" type="button" aria-label="Open profile and settings"><img src="assets/operator.jpg" alt="" width="36" height="36" /></button>
+      <button class="sos" id="sosBtn" type="button" aria-label="Hold for 1.5 seconds to send SOS">
+        <span class="sos-fill" aria-hidden="true"></span>
+        <span class="sos-content"><i data-lucide="siren"></i><b>SOS</b><small>Hold</small></span>
+      </button>
+    </div>
+  </header>
+
+  <aside class="panel left" id="leftPanel" aria-label="Main navigation">
+    <div class="panel-head">
+      <span class="panel-title">Navigation</span>
+      <button class="icon-btn" id="toggleLeft" type="button" aria-label="Collapse navigation" aria-expanded="true"><i data-lucide="panel-left-close"></i></button>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="panel-foot">
+      <button class="user" type="button" id="userBtn" data-tip-c="Aayush Raj · Profile" aria-label="Open profile and settings">
+        <img class="avatar" src="assets/operator.jpg" alt="" width="34" height="34" />
+        <span class="user-meta"><b>Aayush Raj</b><small>Operator · F2 Licence</small></span>
+        <i data-lucide="chevron-right"></i>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main" id="main"></main>
+
+  <aside class="panel right" id="rightPanel" aria-label="Live status"></aside>
+</div>
+<div class="scrim" id="scrim"></div>
+<div id="edgeGlow" aria-hidden="true"></div>
+<div id="tooltip" role="tooltip"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div class="sos-overlay" id="sosOverlay" role="alertdialog" aria-modal="true" aria-labelledby="sosTitle" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="data.js"></script>
+<script src="machine3d.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
