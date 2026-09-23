@@ -1751,7 +1751,7 @@ button, a, [role="button"], .dd-btn, .dd-opt, summary { touch-action: manipulati
 }
 @media (max-width: 760px) {
   /* sign-in: scrolls on short phones, compact header */
-  .login { place-items: center; overflow-y: auto; overscroll-behavior: contain; padding: max(24px, env(safe-area-inset-top, 0px)) 24px max(24px, env(safe-area-inset-bottom, 0px)); background: rgba(12, 12, 12, 0.95) !important; }
+  .login { place-items: center; overflow-y: auto; overscroll-behavior: contain; padding: max(24px, env(safe-area-inset-top, 0px)) 24px max(24px, env(safe-area-inset-bottom, 0px)); background: rgba(8, 8, 8, 0.8) !important; backdrop-filter: blur(24px) !important; -webkit-backdrop-filter: blur(24px) !important; }
   .login-card { margin: auto; transform: scale(0.85); transform-origin: center; width: 100%; border-radius: 28px !important; }
   .login-side { padding: 20px 20px 18px; gap: 4px; }
   .login-logo { width: 72px; margin-bottom: 10px; }
