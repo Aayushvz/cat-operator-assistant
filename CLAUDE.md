@@ -56,4 +56,4 @@ Hackathon prototype for "Smart Operator Assistant for CAT machinery". A cab tabl
 
 ## Not built
 
-No backend (the SRS's FastAPI and PostgreSQL), no real classification model (a baseline rule stands in), and motion detection is a switch.
+Backend is optional (see README): SQLite by default, PostgreSQL not hosted yet. Models are trained on sample data. Motion comes from the machine remote or a demo switch.
