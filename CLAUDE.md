@@ -52,7 +52,7 @@ Hackathon prototype for "Smart Operator Assistant for CAT machinery". A cab tabl
 ## Data rules
 
 - Real: the telemetry (4 rows) and the tasks (T001 to T005) from the brief, and the 7 Cat® Products YouTube video IDs.
-- Sample, and labelled as such: sensor values (hydraulic temperature, track wear, the boom fault), part-by-part readings, today's forecast, personal bests, earlier shift history, proximity events, the Backfill trench job (T006), other operators (Sarah George OP1002, Maneesh Ari OP1003) and machines.
+- Sample, and labelled as such: sensor values (hydraulic temperature, track wear, the boom fault), part-by-part readings, today's forecast, personal bests, earlier shift history, proximity events, the Backfill trench job (T006), other operators (Eleanor Whitfield OP1002, Oliver Bennett OP1003) and machines.
 - `assets/login-bg.jpg` (sign-in backdrop) is a photo the user supplied; replace it if its rights are ever in question.
 - Insights worth quoting: the belt came off during about an hour of waiting both times, so the risk is at restart; fuel per load up to 2.0 L (4× the 0.5 L normal); 71% of engine time idle between 08:00 and 10:00; 3.7 engine hours for a single load.
 

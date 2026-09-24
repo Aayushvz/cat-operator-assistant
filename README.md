@@ -20,7 +20,7 @@ Then open http://localhost:4173.
 ## Features
 
 ### Start of shift (SRS 3.1, 3.4)
-- **1. Who is driving**: pick an operator (Aayush Raj, Sarah George or Maneesh Ari); each shows their level (Beginner, Intermediate, Expert), which sets the job time estimates. Fleet managers open the fleet view from a quieter section at the bottom of the same screen.
+- **1. Who is driving**: pick an operator (Aayush Raj, Eleanor Whitfield or Oliver Bennett); each shows their level (Beginner, Intermediate, Expert), which sets the job time estimates. Fleet managers open the fleet view from a quieter section at the bottom of the same screen.
 - **2. PIN**: PIN pad with large keys for gloved hands, or "Scan ID badge".
 - **3. Belt on, start**: the engine stays locked until the seatbelt is on. A blocked start is logged as a report. Walk-around checks are offered before starting. With the backend running, the belt comes from the machine.
 - Then the main screen opens. Every report is tied to the operator and machine. Sign out from the profile.
@@ -80,7 +80,7 @@ Then open http://localhost:4173.
 
 ## Data
 
-All numbers come from the two datasets in the problem statement (4 telemetry snapshots for EXC001 and 5 completed tasks), in `data.js`. Values the brief lets us assume are marked as sample data in the code: sensor readings such as hydraulic temperature and track wear, the part-by-part readings over the last 10 shifts, today's site forecast, personal-best times, the boom fault, earlier shift history, proximity events, one extra job (Backfill trench), and the other operators (Sarah George, Maneesh Ari) and machines in the fleet view.
+All numbers come from the two datasets in the problem statement (4 telemetry snapshots for EXC001 and 5 completed tasks), in `data.js`. Values the brief lets us assume are marked as sample data in the code: sensor readings such as hydraulic temperature and track wear, the part-by-part readings over the last 10 shifts, today's site forecast, personal-best times, the boom fault, earlier shift history, proximity events, one extra job (Backfill trench), and the other operators (Eleanor Whitfield, Oliver Bennett) and machines in the fleet view.
 
 ## Not built (prototype limits)
 
